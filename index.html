@@ -47,10 +47,9 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 .ph{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .ua{width:48px;height:48px;border-radius:50%;border:3px solid var(--g);overflow:hidden;flex-shrink:0}
 .ua img{width:100%;height:100%;object-fit:cover}.ua.p{background:linear-gradient(135deg,var(--g),var(--gl));display:flex;align-items:center;justify-content:center;color:#000;font-size:22px}
-.ui{flex:1}.un{color:var(--g);font-weight:800;font-size:15px}.ut{color:#666;font-size:12px}.pt{color:#fff;font-size:17px;font-weight:700;margin-bottom:10px}.pco{color:#ccc;font-size:14px;line-height:1.7;margin-bottom:12px}.pco.t{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.rm{background:0 0;border:0;color:var(--g);font-weight:700;cursor:pointer;padding:5px 0}
-.pa{display:flex;gap:15px;padding-top:12px;border-top:1px solid var(--b);flex-wrap:wrap}
+.ui{flex:1}.un{color:var(--g);font-weight:800;font-size:15px}.ut{color:#666;font-size:12px}.pt{color:#fff;font-size:17px;font-weight:700;margin-bottom:10px}.pco{color:#ccc;font-size:14px;line-height:1.7;margin-bottom:12px}.pco.t{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.rm{background:0 0;border:0;color:var(--g);font-weight:700;cursor:pointer;padding:5px 0}.pa{display:flex;gap:15px;padding-top:12px;border-top:1px solid var(--b);flex-wrap:wrap}
 .abn{background:0 0;border:0;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;padding:6px 10px;border-radius:8px;transition:.3s}
-.abn:hover{background:rgba(255,255,255,.05)}.abn.l{color:var(--r)}.abn.rp:hover{color:#e67e22;background:rgba(230,126,34,.1)}.abn.dl:hover{color:var(--r);background:rgba(231,76,60,.1)}
+.abn:hover{background:rgba(255,255,255,.05)}.abn.l{color:var(--r)}.abn.rp:hover{color:#e67e22;background:rgba(230,126,34,.1)}.abn.dl:hover{color:var(--r);background:rgba(231,76,60,.1)}.abn.pin:hover{color:var(--bl);background:rgba(52,152,219,.1)}
 .cs{margin-top:12px;padding-top:12px;border-top:1px solid var(--b);display:none}.cs.o{display:block}
 .ciw{display:flex;gap:8px;margin-bottom:12px}.ci{flex:1;background:#000;border:1px solid var(--b);border-radius:20px;padding:8px 14px;color:#fff}
 .csb{background:var(--g);border:0;width:36px;height:36px;border-radius:50%;cursor:pointer;color:#000}
@@ -94,8 +93,10 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 @keyframes sp{to{transform:rotate(360deg)}}
 .vbox{background:rgba(212,175,55,.1);border:2px solid var(--g);border-radius:15px;padding:20px;text-align:center;margin-bottom:20px}
 .vbox i{font-size:40px;color:var(--g);margin-bottom:10px}.vbox .bm{background:var(--r);margin-top:10px}@media(max-width:600px){.sgr,.igr{grid-template-columns:1fr}.fb{width:55px;height:55px;bottom:20px;right:20px}.pa{gap:10px}}
-</style>
-</head><body>
+.pin-badge{position:absolute;top:10px;right:10px;background:var(--bl);color:#fff;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px}
+.back-btn{position:fixed;top:20px;left:20px;background:var(--c);border:2px solid var(--g);color:var(--g);width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;z-index:95;transition:.3s}
+.back-btn:hover{background:var(--g);color:#000;transform:translateX(-3px)}
+</style></head><body>
 <div class="h"><div class="hi"><div class="lo" onclick="nav('fm')"><i class="fas fa-mosque"></i> منابر الهدى</div>
 <div class="nb" id="nb"></div></div></div>
 
@@ -144,8 +145,9 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 <div id="pg-fm" class="pg a">
 <div id="ts"></div><div id="pl"><div class="ld"><i class="fas fa-spinner"></i><p>جاري التحميل...</p></div></div>
 <button class="fb" id="fb" style="display:none" onclick="opm()"><i class="fas fa-feather-pointed"></i></button></div>
-<!-- صفحة البروفايل -->
-<div id="pg-pr" class="pg"><div class="prc">
+<!-- صفحة البروفايل --><div id="pg-pr" class="pg">
+<button class="back-btn" onclick="nav('fm')"><i class="fas fa-arrow-right"></i></button>
+<div class="prc">
 <div class="prp p" id="pav"><i class="fas fa-user"></i><div class="edit-ico" onclick="editPhoto()"><i class="fas fa-camera"></i></div></div>
 <div class="prn" id="pnm">جاري التحميل...</div><div class="pre" id="pem"></div><div id="pbd"></div>
 <div class="sgr">
@@ -192,8 +194,7 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 <div class="mdt">✏️ تعديل البروفايل</div>
 <div class="fg"><label>الاسم الكامل</label><input type="text" id="ed-name" class="fi"></div><div class="fg"><label>العمر</label><input type="number" id="ed-age" class="fi" min="10" max="99"></div>
 <div class="fg"><label>الجنس</label><div class="gs"><div class="go" id="ed-male" onclick="selEditGender('male')">ذكر</div>
-<div class="go" id="ed-female" onclick="selEditGender('female')">أنثى</div>
-</div><input type="hidden" id="ed-gender"></div>
+<div class="go" id="ed-female" onclick="selEditGender('female')">أنثى</div></div><input type="hidden" id="ed-gender"></div>
 <div class="fg"><label>الصورة الشخصية</label><div class="pu" onclick="document.getElementById('ed-photo').click()">
 <div class="pp" id="ed-prev"><img id="ed-img" src=""></div>
 <i class="fas fa-camera" style="font-size:20px;color:var(--g)"></i>
@@ -242,8 +243,7 @@ firebase.auth().onAuthStateChanged(async(us)=>{u=us;if(us){try{if(!us.emailVerif
 function at(t){document.querySelectorAll('.atb').forEach(x=>x.classList.remove('a'));document.querySelectorAll('.af').forEach(x=>x.classList.remove('a'));if(t==='in'){document.querySelector('.atb:nth-child(1)').classList.add('a');document.getElementById('fm-in').classList.add('a');}else if(t==='rg'){document.querySelector('.atb:nth-child(2)').classList.add('a');document.getElementById('fm-rg').classList.add('a');}else if(t==='ver'){document.getElementById('fm-ver').classList.add('a');}hm();}
 function sm(t,y){const m=document.getElementById('ms');m.className='ms '+(y==='e'?'e':'o');m.textContent=t;m.style.display='block';setTimeout(()=>m.style.display='none',4000);}function hm(){document.getElementById('ms').style.display='none';}
 
-async function lg(){const e=document.getElementById('ie').value.trim(),p=document.getElementById('ip').value;if(!e||!p)return sm('أدخل البريد وكلمة المرور','e');try{await firebase.auth().setPersistence(document.getElementById('rm').checked?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);await firebase.auth().signInWithEmailAndPassword(e,p);}catch(er){sm('خطأ: '+er.message,'e');}}
-async function rgs(){const e=document.getElementById('re').value.trim(),p=document.getElementById('rpw').value,cp=document.getElementById('rcpw').value;if(p!==cp)return sm('كلمات المرور غير متطابقة','e');if(p.length<6)return sm('كلمة المرور قصيرة','e');if(!e.includes('@gmail.com'))return sm('يرجى استخدام بريد Gmail','e');const b=document.getElementById('rb');b.disabled=true;b.textContent='جاري الإنشاء...';try{const cr=await firebase.auth().createUserWithEmailAndPassword(e,p);await cr.user.sendEmailVerification({url:window.location.href});await firebase.database().ref('users/'+cr.user.uid).set({fullname:'مستخدم جديد',email:e,gender:'male',age:18,photoURL:null,createdAt:Date.now(),isAdmin:e===OWNER_EMAIL,role:e===OWNER_EMAIL?'admin':'user',isModerator:false,isBanned:false,emailVerified:false});sm('تم إنشاء الحساب! تحقق من بريدك','o');setTimeout(()=>{at('ver');document.getElementById('ver-email').textContent=e;},1500);}catch(er){sm('خطأ: '+er.message,'e');b.disabled=false;b.textContent='إنشاء الحساب';}}
+async function lg(){const e=document.getElementById('ie').value.trim(),p=document.getElementById('ip').value;if(!e||!p)return sm('أدخل البريد وكلمة المرور','e');try{await firebase.auth().setPersistence(document.getElementById('rm').checked?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);await firebase.auth().signInWithEmailAndPassword(e,p);}catch(er){sm('خطأ: '+er.message,'e');}}async function rgs(){const e=document.getElementById('re').value.trim(),p=document.getElementById('rpw').value,cp=document.getElementById('rcpw').value;if(p!==cp)return sm('كلمات المرور غير متطابقة','e');if(p.length<6)return sm('كلمة المرور قصيرة','e');if(!e.includes('@gmail.com'))return sm('يرجى استخدام بريد Gmail','e');const b=document.getElementById('rb');b.disabled=true;b.textContent='جاري الإنشاء...';try{const cr=await firebase.auth().createUserWithEmailAndPassword(e,p);await cr.user.sendEmailVerification({url:window.location.href});await firebase.database().ref('users/'+cr.user.uid).set({fullname:'مستخدم جديد',email:e,gender:'male',age:18,photoURL:null,createdAt:Date.now(),isAdmin:e===OWNER_EMAIL,role:e===OWNER_EMAIL?'admin':'user',isModerator:false,isBanned:false,emailVerified:false});sm('تم إنشاء الحساب! تحقق من بريدك','o');setTimeout(()=>{at('ver');document.getElementById('ver-email').textContent=e;},1500);}catch(er){sm('خطأ: '+er.message,'e');b.disabled=false;b.textContent='إنشاء الحساب';}}
 async function checkVer(){await u.reload();if(u.emailVerified){await firebase.database().ref('users/'+u.uid).update({emailVerified:true});showAlert('تم تأكيد بريدك بنجاح! 🎉','✅');setTimeout(()=>nav('fm'),1500);}else{showAlert('لم يتم تأكيد البريد بعد','⚠️');}}
 async function resendVer(){try{await u.sendEmailVerification({url:window.location.href});showAlert('تم إعادة إرسال الرابط ✉️','✅');}catch(er){showAlert('خطأ: '+er.message,'❌');}}
 
@@ -292,8 +292,7 @@ async function copyPostText(title,content,postId){
         }
         document.body.removeChild(textArea);    }
 }
-// ✅ دالة تحميل المنتدى المحسّنة
-async function lfm(){
+// ✅ دالة تحميل المنتدى المحسّنةasync function lfm(){
     const pl=document.getElementById('pl');
     const ts=document.getElementById('ts');
     
@@ -310,25 +309,41 @@ async function lfm(){
             }
         });
         
-        // ترتيب تنازلي (الأحدث أولاً)
-        posts.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+        // فصل المنشورات المثبتة عن العادية
+        const pinned=posts.filter(p=>p.pinned===true);
+        const normal=posts.filter(p=>p.pinned!==true);
         
-        const trending=posts.filter(p=>(p.likeCount||0)>=200);
-        const normal=posts.filter(p=>(p.likeCount||0)<200);
+        // ترتيب المنشورات المثبتة حسب وقت التثبيت
+        pinned.sort((a,b)=>(b.pinnedAt||0)-(a.pinnedAt||0));
+        
+        // ترتيب المنشورات العادية تنازلياً (الأحدث أولاً)
+        normal.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
         
         // عرض المحتوى الرائج
-        if(trending.length>0){
-            let html='<div class="tb"><div class="th"><i class="fas fa-fire"></i> المحتوى الرائج <span class="tba">200+ إعجاب</span></div>';
-            trending.forEach(p=>html+=mp(p,true));
+        const trending=normal.filter(p=>(p.likeCount||0)>=200);
+        const rest=normal.filter(p=>(p.likeCount||0)<200);
+        
+        // عرض المنشورات المثبتة أولاً
+        if(pinned.length>0){
+            let html='<div class="tb" style="border-color:var(--bl);background:linear-gradient(135deg,rgba(52,152,219,.15),rgba(212,175,55,.1))"><div class="th" style="color:var(--bl)"><i class="fas fa-thumbtack"></i> المنشورات المثبتة</div>';
+            pinned.forEach(p=>html+=mp(p,false,true));
             html+='</div>';
             ts.innerHTML=html;
         }else{
             ts.innerHTML='';
         }
         
-        // عرض المنشورات العادية
-        if(normal.length>0){
-            pl.innerHTML=normal.map(p=>mp(p)).join('');
+        // عرض المحتوى الرائج
+        if(trending.length>0){
+            let html='<div class="tb"><div class="th"><i class="fas fa-fire"></i> المحتوى الرائج <span class="tba">200+ إعجاب</span></div>';
+            trending.forEach(p=>html+=mp(p,true));
+            html+='</div>';
+            if(ts.innerHTML)ts.innerHTML+=html;
+            else ts.innerHTML=html;
+        }
+                // عرض المنشورات العادية
+        if(rest.length>0){
+            pl.innerHTML=rest.map(p=>mp(p)).join('');
         }else{
             pl.innerHTML='<div class="em"><i class="fas fa-inbox"></i><h3>لا توجد مشاركات</h3><p>كن أول من يشارك</p></div>';
         }
@@ -338,11 +353,13 @@ async function lfm(){
         pl.innerHTML='<div class="em" style="color:var(--r)"><i class="fas fa-exclamation-triangle"></i><h3>خطأ في التحميل</h3><p>'+err.message+'</p></div>';
     }
 }
-// ✅ دالة عرض المنشور مع زر النسخ
-function mp(p,rt=false){
+// ✅ دالة عرض المنشور مع زر النسخ والتثبيت
+function mp(p,rt=false,pinned=false){
     const liked=p.likes&&u&&p.likes[u.uid];
     const lc=p.likeCount||0;    const cc=p.commentCount||0;
-    const avatar=p.authorPhoto?`<img src="${p.authorPhoto}">`:'<i class="fas fa-user"></i>';
+    // ✅ إصلاح عرض الصورة - التأكد من وجود الصورة
+    const hasPhoto=p.authorPhoto&&p.authorPhoto.trim()!=='';
+    const avatar=hasPhoto?`<img src="${p.authorPhoto}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';this.parentElement.classList.add('p')">`:'<i class="fas fa-user"></i>';
     const content=p.content||'';
     const isLong=content.length>200;
     const display=isLong?content.substring(0,200)+'...':content;
@@ -351,8 +368,8 @@ function mp(p,rt=false){
     const escapedContent=content.replace(/'/g,"\\'").replace(/"/g,'"').replace(/\n/g,'\\n');
     const escapedTitle=(p.title||'').replace(/'/g,"\\'").replace(/"/g,'"');
     
-    return`<div class="pc" data-id="${p.id}">${rt?'<div style="position:absolute;top:10px;left:10px;background:var(--r);color:#fff;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700">🔥 رائج</div>':''}
-    <div class="ph"><div class="ua ${p.authorPhoto?'':'p'}">${avatar}</div><div class="ui"><div class="un">${p.authorName||'عضو'}</div><div class="ut">${ta(p.timestamp)}</div></div></div>
+    return`<div class="pc" data-id="${p.id}" data-post-id="${p.id}">${pinned?'<div class="pin-badge"><i class="fas fa-thumbtack"></i> مثبت</div>':''}${rt?'<div style="position:absolute;top:10px;left:10px;background:var(--r);color:#fff;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700">🔥 رائج</div>':''}
+    <div class="ph"><div class="ua ${hasPhoto?'':'p'}">${avatar}</div><div class="ui"><div class="un">${p.authorName||'عضو'}</div><div class="ut">${ta(p.timestamp)}</div></div></div>
     <div class="pt">${p.title}</div><div class="pco ${isLong?'t':''}" id="c-${p.id}">${display}</div>
     ${isLong?`<button class="rm" onclick="trm('${p.id}')">قراءة المزيد</button>`:''}
     <div class="pa">
@@ -360,6 +377,7 @@ function mp(p,rt=false){
         <button class="abn" onclick="tcm('${p.id}')"><i class="far fa-comment"></i> <span>${cc}</span></button>
         <button class="abn copy-btn" onclick="copyPostText('${escapedTitle}','${escapedContent}','${p.id}')"><i class="far fa-copy"></i> نسخ</button>
         ${u&&u.uid!==p.authorId?`<button class="abn rp" onclick="rpt('${p.id}')"><i class="fas fa-flag"></i> بلاغ</button>`:''}
+        ${(isOwner||isMod)?`<button class="abn pin" onclick="togglePin('${p.id}',${!p.pinned})"><i class="fas fa-${p.pinned?'unlink':'thumbtack'}"></i> ${p.pinned?'إلغاء تثبيت':'تثبيت'}</button>`:''}
         ${(isOwner||isMod)?`<button class="abn dl" onclick="dlt('${p.id}')"><i class="fas fa-trash"></i> حذف</button>`:''}
     </div>
     <div class="cs" id="cm-${p.id}"><div class="ciw"><input class="ci" id="ci-${p.id}" placeholder="تعليق..." onkeypress="if(event.key==='Enter')acm('${p.id}')"><button class="csb" onclick="acm('${p.id}')"><i class="fas fa-paper-plane"></i></button></div><div id="cl-${p.id}"></div></div></div>`;
@@ -372,9 +390,25 @@ function tlk(id){if(!u)return nav('au');const pr=firebase.database().ref('posts/
 function tcm(id){const sec=document.getElementById('cm-'+id);sec.classList.toggle('o');if(sec.classList.contains('o'))lcm(id);}
 
 function lcm(id){const el=document.getElementById('cl-'+id);firebase.database().ref('posts/'+id+'/comments').orderByChild('timestamp').once('value').then(s=>{let h='';s.forEach(ch=>{const c=ch.val();h+=`<div class="cit"><div class="ch"><span class="ca">${c.authorName||'عضو'}</span><span class="ct">${ta(c.timestamp)}</span></div><div class="ctx">${c.text}</div></div>`;});el.innerHTML=h||'<div style="text-align:center;color:#666;padding:10px">لا توجد تعليقات</div>';});}
-
 function acm(id){if(!u)return nav('au');const inp=document.getElementById('ci-'+id),txt=inp.value.trim();if(!txt)return;firebase.database().ref('posts/'+id+'/comments').push({text:txt,authorId:u.uid,authorName:ud?ud.fullname:'عضو',timestamp:Date.now()}).then(()=>{firebase.database().ref('posts/'+id+'/commentCount').transaction(c=>(c||0)+1);inp.value='';lcm(id);});}
 function rpt(id){if(!u)return nav('au');showConfirm('هل تريد الإبلاغ؟',()=>{firebase.database().ref('reports').push({postId:id,reporterId:u.uid,reporterName:ud?ud.fullname:'عضو',timestamp:Date.now(),status:'pending'}).then(()=>showAlert('تم إرسال البلاغ','✅'));});}
+
+// ✅ دالة التثبيت/إلغاء التثبيت
+async function togglePin(id,pin){
+    if(!isOwner&&!isMod)return;
+    
+    const updates={pinned:pin};
+    if(pin)updates.pinnedAt=Date.now();
+    
+    try{
+        await firebase.database().ref('posts/'+id).update(updates);
+        showAlert(pin?'تم تثبيت المنشور 📌':'تم إلغاء التثبيت','✅');
+        await lfm();
+    }catch(err){
+        console.error('Pin Error:',err);
+        showAlert('خطأ: '+err.message,'❌');
+    }
+}
 
 // ✅ دالة الحذف المحسّنة
 async function dlt(id){
@@ -405,8 +439,7 @@ async function pbp(){
     btn.textContent='جاري النشر...';
     
     try{
-        if(!u){
-            showAlert('يجب تسجيل الدخول أولاً','⚠️');
+        if(!u){            showAlert('يجب تسجيل الدخول أولاً','⚠️');
             btn.disabled=false;
             btn.textContent='نشر';
             return;
@@ -420,7 +453,8 @@ async function pbp(){
             authorPhoto:(ud&&ud.photoURL)?ud.photoURL:null,
             timestamp:Date.now(),
             likeCount:0,
-            commentCount:0
+            commentCount:0,
+            pinned:false
         };        
         await firebase.database().ref('posts').push(newPost);
         
@@ -454,12 +488,11 @@ async function lpr(){
         
         const displayName=(ud&&ud.fullname)?ud.fullname:'مستخدم';
         const displayEmail=(ud&&ud.email)?ud.email:(u.email||'');
-        
-        document.getElementById('pnm').textContent=displayName;
+                document.getElementById('pnm').textContent=displayName;
         document.getElementById('pem').textContent=displayEmail;
         
         let badge='';
-        if(ud&&ud.isAdmin)badge='<span class="bd bda">مدير</span>';
+        if(ud&&ud.isAdmin)badge='<span class="bd bda">أدمن</span>';
         else if(ud&&ud.isModerator)badge='<span class="bd bdm">مشرف</span>';
         else badge='<span class="bd bdu">عضو</span>';
         document.getElementById('pbd').innerHTML=badge;
@@ -504,8 +537,7 @@ function ep(){if(!ud){showAlert('جاري التحميل...','⚠️');return;}d
 function closeEdit(){document.getElementById('md-edit').classList.remove('o');editImg=null;}
 function selEditGender(g){editGen=g;document.querySelectorAll('#md-edit .go').forEach(o=>o.classList.remove('s'));document.getElementById('ed-'+g).classList.add('s');document.getElementById('ed-gender').value=g;}
 
-// ✅ دالة معالجة الصورة المختارة - محسّنة
-function prevEditPhoto(inp){
+// ✅ دالة معالجة الصورة المختارة - محسّنةfunction prevEditPhoto(inp){
     console.log('📸 Photo input changed:',inp.files);
     
     if(inp.files&&inp.files[0]){
@@ -554,8 +586,7 @@ function editPhoto(){
         fileInput.onchange=prevEditPhoto;
         document.body.appendChild(fileInput);
     }
-    
-    // ✅ طلب الإذن صراحةً
+        // ✅ طلب الإذن صراحةً
     fileInput.accept='image/*';
     fileInput.click();
     
@@ -604,8 +635,7 @@ async function saveProfile(){
             age:parseInt(age),
             gender:gender,
             photoURL:photoURL,
-            updatedAt:Date.now()
-        };
+            updatedAt:Date.now()        };
         
         // إزالة القيم undefined
         Object.keys(updates).forEach(key=>{
@@ -637,7 +667,7 @@ async function saveProfile(){
 // Admin Functions
 async function lad(){if(!isOwner&&!isMod)return nav('fm');const uSn=await firebase.database().ref('users').once('value'),pSn=await firebase.database().ref('posts').once('value'),rSn=await firebase.database().ref('reports').once('value');let uc=0,mc=0;uSn.forEach(ch=>{uc++;if(ch.val().isModerator)mc++;});let rc=0;rSn.forEach(ch=>{if(ch.val().status==='pending')rc++;});document.getElementById('au').textContent=uc;document.getElementById('ap').textContent=pSn.size;document.getElementById('ar').textContent=rc;document.getElementById('am').textContent=mc;lrp();lus();lmd();}function adt(t){document.querySelectorAll('.atb2').forEach(b=>b.classList.remove('a'));document.querySelectorAll('.ase').forEach(s=>s.classList.remove('a'));event.target.classList.add('a');document.getElementById('ad-'+t).classList.add('a');}
 async function lrp(){const el=document.getElementById('ad-rp'),sn=await firebase.database().ref('reports').orderByChild('timestamp').once('value');let h='';sn.forEach(ch=>{const r=ch.val(),st=r.status==='pending'?'<span style="color:#f39c12">معلق</span>':'<span style="color:#27ae60">تم الحل</span>';h+=`<div class="ac"><div class="ai"><div class="an">${r.reporterName||'مجهول'} ${st}</div><div class="ae">منشور: ${r.postId}</div><div class="ad">${new Date(r.timestamp).toLocaleString('ar-SA')}</div></div>${r.status==='pending'?`<button class="bsm bsd" onclick="drp('${r.postId}','${ch.key}')">حذف</button><button class="bsm bss" onclick="rrp('${ch.key}')">حل</button>`:''}</div>`;});el.innerHTML=h||'<div class="em"><i class="fas fa-check-circle"></i><h3>لا توجد بلاغات</h3></div>';}
-async function lus(){const el=document.getElementById('ad-us'),sn=await firebase.database().ref('users').once('value');let h='';sn.forEach(ch=>{const us=ch.val(),uid=ch.key;let bg='';if(us.isAdmin)bg+='<span class="bd bda">مدير</span>';if(us.isModerator)bg+='<span class="bd bdm">مشرف</span>';if(us.isBanned)bg+='<span class="bd" style="background:#555">محظور</span>';const av=us.photoURL?`<img src="${us.photoURL}">`:'<i class="fas fa-user"></i>';h+=`<div class="ac"><div class="aav ${us.photoURL?'':'p'}">${av}</div><div class="ai"><div class="an">${us.fullname} ${bg}</div><div class="ae">${us.email}</div><div class="ad">${us.gender==='male'?'ذكر':'أنثى'} | ${us.age} سنة</div></div>${isOwner&&uid!==u.uid?`<button class="bsm ${us.isBanned?'bss':'bsd'}" onclick="tgb('${uid}',${!us.isBanned})">${us.isBanned?'فك حظر':'حظر'}</button>`:''}</div>`;});el.innerHTML=h;}
+async function lus(){const el=document.getElementById('ad-us'),sn=await firebase.database().ref('users').once('value');let h='';sn.forEach(ch=>{const us=ch.val(),uid=ch.key;let bg='';if(us.isAdmin)bg+='<span class="bd bda">أدمن</span>';if(us.isModerator)bg+='<span class="bd bdm">مشرف</span>';if(us.isBanned)bg+='<span class="bd" style="background:#555">محظور</span>';const av=us.photoURL?`<img src="${us.photoURL}">`:'<i class="fas fa-user"></i>';h+=`<div class="ac"><div class="aav ${us.photoURL?'':'p'}">${av}</div><div class="ai"><div class="an">${us.fullname} ${bg}</div><div class="ae">${us.email}</div><div class="ad">${us.gender==='male'?'ذكر':'أنثى'} | ${us.age} سنة</div></div>${isOwner&&uid!==u.uid?`<button class="bsm ${us.isBanned?'bss':'bsd'}" onclick="tgb('${uid}',${!us.isBanned})">${us.isBanned?'فك حظر':'حظر'}</button>`:''}</div>`;});el.innerHTML=h;}
 async function lmd(){const el=document.getElementById('ad-md'),sn=await firebase.database().ref('users').orderByChild('isModerator').equalTo(true).once('value');let h='';sn.forEach(ch=>{const us=ch.val(),uid=ch.key;const av=us.photoURL?`<img src="${us.photoURL}">`:'<i class="fas fa-user"></i>';h+=`<div class="ac"><div class="aav ${us.photoURL?'':'p'}">${av}</div><div class="ai"><div class="an">${us.fullname}</div><div class="ae">${us.email}</div></div>${isOwner?`<button class="bsm bsw" onclick="rmd('${uid}')">إزالة</button>`:''}</div>`;});if(isOwner)h+=`<div style="margin-top:20px;padding:15px;background:#0a0a0a;border-radius:12px;display:flex;gap:10px;flex-wrap:wrap"><input type="email" id="nmd" placeholder="بريد المشرف" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--b);background:#111;color:#fff;min-width:150px"><button class="bsm bsi" onclick="amd()">تعيين</button></div>`;el.innerHTML=h||'<div class="em"><i class="fas fa-user-shield"></i><h3>لا يوجد مشرفين</h3></div>';}
 async function drp(pid,rid){showConfirm('حذف المنشور وحل البلاغ؟',()=>{firebase.database().ref('posts/'+pid).remove();firebase.database().ref('reports/'+rid).update({status:'resolved'});lad();showAlert('تم الحذف','✅');});}async function rrp(rid){firebase.database().ref('reports/'+rid).update({status:'resolved'});lad();showAlert('تم الحل','✅');}
 async function tgb(uid,ban){if(!isOwner)return;const msg=ban?'حظر':'فك حظر';showConfirm('هل تريد '+msg+' هذا المستخدم؟',()=>{firebase.database().ref('users/'+uid).update({isBanned:ban}).then(()=>{lad();showAlert('تم '+msg,'✅');});});}
@@ -654,8 +684,7 @@ document.getElementById('md-alert').addEventListener('click',e=>{if(e.target.id=
 document.getElementById('md-edit').addEventListener('click',e=>{if(e.target.id==='md-edit')closeEdit();});
 
 // إضافة عنصر رفع الصور إذا لم يكن موجوداً
-document.addEventListener('DOMContentLoaded',function(){
-    if(!document.getElementById('ed-photo')){
+document.addEventListener('DOMContentLoaded',function(){    if(!document.getElementById('ed-photo')){
         const input=document.createElement('input');
         input.type='file';
         input.id='ed-photo';
