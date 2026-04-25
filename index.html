@@ -47,8 +47,7 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 .ph{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .ua{width:48px;height:48px;border-radius:50%;border:3px solid var(--g);overflow:hidden;flex-shrink:0}
 .ua img{width:100%;height:100%;object-fit:cover}.ua.p{background:linear-gradient(135deg,var(--g),var(--gl));display:flex;align-items:center;justify-content:center;color:#000;font-size:22px}
-.ui{flex:1}.un{color:var(--g);font-weight:800;font-size:15px}.ut{color:#666;font-size:12px}.pt{color:#fff;font-size:17px;font-weight:700;margin-bottom:10px}.pco{color:#ccc;font-size:14px;line-height:1.7;margin-bottom:12px}.pco.t{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.rm{background:0 0;border:0;color:var(--g);font-weight:700;cursor:pointer;padding:5px 0}.pa{display:flex;gap:15px;padding-top:12px;border-top:1px solid var(--b);flex-wrap:wrap}
-.abn{background:0 0;border:0;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;padding:6px 10px;border-radius:8px;transition:.3s}
+.ui{flex:1}.un{color:var(--g);font-weight:800;font-size:15px}.ut{color:#666;font-size:12px}.pt{color:#fff;font-size:17px;font-weight:700;margin-bottom:10px}.pco{color:#ccc;font-size:14px;line-height:1.7;margin-bottom:12px}.pco.t{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.rm{background:0 0;border:0;color:var(--g);font-weight:700;cursor:pointer;padding:5px 0}.pa{display:flex;gap:15px;padding-top:12px;border-top:1px solid var(--b);flex-wrap:wrap}.abn{background:0 0;border:0;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;padding:6px 10px;border-radius:8px;transition:.3s}
 .abn:hover{background:rgba(255,255,255,.05)}.abn.l{color:var(--r)}.abn.rp:hover{color:#e67e22;background:rgba(230,126,34,.1)}.abn.dl:hover{color:var(--r);background:rgba(231,76,60,.1)}.abn.pin:hover{color:var(--bl);background:rgba(52,152,219,.1)}
 .cs{margin-top:12px;padding-top:12px;border-top:1px solid var(--b);display:none}.cs.o{display:block}
 .ciw{display:flex;gap:8px;margin-bottom:12px}.ci{flex:1;background:#000;border:1px solid var(--b);border-radius:20px;padding:8px 14px;color:#fff}
@@ -97,8 +96,7 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 .back-btn{position:fixed;top:20px;left:20px;background:var(--c);border:2px solid var(--g);color:var(--g);width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;z-index:95;transition:.3s}
 .back-btn:hover{background:var(--g);color:#000;transform:translateX(-3px)}
 </style></head><body>
-<div class="h"><div class="hi"><div class="lo" onclick="nav('fm')"><i class="fas fa-mosque"></i> منابر الهدى</div>
-<div class="nb" id="nb"></div></div></div>
+<div class="h"><div class="hi"><div class="lo" onclick="nav('fm')"><i class="fas fa-mosque"></i> منابر الهدى</div><div class="nb" id="nb"></div></div></div>
 
 <!-- صفحة المصادقة -->
 <div id="pg-au" class="pg"><div class="ab">
@@ -147,8 +145,7 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 <button class="fb" id="fb" style="display:none" onclick="opm()"><i class="fas fa-feather-pointed"></i></button></div>
 <!-- صفحة البروفايل --><div id="pg-pr" class="pg">
 <button class="back-btn" onclick="nav('fm')"><i class="fas fa-arrow-right"></i></button>
-<div class="prc">
-<div class="prp p" id="pav"><i class="fas fa-user"></i><div class="edit-ico" onclick="editPhoto()"><i class="fas fa-camera"></i></div></div>
+<div class="prc"><div class="prp p" id="pav"><i class="fas fa-user"></i><div class="edit-ico" onclick="editPhoto()"><i class="fas fa-camera"></i></div></div>
 <div class="prn" id="pnm">جاري التحميل...</div><div class="pre" id="pem"></div><div id="pbd"></div>
 <div class="sgr">
 <div class="sit"><div class="sv" id="sp">0</div><div class="sl">المشاركات</div></div>
@@ -197,8 +194,7 @@ body{background:linear-gradient(135deg,var(--bg),#1a1a2e);color:#fff;font-family
 <div class="go" id="ed-female" onclick="selEditGender('female')">أنثى</div></div><input type="hidden" id="ed-gender"></div>
 <div class="fg"><label>الصورة الشخصية</label><div class="pu" onclick="document.getElementById('ed-photo').click()">
 <div class="pp" id="ed-prev"><img id="ed-img" src=""></div>
-<i class="fas fa-camera" style="font-size:20px;color:var(--g)"></i>
-<p style="color:#888;font-size:12px">اضغط لتغيير الصورة</p>
+<i class="fas fa-camera" style="font-size:20px;color:var(--g)"></i><p style="color:#888;font-size:12px">اضغط لتغيير الصورة</p>
 <input type="file" id="ed-photo" accept="image/*" style="display:none" onchange="prevEditPhoto(this)">
 </div></div>
 <button class="bm" id="ed-save" onclick="saveProfile()">💾 حفظ التغييرات</button>
@@ -243,10 +239,10 @@ firebase.auth().onAuthStateChanged(async(us)=>{u=us;if(us){try{if(!us.emailVerif
 function at(t){document.querySelectorAll('.atb').forEach(x=>x.classList.remove('a'));document.querySelectorAll('.af').forEach(x=>x.classList.remove('a'));if(t==='in'){document.querySelector('.atb:nth-child(1)').classList.add('a');document.getElementById('fm-in').classList.add('a');}else if(t==='rg'){document.querySelector('.atb:nth-child(2)').classList.add('a');document.getElementById('fm-rg').classList.add('a');}else if(t==='ver'){document.getElementById('fm-ver').classList.add('a');}hm();}
 function sm(t,y){const m=document.getElementById('ms');m.className='ms '+(y==='e'?'e':'o');m.textContent=t;m.style.display='block';setTimeout(()=>m.style.display='none',4000);}function hm(){document.getElementById('ms').style.display='none';}
 
-async function lg(){const e=document.getElementById('ie').value.trim(),p=document.getElementById('ip').value;if(!e||!p)return sm('أدخل البريد وكلمة المرور','e');try{await firebase.auth().setPersistence(document.getElementById('rm').checked?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);await firebase.auth().signInWithEmailAndPassword(e,p);}catch(er){sm('خطأ: '+er.message,'e');}}async function rgs(){const e=document.getElementById('re').value.trim(),p=document.getElementById('rpw').value,cp=document.getElementById('rcpw').value;if(p!==cp)return sm('كلمات المرور غير متطابقة','e');if(p.length<6)return sm('كلمة المرور قصيرة','e');if(!e.includes('@gmail.com'))return sm('يرجى استخدام بريد Gmail','e');const b=document.getElementById('rb');b.disabled=true;b.textContent='جاري الإنشاء...';try{const cr=await firebase.auth().createUserWithEmailAndPassword(e,p);await cr.user.sendEmailVerification({url:window.location.href});await firebase.database().ref('users/'+cr.user.uid).set({fullname:'مستخدم جديد',email:e,gender:'male',age:18,photoURL:null,createdAt:Date.now(),isAdmin:e===OWNER_EMAIL,role:e===OWNER_EMAIL?'admin':'user',isModerator:false,isBanned:false,emailVerified:false});sm('تم إنشاء الحساب! تحقق من بريدك','o');setTimeout(()=>{at('ver');document.getElementById('ver-email').textContent=e;},1500);}catch(er){sm('خطأ: '+er.message,'e');b.disabled=false;b.textContent='إنشاء الحساب';}}
+async function lg(){const e=document.getElementById('ie').value.trim(),p=document.getElementById('ip').value;if(!e||!p)return sm('أدخل البريد وكلمة المرور','e');try{await firebase.auth().setPersistence(document.getElementById('rm').checked?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);await firebase.auth().signInWithEmailAndPassword(e,p);}catch(er){sm('خطأ: '+er.message,'e');}}
+async function rgs(){const e=document.getElementById('re').value.trim(),p=document.getElementById('rpw').value,cp=document.getElementById('rcpw').value;if(p!==cp)return sm('كلمات المرور غير متطابقة','e');if(p.length<6)return sm('كلمة المرور قصيرة','e');if(!e.includes('@gmail.com'))return sm('يرجى استخدام بريد Gmail','e');const b=document.getElementById('rb');b.disabled=true;b.textContent='جاري الإنشاء...';try{const cr=await firebase.auth().createUserWithEmailAndPassword(e,p);await cr.user.sendEmailVerification({url:window.location.href});await firebase.database().ref('users/'+cr.user.uid).set({fullname:'مستخدم جديد',email:e,gender:'male',age:18,photoURL:null,createdAt:Date.now(),isAdmin:e===OWNER_EMAIL,role:e===OWNER_EMAIL?'admin':'user',isModerator:false,isBanned:false,emailVerified:false});sm('تم إنشاء الحساب! تحقق من بريدك','o');setTimeout(()=>{at('ver');document.getElementById('ver-email').textContent=e;},1500);}catch(er){sm('خطأ: '+er.message,'e');b.disabled=false;b.textContent='إنشاء الحساب';}}
 async function checkVer(){await u.reload();if(u.emailVerified){await firebase.database().ref('users/'+u.uid).update({emailVerified:true});showAlert('تم تأكيد بريدك بنجاح! 🎉','✅');setTimeout(()=>nav('fm'),1500);}else{showAlert('لم يتم تأكيد البريد بعد','⚠️');}}
 async function resendVer(){try{await u.sendEmailVerification({url:window.location.href});showAlert('تم إعادة إرسال الرابط ✉️','✅');}catch(er){showAlert('خطأ: '+er.message,'❌');}}
-
 function pp(i){if(i.files[0]){ri=i.files[0];const r=new FileReader();r.onload=e=>{document.getElementById('pi').src=e.target.result;document.getElementById('pv').classList.add('s');};r.readAsDataURL(i.files[0]);}}
 function sg(g,el){sgn=g;document.querySelectorAll('.go').forEach(o=>o.classList.remove('s'));el.classList.add('s');document.getElementById('rg').value=g;}
 
@@ -265,7 +261,6 @@ async function copyPostText(title,content,postId){
     try{
         await navigator.clipboard.writeText(fullText);
         showAlert('تم نسخ النص ✨','✅');
-        // تغيير أيقونة الزر مؤقتاً
         const btn=document.querySelector(`[data-post-id="${postId}"] .copy-btn`);
         if(btn){
             const originalHTML=btn.innerHTML;
@@ -277,7 +272,6 @@ async function copyPostText(title,content,postId){
             },2000);
         }
     }catch(err){
-        // طريقة بديلة
         const textArea=document.createElement('textarea');
         textArea.value=fullText;
         textArea.style.position='fixed';
@@ -290,13 +284,15 @@ async function copyPostText(title,content,postId){
         }catch(e){
             showAlert('فشل النسخ','❌');
         }
-        document.body.removeChild(textArea);    }
+        document.body.removeChild(textArea);
+    }
 }
-// ✅ دالة تحميل المنتدى المحسّنةasync function lfm(){
+
+// ✅ دالة تحميل المنتدى المحسّنة
+async function lfm(){
     const pl=document.getElementById('pl');
     const ts=document.getElementById('ts');
-    
-    try{
+        try{
         pl.innerHTML='<div class="ld"><i class="fas fa-spinner"></i><p>جاري التحميل...</p></div>';
         
         const snapshot=await firebase.database().ref('posts').orderByChild('timestamp').once('value');
@@ -309,21 +305,15 @@ async function copyPostText(title,content,postId){
             }
         });
         
-        // فصل المنشورات المثبتة عن العادية
         const pinned=posts.filter(p=>p.pinned===true);
         const normal=posts.filter(p=>p.pinned!==true);
         
-        // ترتيب المنشورات المثبتة حسب وقت التثبيت
         pinned.sort((a,b)=>(b.pinnedAt||0)-(a.pinnedAt||0));
-        
-        // ترتيب المنشورات العادية تنازلياً (الأحدث أولاً)
         normal.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
         
-        // عرض المحتوى الرائج
         const trending=normal.filter(p=>(p.likeCount||0)>=200);
         const rest=normal.filter(p=>(p.likeCount||0)<200);
         
-        // عرض المنشورات المثبتة أولاً
         if(pinned.length>0){
             let html='<div class="tb" style="border-color:var(--bl);background:linear-gradient(135deg,rgba(52,152,219,.15),rgba(212,175,55,.1))"><div class="th" style="color:var(--bl)"><i class="fas fa-thumbtack"></i> المنشورات المثبتة</div>';
             pinned.forEach(p=>html+=mp(p,false,true));
@@ -333,7 +323,6 @@ async function copyPostText(title,content,postId){
             ts.innerHTML='';
         }
         
-        // عرض المحتوى الرائج
         if(trending.length>0){
             let html='<div class="tb"><div class="th"><i class="fas fa-fire"></i> المحتوى الرائج <span class="tba">200+ إعجاب</span></div>';
             trending.forEach(p=>html+=mp(p,true));
@@ -341,7 +330,7 @@ async function copyPostText(title,content,postId){
             if(ts.innerHTML)ts.innerHTML+=html;
             else ts.innerHTML=html;
         }
-                // عرض المنشورات العادية
+        
         if(rest.length>0){
             pl.innerHTML=rest.map(p=>mp(p)).join('');
         }else{
@@ -356,15 +345,14 @@ async function copyPostText(title,content,postId){
 // ✅ دالة عرض المنشور مع زر النسخ والتثبيت
 function mp(p,rt=false,pinned=false){
     const liked=p.likes&&u&&p.likes[u.uid];
-    const lc=p.likeCount||0;    const cc=p.commentCount||0;
-    // ✅ إصلاح عرض الصورة - التأكد من وجود الصورة
+    const lc=p.likeCount||0;
+    const cc=p.commentCount||0;
     const hasPhoto=p.authorPhoto&&p.authorPhoto.trim()!=='';
     const avatar=hasPhoto?`<img src="${p.authorPhoto}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';this.parentElement.classList.add('p')">`:'<i class="fas fa-user"></i>';
     const content=p.content||'';
     const isLong=content.length>200;
     const display=isLong?content.substring(0,200)+'...':content;
     
-    // ✅ هروب الأحرف الخاصة للنسخ
     const escapedContent=content.replace(/'/g,"\\'").replace(/"/g,'"').replace(/\n/g,'\\n');
     const escapedTitle=(p.title||'').replace(/'/g,"\\'").replace(/"/g,'"');
     
@@ -390,7 +378,9 @@ function tlk(id){if(!u)return nav('au');const pr=firebase.database().ref('posts/
 function tcm(id){const sec=document.getElementById('cm-'+id);sec.classList.toggle('o');if(sec.classList.contains('o'))lcm(id);}
 
 function lcm(id){const el=document.getElementById('cl-'+id);firebase.database().ref('posts/'+id+'/comments').orderByChild('timestamp').once('value').then(s=>{let h='';s.forEach(ch=>{const c=ch.val();h+=`<div class="cit"><div class="ch"><span class="ca">${c.authorName||'عضو'}</span><span class="ct">${ta(c.timestamp)}</span></div><div class="ctx">${c.text}</div></div>`;});el.innerHTML=h||'<div style="text-align:center;color:#666;padding:10px">لا توجد تعليقات</div>';});}
+
 function acm(id){if(!u)return nav('au');const inp=document.getElementById('ci-'+id),txt=inp.value.trim();if(!txt)return;firebase.database().ref('posts/'+id+'/comments').push({text:txt,authorId:u.uid,authorName:ud?ud.fullname:'عضو',timestamp:Date.now()}).then(()=>{firebase.database().ref('posts/'+id+'/commentCount').transaction(c=>(c||0)+1);inp.value='';lcm(id);});}
+
 function rpt(id){if(!u)return nav('au');showConfirm('هل تريد الإبلاغ؟',()=>{firebase.database().ref('reports').push({postId:id,reporterId:u.uid,reporterName:ud?ud.fullname:'عضو',timestamp:Date.now(),status:'pending'}).then(()=>showAlert('تم إرسال البلاغ','✅'));});}
 
 // ✅ دالة التثبيت/إلغاء التثبيت
@@ -400,8 +390,7 @@ async function togglePin(id,pin){
     const updates={pinned:pin};
     if(pin)updates.pinnedAt=Date.now();
     
-    try{
-        await firebase.database().ref('posts/'+id).update(updates);
+    try{        await firebase.database().ref('posts/'+id).update(updates);
         showAlert(pin?'تم تثبيت المنشور 📌':'تم إلغاء التثبيت','✅');
         await lfm();
     }catch(err){
@@ -420,10 +409,12 @@ async function dlt(id){
             showAlert('تم الحذف بنجاح ✅','✅');
             await lfm();
         }catch(err){
-            console.error('Delete Error:',err);            showAlert('خطأ في الحذف: '+err.message,'❌');
+            console.error('Delete Error:',err);
+            showAlert('خطأ في الحذف: '+err.message,'❌');
         }
     });
 }
+
 function opm(){if(!u)return nav('au');document.getElementById('md-p').classList.add('o');}
 function clm(){document.getElementById('md-p').classList.remove('o');document.getElementById('mt').value='';document.getElementById('mc').value='';}
 
@@ -439,7 +430,8 @@ async function pbp(){
     btn.textContent='جاري النشر...';
     
     try{
-        if(!u){            showAlert('يجب تسجيل الدخول أولاً','⚠️');
+        if(!u){
+            showAlert('يجب تسجيل الدخول أولاً','⚠️');
             btn.disabled=false;
             btn.textContent='نشر';
             return;
@@ -447,15 +439,15 @@ async function pbp(){
         
         const newPost={
             title:title,
-            content:content,
-            authorId:u.uid,
+            content:content,            authorId:u.uid,
             authorName:(ud&&ud.fullname)?ud.fullname:'عضو',
             authorPhoto:(ud&&ud.photoURL)?ud.photoURL:null,
             timestamp:Date.now(),
             likeCount:0,
             commentCount:0,
             pinned:false
-        };        
+        };
+        
         await firebase.database().ref('posts').push(newPost);
         
         showAlert('تم النشر بنجاح ✨','✅');
@@ -468,12 +460,13 @@ async function pbp(){
     }finally{
         btn.disabled=false;
         btn.textContent='نشر';
-    }}
+    }
+}
 
 // ✅ دالة تحميل البروفايل المصححة
 async function lpr(){
     if(!u)return nav('au');
-        try{
+    try{
         const snapshot=await firebase.database().ref('users/'+u.uid).once('value');
         ud=snapshot.val()||{};
         
@@ -488,14 +481,14 @@ async function lpr(){
         
         const displayName=(ud&&ud.fullname)?ud.fullname:'مستخدم';
         const displayEmail=(ud&&ud.email)?ud.email:(u.email||'');
-                document.getElementById('pnm').textContent=displayName;
+        
+        document.getElementById('pnm').textContent=displayName;
         document.getElementById('pem').textContent=displayEmail;
         
         let badge='';
         if(ud&&ud.isAdmin)badge='<span class="bd bda">أدمن</span>';
         else if(ud&&ud.isModerator)badge='<span class="bd bdm">مشرف</span>';
-        else badge='<span class="bd bdu">عضو</span>';
-        document.getElementById('pbd').innerHTML=badge;
+        else badge='<span class="bd bdu">عضو</span>';        document.getElementById('pbd').innerHTML=badge;
         
         const gender=(ud&&ud.gender==='male')?'ذكر':'أنثى';
         const age=(ud&&ud.age)?ud.age+' سنة':'-';
@@ -515,13 +508,9 @@ async function lpr(){
             count++;
             totalLikes+=post.likeCount||0;
             totalComments+=post.commentCount||0;
-            postsHtml+=`<div style="background:#0a0a0a;border:1px solid var(--b);border-radius:12px;padding:12px;margin-bottom:8px">                <div style="color:var(--g);font-weight:700;margin-bottom:5px">${post.title}</div>
-                <div style="color:#666;font-size:12px">
-                    <i class="fas fa-heart"></i> ${post.likeCount||0} | 
-                    <i class="fas fa-comment"></i> ${post.commentCount||0}
-                </div>
-            </div>`;
-        });        
+            postsHtml+=`<div style="background:#0a0a0a;border:1px solid var(--b);border-radius:12px;padding:12px;margin-bottom:8px"><div style="color:var(--g);font-weight:700;margin-bottom:5px">${post.title}</div><div style="color:#666;font-size:12px"><i class="fas fa-heart"></i> ${post.likeCount||0} | <i class="fas fa-comment"></i> ${post.commentCount||0}</div></div>`;
+        });
+        
         document.getElementById('sp').textContent=count;
         document.getElementById('sl').textContent=totalLikes;
         document.getElementById('sc').textContent=totalComments;
@@ -534,20 +523,21 @@ async function lpr(){
 }
 
 function ep(){if(!ud){showAlert('جاري التحميل...','⚠️');return;}document.getElementById('ed-name').value=(ud&&ud.fullname)?ud.fullname:'';document.getElementById('ed-age').value=(ud&&ud.age)?ud.age:'';editGen=(ud&&ud.gender)?ud.gender:'male';document.querySelectorAll('#md-edit .go').forEach(o=>o.classList.remove('s'));document.getElementById('ed-'+editGen).classList.add('s');document.getElementById('ed-gender').value=editGen;if(ud&&ud.photoURL){document.getElementById('ed-img').src=ud.photoURL;document.getElementById('ed-prev').classList.add('s');}else{document.getElementById('ed-prev').classList.remove('s');}document.getElementById('md-edit').classList.add('o');}
+
 function closeEdit(){document.getElementById('md-edit').classList.remove('o');editImg=null;}
+
 function selEditGender(g){editGen=g;document.querySelectorAll('#md-edit .go').forEach(o=>o.classList.remove('s'));document.getElementById('ed-'+g).classList.add('s');document.getElementById('ed-gender').value=g;}
 
-// ✅ دالة معالجة الصورة المختارة - محسّنةfunction prevEditPhoto(inp){
+// ✅ دالة معالجة الصورة المختارة - محسّنة
+function prevEditPhoto(inp){
     console.log('📸 Photo input changed:',inp.files);
     
     if(inp.files&&inp.files[0]){
         editImg=inp.files[0];
         console.log('✅ File selected:',editImg.name,editImg.type,editImg.size);
         
-        // التحقق من نوع الملف
         if(!editImg.type.startsWith('image/')){
-            showAlert('يرجى اختيار صورة فقط','⚠️');
-            editImg=null;
+            showAlert('يرجى اختيار صورة فقط','⚠️');            editImg=null;
             return;
         }
         
@@ -562,14 +552,16 @@ function selEditGender(g){editGen=g;document.querySelectorAll('#md-edit .go').fo
             showAlert('خطأ في قراءة الصورة','❌');
         };
         r.readAsDataURL(inp.files[0]);
-    }else{        console.log('⚠️ No file selected');
+    }else{
+        console.log('⚠️ No file selected');
     }
 }
 
 // ✅ دالة تعديل الصورة - محسّنة مع طلب الإذن
 function editPhoto(){
     if(!u){
-        showAlert('يجب تسجيل الدخول أولاً','⚠️');        return;
+        showAlert('يجب تسجيل الدخول أولاً','⚠️');
+        return;
     }
     
     console.log('📷 editPhoto clicked');
@@ -586,7 +578,7 @@ function editPhoto(){
         fileInput.onchange=prevEditPhoto;
         document.body.appendChild(fileInput);
     }
-        // ✅ طلب الإذن صراحةً
+    
     fileInput.accept='image/*';
     fileInput.click();
     
@@ -594,8 +586,7 @@ function editPhoto(){
 }
 
 // ✅ دالة حفظ البروفايل - محسّنة مع ImgBB
-async function saveProfile(){
-    const name=document.getElementById('ed-name').value.trim();
+async function saveProfile(){    const name=document.getElementById('ed-name').value.trim();
     const age=document.getElementById('ed-age').value;
     const gender=document.getElementById('ed-gender').value;
     
@@ -612,12 +603,12 @@ async function saveProfile(){
             console.log('📤 Uploading to ImgBB...');
             showAlert('جاري رفع الصورة...','ℹ️');
             
-            // ✅ رفع الصورة إلى ImgBB
             const formData=new FormData();
             formData.append('image',editImg);
             
             const response=await fetch(`https://api.imgbb.com/1/upload?key=${IMG_BB_API_KEY}`,{
-                method:'POST',                body:formData
+                method:'POST',
+                body:formData
             });
             
             const data=await response.json();
@@ -635,18 +626,16 @@ async function saveProfile(){
             age:parseInt(age),
             gender:gender,
             photoURL:photoURL,
-            updatedAt:Date.now()        };
+            updatedAt:Date.now()
+        };
         
-        // إزالة القيم undefined
         Object.keys(updates).forEach(key=>{
             if(updates[key]===undefined)delete updates[key];
         });
         
         await firebase.database().ref('users/'+u.uid).update(updates);
         
-        // تحديث البيانات المحلية
-        if(!ud)ud={};
-        ud.fullname=name;
+        if(!ud)ud={};        ud.fullname=name;
         ud.age=parseInt(age);
         ud.gender=gender;
         if(photoURL)ud.photoURL=photoURL;
@@ -665,13 +654,24 @@ async function saveProfile(){
 }
 
 // Admin Functions
-async function lad(){if(!isOwner&&!isMod)return nav('fm');const uSn=await firebase.database().ref('users').once('value'),pSn=await firebase.database().ref('posts').once('value'),rSn=await firebase.database().ref('reports').once('value');let uc=0,mc=0;uSn.forEach(ch=>{uc++;if(ch.val().isModerator)mc++;});let rc=0;rSn.forEach(ch=>{if(ch.val().status==='pending')rc++;});document.getElementById('au').textContent=uc;document.getElementById('ap').textContent=pSn.size;document.getElementById('ar').textContent=rc;document.getElementById('am').textContent=mc;lrp();lus();lmd();}function adt(t){document.querySelectorAll('.atb2').forEach(b=>b.classList.remove('a'));document.querySelectorAll('.ase').forEach(s=>s.classList.remove('a'));event.target.classList.add('a');document.getElementById('ad-'+t).classList.add('a');}
+async function lad(){if(!isOwner&&!isMod)return nav('fm');const uSn=await firebase.database().ref('users').once('value'),pSn=await firebase.database().ref('posts').once('value'),rSn=await firebase.database().ref('reports').once('value');let uc=0,mc=0;uSn.forEach(ch=>{uc++;if(ch.val().isModerator)mc++;});let rc=0;rSn.forEach(ch=>{if(ch.val().status==='pending')rc++;});document.getElementById('au').textContent=uc;document.getElementById('ap').textContent=pSn.size;document.getElementById('ar').textContent=rc;document.getElementById('am').textContent=mc;lrp();lus();lmd();}
+
+function adt(t){document.querySelectorAll('.atb2').forEach(b=>b.classList.remove('a'));document.querySelectorAll('.ase').forEach(s=>s.classList.remove('a'));event.target.classList.add('a');document.getElementById('ad-'+t).classList.add('a');}
+
 async function lrp(){const el=document.getElementById('ad-rp'),sn=await firebase.database().ref('reports').orderByChild('timestamp').once('value');let h='';sn.forEach(ch=>{const r=ch.val(),st=r.status==='pending'?'<span style="color:#f39c12">معلق</span>':'<span style="color:#27ae60">تم الحل</span>';h+=`<div class="ac"><div class="ai"><div class="an">${r.reporterName||'مجهول'} ${st}</div><div class="ae">منشور: ${r.postId}</div><div class="ad">${new Date(r.timestamp).toLocaleString('ar-SA')}</div></div>${r.status==='pending'?`<button class="bsm bsd" onclick="drp('${r.postId}','${ch.key}')">حذف</button><button class="bsm bss" onclick="rrp('${ch.key}')">حل</button>`:''}</div>`;});el.innerHTML=h||'<div class="em"><i class="fas fa-check-circle"></i><h3>لا توجد بلاغات</h3></div>';}
+
 async function lus(){const el=document.getElementById('ad-us'),sn=await firebase.database().ref('users').once('value');let h='';sn.forEach(ch=>{const us=ch.val(),uid=ch.key;let bg='';if(us.isAdmin)bg+='<span class="bd bda">أدمن</span>';if(us.isModerator)bg+='<span class="bd bdm">مشرف</span>';if(us.isBanned)bg+='<span class="bd" style="background:#555">محظور</span>';const av=us.photoURL?`<img src="${us.photoURL}">`:'<i class="fas fa-user"></i>';h+=`<div class="ac"><div class="aav ${us.photoURL?'':'p'}">${av}</div><div class="ai"><div class="an">${us.fullname} ${bg}</div><div class="ae">${us.email}</div><div class="ad">${us.gender==='male'?'ذكر':'أنثى'} | ${us.age} سنة</div></div>${isOwner&&uid!==u.uid?`<button class="bsm ${us.isBanned?'bss':'bsd'}" onclick="tgb('${uid}',${!us.isBanned})">${us.isBanned?'فك حظر':'حظر'}</button>`:''}</div>`;});el.innerHTML=h;}
+
 async function lmd(){const el=document.getElementById('ad-md'),sn=await firebase.database().ref('users').orderByChild('isModerator').equalTo(true).once('value');let h='';sn.forEach(ch=>{const us=ch.val(),uid=ch.key;const av=us.photoURL?`<img src="${us.photoURL}">`:'<i class="fas fa-user"></i>';h+=`<div class="ac"><div class="aav ${us.photoURL?'':'p'}">${av}</div><div class="ai"><div class="an">${us.fullname}</div><div class="ae">${us.email}</div></div>${isOwner?`<button class="bsm bsw" onclick="rmd('${uid}')">إزالة</button>`:''}</div>`;});if(isOwner)h+=`<div style="margin-top:20px;padding:15px;background:#0a0a0a;border-radius:12px;display:flex;gap:10px;flex-wrap:wrap"><input type="email" id="nmd" placeholder="بريد المشرف" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--b);background:#111;color:#fff;min-width:150px"><button class="bsm bsi" onclick="amd()">تعيين</button></div>`;el.innerHTML=h||'<div class="em"><i class="fas fa-user-shield"></i><h3>لا يوجد مشرفين</h3></div>';}
-async function drp(pid,rid){showConfirm('حذف المنشور وحل البلاغ؟',()=>{firebase.database().ref('posts/'+pid).remove();firebase.database().ref('reports/'+rid).update({status:'resolved'});lad();showAlert('تم الحذف','✅');});}async function rrp(rid){firebase.database().ref('reports/'+rid).update({status:'resolved'});lad();showAlert('تم الحل','✅');}
+
+async function drp(pid,rid){showConfirm('حذف المنشور وحل البلاغ؟',()=>{firebase.database().ref('posts/'+pid).remove();firebase.database().ref('reports/'+rid).update({status:'resolved'});lad();showAlert('تم الحذف','✅');});}
+
+async function rrp(rid){firebase.database().ref('reports/'+rid).update({status:'resolved'});lad();showAlert('تم الحل','✅');}
+
 async function tgb(uid,ban){if(!isOwner)return;const msg=ban?'حظر':'فك حظر';showConfirm('هل تريد '+msg+' هذا المستخدم؟',()=>{firebase.database().ref('users/'+uid).update({isBanned:ban}).then(()=>{lad();showAlert('تم '+msg,'✅');});});}
+
 async function amd(){if(!isOwner){showAlert('ليس لديك صلاحية','❌');return;}const em=document.getElementById('nmd').value.trim();if(!em){showAlert('أدخل البريد','⚠️');return;}const sn=await firebase.database().ref('users').orderByChild('email').equalTo(em).once('value');if(!sn.exists()){showAlert('المستخدم غير موجود','❌');return;}let uid='';sn.forEach(ch=>uid=ch.key);firebase.database().ref('users/'+uid).update({isModerator:true,role:'moderator'}).then(()=>{showAlert('تم التعيين','✅');lad();});}
+
 async function rmd(uid){if(!isOwner)return;showConfirm('إزالة من الإشراف؟',()=>{firebase.database().ref('users/'+uid).update({isModerator:false,role:'user'}).then(()=>{lad();showAlert('تمت الإزالة','✅');});});}
 
 // Utils
