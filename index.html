@@ -350,8 +350,7 @@
     
     <script>
         // ⚙️ إعدادات النظام الأساسية
-        const ADMIN_EMAIL = 'a1sabriweb@gmail.com'; // ✅ حساب الأدمن الرئيسي
-        const FORBIDDEN_WORDS = ['كس امك', 'انيك امك', 'مخنوث', 'شرموطه', 'قذر', 'سافل', 'منحط', 'تفه', 'قحبه', 'مخنث', 'شتم', 'سب', 'قذف'];
+        const ADMIN_EMAIL = 'a1sabriweb@gmail.com';
         
         let currentUser = null;
         let currentView = 'home';
@@ -390,8 +389,8 @@
                 case 'delete_any': return isAdmin || isMod;
                 case 'delete_own': return isOwner;
                 case 'verify_user': return isAdmin;
-                case 'assign_mod': return isAdmin;                case 'ban_user': return isAdmin;
-                case 'pin_post': return isAdmin;
+                case 'assign_mod': return isAdmin;
+                case 'ban_user': return isAdmin;                case 'pin_post': return isAdmin;
                 case 'view_admin_panel': return isAdmin || isMod;
                 case 'dismiss_report': return isAdmin || isMod;
                 default: return false;
@@ -414,7 +413,6 @@
                         currentUser = {...userData, email: user.email};
                         console.log("User loaded:", currentUser.username, "Role:", currentUser.role);
                         
-                        // ✅ تطبيق وضع الأدمن/المشرف في الواجهة
                         document.body.classList.remove('admin-mode', 'mod-mode');
                         if (currentUser.email === ADMIN_EMAIL) {
                             document.body.classList.add('admin-mode');
@@ -439,9 +437,9 @@
                             isBanned: false, 
                             followingCount: 0, 
                             followersCount: 0
-                        });                        currentUser = {
-                            username: user.displayName || user.email.split('@')[0],
-                            email: user.email,
+                        });
+                        currentUser = {
+                            username: user.displayName || user.email.split('@')[0],                            email: user.email,
                             uia: Math.floor(1000+Math.random()*9000).toString(),
                             verified: false, 
                             role: 'member', 
@@ -488,9 +486,9 @@
                         <input type="email" id="login-email" class="input-field" placeholder="البريد الإلكتروني">
                         <input type="password" id="login-pass" class="input-field" placeholder="كلمة المرور">
                         <button onclick="login()" class="gold-btn w-full py-3 rounded-lg">دخول</button>
-                        <button onclick="showAuthPage()" class="text-gold-primary text-sm underline w-full">العودة</button>                    </div>
-                </div>`;
-        }
+                        <button onclick="showAuthPage()" class="text-gold-primary text-sm underline w-full">العودة</button>
+                    </div>
+                </div>`;        }
         
         function showRegisterForm() {
             const main = document.getElementById('main-content');
@@ -535,18 +533,11 @@
             if (!name || !email || !pass) return showToast("املأ جميع الحقول", 'error');
             if (pass.length < 6) return showToast("كلمة المرور 6 أحرف على الأقل", 'error');
             
-            // ✅ فلتر الكلمات الممنوعة
-            for (const word of FORBIDDEN_WORDS) {
-                if (name.toLowerCase().includes(word.toLowerCase())) {                    return showToast("⚠️ الاسم يحتوي على كلمات غير مسموحة", 'error');
-                }
-            }
-            
             try {
                 console.log("Attempting registration for:", email);
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
                 await db.collection('users').doc(email).set({
-                    username: name, 
-                    email,
+                    username: name,                     email,
                     uia: Math.floor(1000+Math.random()*9000).toString(),
                     verified: false, 
                     role: 'member', 
@@ -586,7 +577,8 @@
             switch(page) {
                 case 'home': renderHome(); break;
                 case 'trending': renderTrending(); break;
-                case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;                case 'admin': 
+                case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;
+                case 'admin': 
                     if (hasPermission('view_admin_panel')) renderAdminPanel();
                     else { showPage('home'); showToast("غير مصرح", 'error'); }
                     break;
@@ -594,8 +586,7 @@
             }
         }
         
-        function renderHome() {
-            const main = document.getElementById('main-content');
+        function renderHome() {            const main = document.getElementById('main-content');
             if (!main) return;
             main.innerHTML = `<div class="mb-4"><h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-house text-gold-primary"></i>آخر المتابعات</h2><div id="posts-container" class="space-y-4"><div class="loading">جاري التحميل...</div></div></div>`;
             
@@ -611,7 +602,6 @@
                         posts.push({ id: doc.id, ...data, author: u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'} });
                     } catch(e) { console.error('Load post error:', e); }
                 }
-                // ✅ المنشورات المثبتة تظهر أولاً
                 posts.sort((a,b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
                 renderPosts(posts, 'posts-container', false);
             }, err => {
@@ -635,7 +625,8 @@
                         const data = doc.data();
                         const u = await db.collection('users').doc(data.authorEmail).get();
                         const author = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
-                        posts.push({ id: doc.id, ...data, author, _score: calculateTrendingScore({...data,id:doc.id}, author) });                    } catch(e) { console.error('Trending error:', e); }
+                        posts.push({ id: doc.id, ...data, author, _score: calculateTrendingScore({...data,id:doc.id}, author) });
+                    } catch(e) { console.error('Trending error:', e); }
                 }
                 posts.sort((a,b)=>b._score-a._score);
                 renderPosts(posts.slice(0,30), 'trending-container', true);
@@ -644,16 +635,12 @@
                 document.getElementById('trending-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>';
             });
         }
-        
-        // ✅ خوارزمية المحتوى الرائج المحسّنة
-        function calculateTrendingScore(post, author) {
+                function calculateTrendingScore(post, author) {
             const likes = (post.likes?.length || 0);
             const comments = (post.commentsCount || 0);
             const isVerified = author?.verified || false;
             const isPinned = post.isPinned || false;
             
-            // ✅ للموثقين: 50% تفاعل + 50% شارة
-            // ✅ لغير الموثقين: 80% لايكات + 20% تعليقات
             let baseScore;
             if (isVerified) {
                 baseScore = (likes * 0.5) + (comments * 0.5);
@@ -661,11 +648,8 @@
                 baseScore = (likes * 0.8) + (comments * 0.2);
             }
             
-            // ✅ Time Decay بأس 1.2
             const ageHours = (Date.now() - (post.timestamp?.toMillis?.() || 0)) / (1000 * 60 * 60);
             const decay = Math.pow(ageHours + 1, 1.2);
-            
-            // ✅ المنشور المثبت يضيف 10000 نقطة
             const pinnedBonus = isPinned ? 10000 : 0;
             
             return (baseScore / decay) + pinnedBonus;
@@ -680,11 +664,10 @@
                 try {
                     const user = post.author || {username:"عضو",verified:false,gender:'male'};
                     const isOwner = currentUser?.email === post.authorEmail;
-                    const isAdmin = currentUser?.email === ADMIN_EMAIL;
-                    const isMod = currentUser?.role === 'moderator';
                     const canDelete = hasPermission('delete_any', post.authorEmail) || hasPermission('delete_own', post.authorEmail);
                     const canPin = hasPermission('pin_post');
-                    const isLiked = post.likes?.includes(currentUser?.email);                    const nameClass = getNameColorClass(user.gender);
+                    const isLiked = post.likes?.includes(currentUser?.email);
+                    const nameClass = getNameColorClass(user.gender);
                     
                     return `
                         <div class="post-card animate-fade" data-id="${post.id}">
@@ -701,8 +684,7 @@
                                     </div>
                                 </div>
                                 <div class="flex gap-1">
-                                    <button onclick="reportPost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="تبليغ"><i class="fa-solid fa-flag text-xs"></i></button>
-                                    ${canDelete ? `<button onclick="deletePost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="حذف"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
+                                    <button onclick="reportPost('${post.id}', 'post')" class="text-zinc-500 hover:text-red-500 p-1" title="تبليغ"><i class="fa-solid fa-flag text-xs"></i></button>                                    ${canDelete ? `<button onclick="deletePost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="حذف"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
                                 </div>
                             </div>
                             <div class="text-sm leading-relaxed mb-4 whitespace-pre-wrap break-words">${escapeHtml(post.content)}</div>
@@ -733,7 +715,8 @@
         function getNameColorClass(gender) {
             return gender === 'female' ? 'female-name' : 'male-name';
         }
-                function escapeHtml(text) {
+        
+        function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
@@ -750,8 +733,7 @@
             const hours = Math.floor(minutes / 60);
             const days = Math.floor(hours / 24);
             
-            if (seconds < 60) return 'الآن';
-            if (minutes < 60) return `قبل ${minutes} د`;
+            if (seconds < 60) return 'الآن';            if (minutes < 60) return `قبل ${minutes} د`;
             if (hours < 24) return `قبل ${hours} س`;
             if (days < 7) return `قبل ${days} ي`;
             return date.toLocaleDateString('ar-SA');
@@ -782,7 +764,8 @@
             const modal = document.getElementById('modal-container');
             const body = document.getElementById('modal-body');
             const max = currentUser.verified ? 4000 : 2000;
-            body.innerHTML = `                <div class="flex justify-between items-center mb-4">
+            body.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold gold-text">منشور جديد ${currentUser.verified?'<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded mr-2">✓ موثق</span>':''}</h3>
                     <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
@@ -795,27 +778,13 @@
             const ta = document.getElementById('post-text');
             ta?.addEventListener('input', function() { 
                 document.getElementById('char-count').innerText = this.value.length+' / '+max;
-                // ✅ فلتر الكلمات الممنوعة أثناء الكتابة
-                FORBIDDEN_WORDS.forEach(word => {
-                    if (this.value.toLowerCase().includes(word.toLowerCase())) {
-                        showToast("⚠️ كلمة غير مسموحة: " + word, 'warning');
-                    }
-                });
             });
             setTimeout(()=>ta?.focus(), 100);
         }
         
-        async function submitPost() {
-            const content = document.getElementById('post-text')?.value.trim();
+        async function submitPost() {            const content = document.getElementById('post-text')?.value.trim();
             const btn = document.getElementById('submit-btn');
             if (!content) return showToast("اكتب شيئاً قبل النشر!", 'error');
-            
-            // ✅ فلتر الكلمات الممنوعة قبل النشر
-            for (const word of FORBIDDEN_WORDS) {
-                if (content.toLowerCase().includes(word.toLowerCase())) {
-                    return showToast("⚠️ المنشور يحتوي على كلمات غير مسموحة", 'error');
-                }
-            }
             
             if (btn) { btn.disabled=true; btn.innerText="جاري النشر..."; }
             try {
@@ -831,28 +800,53 @@
                 showToast("✅ تم النشر!"); 
                 refreshCurrentView();
             } catch(e) { 
-                showToast("خطأ: "+e.message, 'error');                 if(btn){btn.disabled=false;btn.innerText="نشر الآن";} 
+                showToast("خطأ: "+e.message, 'error'); 
+                if(btn){btn.disabled=false;btn.innerText="نشر الآن";} 
             }
         }
         
+        // ✅ دالة الإعجاب المصححة - تستخدم arrayUnion/arrayRemove لمنع اختفاء اللايك
         async function toggleLike(postId) {
-            if (!currentUser) return showToast("سجل الدخول", 'error');
+            if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
+            
             try {
-                const ref = db.collection('posts').doc(postId);
-                const post = await ref.get();
-                const likes = post.data()?.likes || [];
-                const idx = likes.indexOf(currentUser.email);
-                if (idx === -1) {
-                    likes.push(currentUser.email);
-                    const author = post.data()?.authorEmail;
-                    if (author && author !== currentUser.email) {
-                        addNotification(author, `${currentUser.username} أعجب بمنشورك ❤️`, 'like', postId);
-                    }
-                } else { 
-                    likes.splice(idx,1); 
+                const postRef = db.collection('posts').doc(postId);
+                const postDoc = await postRef.get();
+                
+                if (!postDoc.exists) {
+                    return showToast("المنشور غير موجود", 'error');
                 }
-                await ref.update({likes});
-            } catch(e) { console.error('Like error:',e); }
+                
+                const postData = postDoc.data();
+                const likes = postData.likes || [];
+                const hasLiked = likes.includes(currentUser.email);
+                
+                if (hasLiked) {
+                    // ✅ إزالة الإعجاب باستخدام arrayRemove (عملية ذرية آمنة)
+                    await postRef.update({
+                        likes: firebase.firestore.FieldValue.arrayRemove(currentUser.email)
+                    });
+                    showToast("تم إزالة الإعجاب");
+                } else {
+                    // ✅ إضافة الإعجاب باستخدام arrayUnion (عملية ذرية آمنة)
+                    await postRef.update({
+                        likes: firebase.firestore.FieldValue.arrayUnion(currentUser.email)
+                    });                    
+                    // إرسال إشعار لصاحب المنشور
+                    const authorEmail = postData.authorEmail;
+                    if (authorEmail && authorEmail !== currentUser.email) {
+                        await addNotification(authorEmail, `${currentUser.username} أعجب بمنشورك ❤️`, 'like', postId);
+                    }
+                    showToast("✅ أعجبك المنشور");
+                }
+                
+                // تحديث الواجهة فوراً
+                refreshCurrentView();
+                
+            } catch (error) {
+                console.error('Like error:', error);
+                showToast("❌ خطأ: " + error.message, 'error');
+            }
         }
         
         async function deletePost(postId) {
@@ -879,12 +873,14 @@
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
         
-        function reportPost(postId) {
-            if (!currentUser) return showToast("سجل الدخول", 'error');            const reason = prompt("سبب التبليغ:");
+        // ✅ دالة التبليغ - تدعم المنشورات والتعليقات
+        function reportPost(id, type = 'post') {
+            if (!currentUser) return showToast("سجل الدخول", 'error');
+            const reason = prompt("سبب التبليغ:");
             if (reason?.trim()) {
                 db.collection('reports').add({
-                    postId, 
-                    reporter: currentUser.email,
+                    targetId: id,
+                    targetType: type, // 'post' أو 'comment'                    reporter: currentUser.email,
                     reason: reason.trim(),
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     status: 'pending'
@@ -929,11 +925,11 @@
         async function openComments(postId) {
             if (!currentUser) return showToast("سجل الدخول", 'error');
             currentPostId = postId;
-            commentsPageState[postId] = { page: 0, totalComments: 0 };            const modal = document.getElementById('modal-container');
+            commentsPageState[postId] = { page: 0, totalComments: 0 };
+            const modal = document.getElementById('modal-container');
             const body = document.getElementById('modal-body');
             body.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold gold-text">التعليقات</h3>
+                <div class="flex justify-between items-center mb-4">                    <h3 class="text-lg font-bold gold-text">التعليقات</h3>
                     <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
                 <div id="comments-list" class="max-h-80 overflow-y-auto mb-4 space-y-3"><div class="loading">جاري التحميل...</div></div>
@@ -978,11 +974,11 @@
                         const u = await db.collection('users').doc(c.authorEmail).get();
                         const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
                         const liked = c.likes?.includes(currentUser?.email);
-                        const nameClass = getNameColorClass(user.gender);                        html += `
+                        const nameClass = getNameColorClass(user.gender);
+                        html += `
                             <div class="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800" id="c-${doc.id}">
                                 <div class="flex justify-between items-start mb-1">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="font-bold ${nameClass} text-xs clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>
+                                    <div class="flex items-center gap-2 flex-wrap">                                        <span class="font-bold ${nameClass} text-xs clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>
                                         ${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}
                                     </div>
                                     <span class="text-[9px] text-zinc-600">${formatDate(c.timestamp)}</span>
@@ -993,6 +989,7 @@
                                         <i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${c.likes?.length||0}
                                     </button>
                                     <button onclick="replyTo('${doc.id}','${user.username}')" class="text-[10px] text-zinc-500 hover:text-gold-primary">↩️ رد</button>
+                                    <button onclick="reportPost('${doc.id}', 'comment')" class="text-[10px] text-zinc-500 hover:text-red-500" title="تبليغ">🚩</button>
                                 </div>
                                 <div id="replies-${doc.id}" class="mt-2"></div>
                             </div>`;
@@ -1027,19 +1024,22 @@
                     for (const doc of snap.docs) {
                         try {
                             const c = doc.data();
-                            const u = await db.collection('users').doc(c.authorEmail).get();                            const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
+                            const u = await db.collection('users').doc(c.authorEmail).get();
+                            const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
                             const liked = c.likes?.includes(currentUser?.email);
-                            const nameClass = getNameColorClass(user.gender);
-                            html += `
+                            const nameClass = getNameColorClass(user.gender);                            html += `
                                 <div class="comment-reply bg-zinc-900/30 p-2 rounded-lg">
                                     <div class="flex justify-between items-start mb-1">
                                         <span class="font-bold ${nameClass} text-[10px] clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>
                                         <span class="text-[8px] text-zinc-600">${formatDate(c.timestamp)}</span>
                                     </div>
                                     <p class="text-[10px] text-zinc-300 mb-1 break-words">${escapeHtml(c.content)}</p>
-                                    <button onclick="toggleCommentLike('${doc.id}')" class="text-[9px] ${liked?'text-red-500':'text-zinc-500'} flex items-center gap-1">
-                                        <i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${c.likes?.length||0}
-                                    </button>
+                                    <div class="flex gap-3 items-center">
+                                        <button onclick="toggleCommentLike('${doc.id}')" class="text-[9px] ${liked?'text-red-500':'text-zinc-500'} flex items-center gap-1">
+                                            <i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${c.likes?.length||0}
+                                        </button>
+                                        <button onclick="reportPost('${doc.id}', 'comment')" class="text-[9px] text-zinc-500 hover:text-red-500" title="تبليغ">🚩</button>
+                                    </div>
                                 </div>`;
                         } catch(e) { console.error('Reply error:',e); }
                     }
@@ -1051,13 +1051,6 @@
             const input = document.getElementById('comment-input');
             const content = input?.value.trim();
             if (!content) return;
-            
-            // ✅ فلتر الكلمات الممنوعة في التعليقات
-            for (const word of FORBIDDEN_WORDS) {
-                if (content.toLowerCase().includes(word.toLowerCase())) {
-                    return showToast("⚠️ التعليق يحتوي على كلمات غير مسموحة", 'error');
-                }
-            }
             
             try {
                 await db.collection('comments').add({
@@ -1076,14 +1069,14 @@
                         addNotification(author, `${currentUser.username} علق على منشورك 💬`, 'comment', postId);
                     }
                 }
-                input.value = '';                showToast("✅ تم النشر");
+                input.value = '';
+                showToast("✅ تم النشر");
                 loadCommentsPage(postId, commentsPageState[postId]?.page || 0);
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
         
         async function toggleCommentLike(id) {
-            if (!currentUser) return;
-            try {
+            if (!currentUser) return;            try {
                 const ref = db.collection('comments').doc(id);
                 const doc = await ref.get();
                 const likes = doc.data()?.likes || [];
@@ -1125,14 +1118,14 @@
                         </h2>
                         <p class="text-zinc-500 text-sm mb-4">
                             UIA: ${user.uia} ${user.age?'• '+user.age+' سنة':''} ${user.country?'• '+user.country:''}<br>
-                            انضم في ${formatDate(user.joinedAt)}                        </p>
+                            انضم في ${formatDate(user.joinedAt)}
+                        </p>
                         <div class="flex justify-center gap-8 mb-6">
                             <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(followers)}</div><div class="text-[10px] text-zinc-500">متابع</div></div>
                             <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(following)}</div><div class="text-[10px] text-zinc-500">يتابع</div></div>
                             <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(posts.length)}</div><div class="text-[10px] text-zinc-500">منشور</div></div>
                         </div>
-                        <div class="flex justify-center gap-3 flex-wrap">
-                            ${email!==currentUser?.email ? `<button onclick="toggleFollow('${email}')" class="gold-btn px-6 py-2 rounded-full text-sm">متابعة</button>` : ''}
+                        <div class="flex justify-center gap-3 flex-wrap">                            ${email!==currentUser?.email ? `<button onclick="toggleFollow('${email}')" class="gold-btn px-6 py-2 rounded-full text-sm">متابعة</button>` : ''}
                             ${email===currentUser?.email ? `<button onclick="openEditProfileModal()" class="gold-btn px-6 py-2 rounded-full text-sm"><i class="fa-solid fa-pen ml-1"></i>تعديل البروفايل</button><button onclick="logout()" class="text-red-500 text-xs underline px-4 py-2">خروج</button>` : ''}
                         </div>
                     </div>
@@ -1171,12 +1164,6 @@
             
             if (!name) return showToast("الاسم مطلوب", 'error');
             
-            // ✅ فلتر الكلمات الممنوعة في الاسم الجديد
-            for (const word of FORBIDDEN_WORDS) {
-                if (name.toLowerCase().includes(word.toLowerCase())) {
-                    return showToast("⚠️ الاسم يحتوي على كلمات غير مسموحة", 'error');                }
-            }
-            
             try {
                 await db.collection('users').doc(currentUser.email).update({
                     username:name, 
@@ -1187,8 +1174,7 @@
                 currentUser = {...currentUser, username:name, age:age||'', gender:gender||'male', country:country||''};
                 closeModal(); 
                 renderProfile(currentUser.email); 
-                showToast("✅ تم التحديث!");
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
+                showToast("✅ تم التحديث!");            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
         
         async function toggleFollow(target) {
@@ -1223,7 +1209,8 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="admin-card text-center"><div class="text-2xl font-bold text-gold-primary" id="users-count">...</div><div class="text-xs text-zinc-500">الأعضاء</div></div>
                         <div class="admin-card text-center"><div class="text-2xl font-bold text-red-500" id="reports-count">...</div><div class="text-xs text-zinc-500">بلاغات معلقة</div></div>
-                    </div>                    
+                    </div>
+                    
                     ${isAdmin ? `
                     <div class="admin-card">
                         <h3 class="font-bold mb-4">🔍 البحث عن عضو</h3>
@@ -1236,8 +1223,7 @@
                         <div id="reports-list" class="space-y-2"></div>
                     </div>
                     
-                    ${isAdmin ? `
-                    <div class="admin-card">
+                    ${isAdmin ? `                    <div class="admin-card">
                         <h3 class="font-bold mb-4">⚙️ إعدادات سريعة</h3>
                         <div class="flex flex-wrap gap-2">
                             <button onclick="backupData()" class="gold-btn text-sm">💾 نسخ احتياطي</button>
@@ -1258,7 +1244,10 @@
                     try {
                         const r = doc.data();
                         const reporter = (await db.collection('users').doc(r.reporter).get()).data()?.username || 'عضو';
-                        html += `<div class="p-3 bg-black rounded-lg border border-red-900/30 text-xs"><div class="flex justify-between mb-2"><span class="text-red-400 font-bold">من: ${escapeHtml(reporter)}</span><span class="text-zinc-600">${formatDate(r.timestamp)}</span></div><p class="mb-2">السبب: ${escapeHtml(r.reason)}</p><div class="flex gap-3"><button onclick="viewReportPost('${r.postId}')" class="text-gold-primary underline">معاينة</button><button onclick="dismissReport('${doc.id}')" class="text-zinc-500 underline">تجاهل</button></div></div>`;
+                        const actionBtn = r.targetType === 'post' 
+                            ? `<button onclick="viewReportPost('${r.targetId}')" class="text-gold-primary underline">👁️ معاينة المنشور</button>`
+                            : `<button onclick="viewReportComment('${r.targetId}')" class="text-gold-primary underline">👁️ معاينة التعليق</button>`;
+                        html += `<div class="p-3 bg-black rounded-lg border border-red-900/30 text-xs"><div class="flex justify-between mb-2"><span class="text-red-400 font-bold">من: ${escapeHtml(reporter)}</span><span class="text-zinc-600">${formatDate(r.timestamp)}</span></div><p class="mb-2"><strong>النوع:</strong> ${r.targetType==='post'?'📝 منشور':'💬 تعليق'}<br><strong>السبب:</strong> ${escapeHtml(r.reason)}</p><div class="flex gap-3">${actionBtn}<button onclick="dismissReport('${doc.id}')" class="text-zinc-500 underline">تجاهل</button></div></div>`;
                     } catch(e) { console.error('Report render error:',e); }
                 }
                 list.innerHTML = html;
@@ -1272,7 +1261,8 @@
                 const results = [];
                 snap.forEach(doc => { 
                     const u=doc.data(); 
-                    if (u.username?.toLowerCase().includes(q)||u.uia?.includes(q))                         results.push({email:doc.id,...u}); 
+                    if (u.username?.toLowerCase().includes(q)||u.uia?.includes(q)) 
+                        results.push({email:doc.id,...u}); 
                 });
                 const container = document.getElementById('admin-results');
                 if (!container) return;
@@ -1282,8 +1272,7 @@
                 }
                 container.innerHTML = results.map(u => {
                     const nameClass = getNameColorClass(u.gender);
-                    const isAdmin = u.email === ADMIN_EMAIL;
-                    return `<div class="flex justify-between items-center p-3 bg-black rounded-lg border border-zinc-800">
+                    const isAdmin = u.email === ADMIN_EMAIL;                    return `<div class="flex justify-between items-center p-3 bg-black rounded-lg border border-zinc-800">
                         <div>
                             <div class="font-bold text-sm flex items-center gap-1 flex-wrap">
                                 <span class="${nameClass}">${escapeHtml(u.username)}</span>
@@ -1321,7 +1310,8 @@
                 const cur=u.data()?.isBanned||false; 
                 await db.collection('users').doc(email).update({isBanned:!cur}); 
                 showToast(!cur?"🚫 تم الحظر":"✅ تم الفك"); 
-                adminSearch();             } catch(e) { showToast("خطأ: "+e.message,'error'); } 
+                adminSearch(); 
+            } catch(e) { showToast("خطأ: "+e.message,'error'); } 
         }
         
         async function toggleMod(email) { 
@@ -1331,8 +1321,7 @@
                 const u=await db.collection('users').doc(email).get(); 
                 const cur=u.data()?.role||'member'; 
                 const nw=cur==='moderator'?'member':'moderator'; 
-                await db.collection('users').doc(email).update({role:nw}); 
-                showToast(nw==='moderator'?"✅ تم التعيين":"تم العزل"); 
+                await db.collection('users').doc(email).update({role:nw});                 showToast(nw==='moderator'?"✅ تم التعيين":"تم العزل"); 
                 adminSearch(); 
             } catch(e) { showToast("خطأ: "+e.message,'error'); } 
         }
@@ -1351,9 +1340,53 @@
                 const content=doc.data().content; 
                 const modal=document.getElementById('modal-container'); 
                 const body=document.getElementById('modal-body'); 
-                body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(content)}</p></div><button onclick="deletePost('${postId}');closeModal();" class="gold-btn w-full py-2 rounded-lg bg-red-600 text-white">🗑️ حذف المنشور</button>`; 
+                body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة المنشور</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(content)}</p></div><button onclick="deletePost('${postId}');closeModal();" class="gold-btn w-full py-2 rounded-lg bg-red-600 text-white">🗑️ حذف المنشور</button>`; 
                 modal.classList.remove('hidden'); 
             } catch(e) { showToast("خطأ: "+e.message,'error'); } 
+        }
+        
+        // ✅ دالة جديدة لمعاينة التعليق المبلغ عنه
+        async function viewReportComment(commentId) {
+            try {
+                const doc = await db.collection('comments').doc(commentId).get();
+                if (!doc.exists) return showToast("التعليق محذوف", 'error');
+                const c = doc.data();
+                const post = await db.collection('posts').doc(c.postId).get();
+                const postData = post.exists ? post.data() : null;
+                
+                const modal = document.getElementById('modal-container');
+                const body = document.getElementById('modal-body');
+                body.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold gold-text">معاينة التعليق</h3>
+                        <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    </div>
+                    <div class="bg-zinc-900 p-4 rounded-xl mb-4">
+                        <p class="text-xs text-zinc-500 mb-2">منشور مرتبط: ${postData ? escapeHtml(postData.content.substring(0,50))+'...' : 'غير موجود'}</p>
+                        <p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(c.content)}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="deleteComment('${commentId}','${c.postId}');closeModal();" class="gold-btn flex-1 py-2 rounded-lg bg-red-600 text-white">🗑️ حذف التعليق</button>
+                        <button onclick="openComments('${c.postId}');closeModal();" class="gold-btn flex-1 py-2 rounded-lg">🔗 goToالمنشور</button>
+                    </div>`;
+                modal.classList.remove('hidden');
+            } catch(e) { showToast("خطأ: "+e.message, 'error'); }        }
+        
+        // ✅ دالة حذف التعليق
+        async function deleteComment(commentId, postId) {
+            if (!confirm("حذف هذا التعليق نهائياً؟")) return;
+            try {
+                await db.collection('comments').doc(commentId).delete();
+                // تحديث عدد التعليقات في المنشور
+                const postRef = db.collection('posts').doc(postId);
+                const post = await postRef.get();
+                const currentCount = post.data()?.commentsCount || 0;
+                if (currentCount > 0) {
+                    await postRef.update({commentsCount: firebase.firestore.FieldValue.increment(-1)});
+                }
+                showToast("✅ تم حذف التعليق");
+                refreshCurrentView();
+            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
         
         async function backupData() {
@@ -1370,7 +1403,8 @@
                     comments: comments.docs.map(d => ({id:d.id, ...d.data()}))
                 };
                 
-                const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});                const url = URL.createObjectURL(blob);
+                const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = `safaa-backup-${new Date().toISOString().split('T')[0]}.json`;
@@ -1385,8 +1419,7 @@
         async function clearOldPosts() {
             if (!confirm("⚠️ هل تريد حذف المنشورات الأقدم من 90 يوماً؟")) return;
             try {
-                const cutoff = Date.now() - (90 * 24 * 60 * 60 * 1000);
-                const posts = await db.collection('posts').get();
+                const cutoff = Date.now() - (90 * 24 * 60 * 60 * 1000);                const posts = await db.collection('posts').get();
                 let deleted = 0;
                 const batch = db.batch();
                 
@@ -1419,7 +1452,8 @@
                 read:false
             }).catch(e=>console.error('Notif error:',e));
         }
-                function updateNotifBadge() {
+        
+        function updateNotifBadge() {
             if (!currentUser) return;
             db.collection('notifications').where('targetEmail','==',currentUser.email).where('read','==',false).get().then(snap=>{
                 const count = snap.size;
@@ -1434,8 +1468,7 @@
                 }
             }).catch(e=>console.error('Badge error:',e));
         }
-        
-        async function renderNotifications() {
+                async function renderNotifications() {
             const main = document.getElementById('main-content');
             if (!main || !currentUser) return;
             main.innerHTML = `<h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-bell text-gold-primary"></i>الإشعارات</h2><div id="notif-list" class="space-y-3"><div class="loading">جاري التحميل...</div></div>`;
@@ -1468,7 +1501,8 @@
                 if (commentsList) {
                     commentsList.scrollTop = commentsList.scrollHeight;
                 }
-            }, 300);        }
+            }, 300);
+        }
         
         function handleGlobalSearch(query) {
             const dropdown = document.getElementById('search-results-dropdown');
@@ -1483,8 +1517,7 @@
                     if (d.content?.toLowerCase().includes(query.toLowerCase())) 
                         results.push({id:doc.id,...d});
                 });
-                if (content) {
-                    if (!results.length) content.innerHTML = '<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>';
+                if (content) {                    if (!results.length) content.innerHTML = '<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>';
                     else content.innerHTML = results.map(r=>`<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm" onclick="showPost('${r.id}')">${escapeHtml(r.content.substring(0,80))}...</div>`).join('');
                 }
             });
@@ -1504,7 +1537,6 @@
         document.addEventListener('DOMContentLoaded', ()=>{ /* Auth handles init */ });
         setInterval(updateNotifBadge, 30000);
         
-        // ✅ دعم زر الرجوع في أندرويد
         document.addEventListener('backbutton', function(e) {
             const modal = document.getElementById('modal-container');
             if (modal && !modal.classList.contains('hidden')) { 
