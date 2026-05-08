@@ -227,7 +227,6 @@
             gap: 4px;
         }
         
-        /* ✅ ألوان الأسماء حسب الجنس */
         .male-name { color: var(--male-white); font-weight: 600; }
         .female-name { color: var(--female-pink); font-weight: 600; }
         
@@ -243,8 +242,8 @@
             padding: 40px;
             color: var(--gold-primary);
             font-size: 1.1rem;
-        }        
-        .empty-state {
+        }
+                .empty-state {
             text-align: center;
             padding: 50px 20px;
             color: #888;
@@ -252,14 +251,12 @@
         }
         .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
         
-        /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeIn 0.3s ease forwards; }
         
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .animate-pulse { animation: pulse 2s infinite; }
         
-        /* Toast */
         .toast {
             position: fixed;
             top: 24px;
@@ -283,21 +280,19 @@
         @keyframes slideDown { from { top: -60px; opacity: 0; } to { top: 24px; opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateX(-50%) translateY(-15px); } }
         
-        /* زر النسخ */
         .copy-btn {
             transition: all 0.2s ease;
         }
         .copy-btn:hover { color: var(--gold-primary) !important; transform: scale(1.1); }
         .copy-btn:active { transform: scale(0.95); }
         
-        /* تحسينات الجوال */
         @media (max-width: 480px) {
-            .post-card { padding: 14px; }            .modal-content { padding: 20px; margin: 10px; }
+            .post-card { padding: 14px; }
+            .modal-content { padding: 20px; margin: 10px; }
             .bottom-nav { padding: 6px 0; }
             .nav-item { font-size: 1.15rem; padding: 6px 10px; }
         }
-    </style>
-</head>
+    </style></head>
 <body>
     <!-- 🔝 الشريط العلوي -->
     <nav class="top-nav">
@@ -342,11 +337,11 @@
             <i class="fa-solid fa-shield-halved"></i>
         </button>
     </div>
+
     <!-- 🪟 النوافذ المنبثقة -->
     <div id="modal-container" class="modal hidden">
         <div class="modal-content" id="modal-body"></div>
     </div>
-
     <script>
         // 🔥 إعدادات فايربيس
         const firebaseConfig = {
@@ -358,7 +353,6 @@
             appId: "1:656750701351:web:e56a2a792eb6f49f251702"
         };
 
-        // تهيئة فايربيس
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
             firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
@@ -366,13 +360,11 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ==================== الثوابت ====================
         const ADMIN_EMAIL = "a1sabriweb@gmail.com";
         let currentUser = null;
         let currentView = 'home';
         let currentPostId = null;
 
-        // ==================== الأدوات المساعدة ====================
         function showToast(msg, type = 'success') {
             document.querySelectorAll('.toast').forEach(t => t.remove());
             const t = document.createElement('div');
@@ -390,18 +382,17 @@
 
         function formatNumber(num) {
             if (num === null || num === undefined) return '0';
-            if (num >= 1000000) return (num/1000000).toFixed(1)+'M';            if (num >= 1000) return (num/1000).toFixed(1)+'ألف';
+            if (num >= 1000000) return (num/1000000).toFixed(1)+'M';
+            if (num >= 1000) return (num/1000).toFixed(1)+'ألف';
             return num.toString();
         }
 
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            div.textContent = text;            return div.innerHTML;
         }
 
-        // ✅ تحديد لون الاسم حسب الجنس
         function getNameColorClass(gender) {
             return gender === 'female' ? 'female-name' : 'male-name';
         }
@@ -416,7 +407,6 @@
             if (active) showPage(active.id.replace('nav-', ''));
         }
 
-        // ==================== خوارزمية المحتوى الرائج ====================
         function calculateTrendingScore(post, author) {
             const likes = post.likes?.length || 0;
             const comments = post.commentsCount || 0;
@@ -432,14 +422,14 @@
             return (score / Math.pow(hours, 1.2)) + (post.isPinned ? 10000 : 0);
         }
 
-        // ==================== المصادقة ====================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 try {
                     const doc = await db.collection('users').doc(user.email).get();
                     if (doc.exists) {
                         currentUser = { email: user.email, ...doc.data() };
-                        if (currentUser.email === ADMIN_EMAIL || currentUser.role === 'moderator') {                            document.getElementById('nav-admin')?.classList.remove('hidden');
+                        if (currentUser.email === ADMIN_EMAIL || currentUser.role === 'moderator') {
+                            document.getElementById('nav-admin')?.classList.remove('hidden');
                         }
                         showPage(currentView || 'home');
                         updateNotifBadge();
@@ -450,7 +440,6 @@
                 showAuthPage();
             }
         });
-
         function showAuthPage() {
             const main = document.getElementById('main-content');
             if (!main) return;
@@ -488,7 +477,8 @@
                         </select>
                         <button onclick="handleRegister()" class="gold-btn w-full py-3 rounded-xl text-lg">إنشاء الحساب</button>
                         <button onclick="showAuthPage()" class="w-full text-zinc-500 text-sm hover:text-gold-primary transition mt-2">لديك حساب؟ دخول</button>
-                    </div>                </div>`;
+                    </div>
+                </div>`;
         }
 
         async function handleLogin() {
@@ -498,8 +488,7 @@
             try {
                 await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
                 await auth.signInWithEmailAndPassword(email, pass);
-                showToast("✅ تم الدخول بنجاح!");
-            } catch(e) {
+                showToast("✅ تم الدخول بنجاح!");            } catch(e) {
                 let msg = e.message;
                 if (msg.includes('wrong-password')) msg = "كلمة المرور غير صحيحة";
                 else if (msg.includes('user-not-found')) msg = "لا يوجد حساب بهذا البريد";
@@ -533,11 +522,11 @@
 
         function logout() { auth.signOut(); currentUser = null; showToast("✅ تم الخروج"); showAuthPage(); }
 
-        // ==================== عرض الصفحات ====================
         function showPage(page) {
             currentView = page;
             const main = document.getElementById('main-content');
-            if (!main) return;            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if (!main) return;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('nav-'+page)?.classList.add('active');
             document.getElementById('global-search-input').value = '';
             document.getElementById('search-results-dropdown')?.classList.add('hidden');
@@ -548,13 +537,11 @@
                 case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;
                 case 'admin': 
                     if (currentUser && (currentUser.email===ADMIN_EMAIL || currentUser.role==='moderator')) renderAdminPanel();
-                    else { showPage('home'); showToast("غير مصرح", 'error'); }
-                    break;
+                    else { showPage('home'); showToast("غير مصرح", 'error'); }                    break;
                 case 'notifications': currentUser ? renderNotifications() : showAuthPage(); break;
             }
         }
 
-        // ==================== المنشورات ====================
         function renderHome() {
             const main = document.getElementById('main-content');
             if (!main) return;
@@ -586,7 +573,8 @@
             
             db.collection('posts').get().then(async (snap) => {
                 const container = document.getElementById('trending-container');
-                if (!container) return;                if (snap.empty) { container.innerHTML = '<div class="empty-state">لا توجد منشورات كافية</div>'; return; }
+                if (!container) return;
+                if (snap.empty) { container.innerHTML = '<div class="empty-state">لا توجد منشورات كافية</div>'; return; }
                 const posts = [];
                 for (const doc of snap.docs) {
                     try {
@@ -598,8 +586,7 @@
                 }
                 posts.sort((a,b)=>b._score-a._score);
                 renderPosts(posts.slice(0,30), 'trending-container', true);
-            }).catch(err => {
-                console.error('Trending fetch error:', err);
+            }).catch(err => {                console.error('Trending fetch error:', err);
                 document.getElementById('trending-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>';
             });
         }
@@ -633,11 +620,11 @@
                                 </div>
                                 <div class="flex gap-1">
                                     <button onclick="reportPost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="تبليغ"><i class="fa-solid fa-flag text-xs"></i></button>
-                                    <button onclick="copyPostText(${JSON.stringify(escapeHtml(post.content))})" class="copy-btn text-zinc-500 hover:text-gold-primary p-1" title="نسخ النص"><i class="fa-solid fa-copy text-xs"></i></button>
                                     ${(isOwner||isAdmin) ? `<button onclick="deletePost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="حذف"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
-                                </div>                            </div>
+                                </div>
+                            </div>
                             <div class="text-sm leading-relaxed mb-4 whitespace-pre-wrap break-words">${escapeHtml(post.content)}</div>
-                            <div class="flex justify-between items-center pt-3 border-t border-zinc-800/50">
+                            <div class="flex flex-wrap justify-between items-center pt-3 border-t border-zinc-800/50 gap-2">
                                 <div class="flex gap-4">
                                     <button onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 text-xs ${isLiked?'text-red-500':'text-zinc-400'} hover:text-red-400">
                                         <i class="fa-${isLiked?'solid':'regular'} fa-heart"></i><span>${formatNumber(post.likes?.length||0)}</span>
@@ -648,7 +635,9 @@
                                     <button onclick="copyPostLink('${post.id}')" class="text-zinc-400 hover:text-gold-primary p-1" title="نسخ الرابط"><i class="fa-solid fa-link text-xs"></i></button>
                                     ${isAdmin ? `<button onclick="togglePin('${post.id}',${post.isPinned})" class="${post.isPinned?'text-blue-400':'text-zinc-400'} hover:text-blue-300 p-1"><i class="fa-solid fa-thumbtack text-xs"></i></button>`:''}
                                 </div>
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 items-center">                                    <button onclick="copyPostText(${JSON.stringify(escapeHtml(post.content))})" class="copy-btn text-zinc-400 hover:text-gold-primary text-xs flex items-center gap-1" title="نسخ النص">
+                                        <i class="fa-solid fa-copy"></i> نسخ
+                                    </button>
                                     ${post.isPinned?'<span class="pinned-badge">📌 مثبت</span>':''}
                                     ${isTrending?'<span class="trending-tag">🔥 رائج</span>':''}
                                 </div>
@@ -658,7 +647,6 @@
             }).filter(h=>h).join('');
         }
 
-        // ==================== إجراءات المنشورات ====================
         function openPostModal() {
             if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
             const modal = document.getElementById('modal-container');
@@ -684,7 +672,8 @@
             const content = document.getElementById('post-text')?.value.trim();
             const btn = document.getElementById('submit-btn');
             if (!content) return showToast("اكتب شيئاً قبل النشر!", 'error');
-            if (btn) { btn.disabled=true; btn.innerText="جاري النشر..."; }            try {
+            if (btn) { btn.disabled=true; btn.innerText="جاري النشر..."; }
+            try {
                 await db.collection('posts').add({
                     authorEmail: currentUser.email, content,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -695,8 +684,7 @@
         }
 
         async function toggleLike(postId) {
-            if (!currentUser) return showToast("سجل الدخول", 'error');
-            try {
+            if (!currentUser) return showToast("سجل الدخول", 'error');            try {
                 const ref = db.collection('posts').doc(postId);
                 const post = await ref.get();
                 const likes = post.data()?.likes || [];
@@ -733,7 +721,8 @@
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
 
-        function reportPost(postId) {            if (!currentUser) return showToast("سجل الدخول", 'error');
+        function reportPost(postId) {
+            if (!currentUser) return showToast("سجل الدخول", 'error');
             const reason = prompt("سبب التبليغ:");
             if (reason?.trim()) {
                 db.collection('reports').add({
@@ -744,7 +733,6 @@
                 }).then(()=>showToast("✅ تم إرسال التبليغ")).catch(e=>showToast("خطأ: "+e.message,'error'));
             }
         }
-
         function copyPostLink(id) {
             const url = location.href.split('#')[0] + "#post="+id;
             navigator.clipboard?.writeText(url).then(()=>showToast("✅ تم نسخ الرابط")).catch(()=>fallbackCopy(url));
@@ -763,7 +751,6 @@
             document.body.removeChild(ta);
         }
 
-        // ==================== التعليقات ====================
         async function openComments(postId) {
             if (!currentUser) return showToast("سجل الدخول", 'error');
             currentPostId = postId;
@@ -782,7 +769,8 @@
             modal.classList.remove('hidden');
             
             db.collection('comments').where('postId','==',postId).where('parentId','==',null).orderBy('timestamp','asc').onSnapshot(async (snap) => {
-                const list = document.getElementById('comments-list');                if (!list) return;
+                const list = document.getElementById('comments-list');
+                if (!list) return;
                 if (snap.empty) { list.innerHTML = '<p class="text-center text-zinc-500 py-4">لا توجد تعليقات بعد 💬</p>'; return; }
                 let html = '';
                 for (const doc of snap.docs) {
@@ -794,8 +782,7 @@
                         const nameClass = getNameColorClass(user.gender);
                         html += `
                             <div class="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800" id="c-${doc.id}">
-                                <div class="flex justify-between items-start mb-1">
-                                    <div class="flex items-center gap-2 flex-wrap">
+                                <div class="flex justify-between items-start mb-1">                                    <div class="flex items-center gap-2 flex-wrap">
                                         <span class="font-bold ${nameClass} text-xs">${escapeHtml(user.username)}</span>
                                         ${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}
                                     </div>
@@ -813,7 +800,6 @@
                     } catch(e) { console.error('Comment render error:',e); }
                 }
                 list.innerHTML = html;
-                // تحميل الردود
                 for (const doc of snap.docs) loadReplies(postId, doc.id);
             });
             setTimeout(()=>document.getElementById('comment-input')?.focus(), 100);
@@ -831,7 +817,8 @@
                         const u = await db.collection('users').doc(c.authorEmail).get();
                         const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
                         const liked = c.likes?.includes(currentUser?.email);
-                        const nameClass = getNameColorClass(user.gender);                        html += `
+                        const nameClass = getNameColorClass(user.gender);
+                        html += `
                             <div class="comment-reply bg-zinc-900/30 p-2 rounded-lg">
                                 <div class="flex justify-between items-start mb-1">
                                     <span class="font-bold ${nameClass} text-[10px]">${escapeHtml(user.username)}</span>
@@ -844,8 +831,7 @@
                             </div>`;
                     } catch(e) { console.error('Reply error:',e); }
                 }
-                container.innerHTML = html;
-            });
+                container.innerHTML = html;            });
         }
 
         async function submitComment(postId, parentId=null) {
@@ -880,22 +866,21 @@
                 const idx = likes.indexOf(currentUser.email);
                 if (idx === -1) likes.push(currentUser.email); else likes.splice(idx,1);
                 await ref.update({likes});
-            } catch(e) { console.error('Comment like error:',e); }        }
+            } catch(e) { console.error('Comment like error:',e); }
+        }
 
         function replyTo(commentId, username) {
             const input = document.getElementById('comment-input');
             if (input) { input.value = `@${username} `; input.focus(); input.dataset.replyTo = commentId; }
         }
 
-        // ==================== الملف الشخصي ====================
         async function renderProfile(email) {
             if (!email) return;
             const main = document.getElementById('main-content');
             if (!main) return;
             main.innerHTML = '<div class="loading">جاري التحميل...</div>';
             try {
-                const userDoc = await db.collection('users').doc(email).get();
-                if (!userDoc.exists) { main.innerHTML = '<div class="text-center text-red-500 py-10">المستخدم غير موجود</div>'; return; }
+                const userDoc = await db.collection('users').doc(email).get();                if (!userDoc.exists) { main.innerHTML = '<div class="text-center text-red-500 py-10">المستخدم غير موجود</div>'; return; }
                 const user = userDoc.data();
                 const nameClass = getNameColorClass(user.gender);
                 
@@ -929,8 +914,9 @@
                     </div>
                     <div class="border-t border-zinc-800 pt-6"><h3 class="font-bold mb-4">منشوراتي</h3><div id="profile-posts" class="space-y-4"></div></div>`;
                 
-                if (!posts.length) document.getElementById('profile-posts').innerHTML = '<div class="empty-state">لا توجد منشورات بعد</div>';                else renderPosts(posts, 'profile-posts', false);
-            } catch(e) { console.error('Profile error:',e); main.innerHTML = '<div class="text-center text-red-500 py-10">خطأ في التحميل</div>'; }
+                if (!posts.length) document.getElementById('profile-posts').innerHTML = '<div class="empty-state">لا توجد منشورات بعد</div>';
+                else renderPosts(posts, 'profile-posts', false);
+            } catch(e) { console.error('Profile error:',e); main.innerHTML = '<div class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</div>'; }
         }
 
         async function openEditProfileModal() {
@@ -943,8 +929,7 @@
                     <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
                 <div class="space-y-4">
-                    <div><label class="block text-xs text-zinc-400 mb-1">الاسم</label><input type="text" id="edit-name" class="input-field mb-0" value="${escapeHtml(currentUser.username||'')}" maxlength="30"></div>
-                    <div><label class="block text-xs text-zinc-400 mb-1">العمر</label><input type="number" id="edit-age" class="input-field mb-0" value="${currentUser.age||''}" min="13" max="100" placeholder="اختياري"></div>
+                    <div><label class="block text-xs text-zinc-400 mb-1">الاسم</label><input type="text" id="edit-name" class="input-field mb-0" value="${escapeHtml(currentUser.username||'')}" maxlength="30"></div>                    <div><label class="block text-xs text-zinc-400 mb-1">العمر</label><input type="number" id="edit-age" class="input-field mb-0" value="${currentUser.age||''}" min="13" max="100" placeholder="اختياري"></div>
                     <div><label class="block text-xs text-zinc-400 mb-1">الجنس</label><select id="edit-gender" class="input-field mb-0"><option value="male" ${currentUser.gender==='male'?'selected':''}>ذكر ♂</option><option value="female" ${currentUser.gender==='female'?'selected':''}>أنثى ♀</option></select></div>
                     <div><label class="block text-xs text-zinc-400 mb-1">البلد</label><input type="text" id="edit-country" class="input-field mb-0" value="${escapeHtml(currentUser.country||'')}" maxlength="50" placeholder="اختياري"></div>
                     <div class="text-[10px] text-zinc-500 bg-zinc-900 p-2 rounded"><i class="fa-solid fa-info-circle ml-1"></i> لا يمكن تغيير البريد أو UIA</div>
@@ -979,7 +964,7 @@
                 }
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
-        // ==================== لوحة التحكم ====================
+
         function renderAdminPanel() {
             if (currentUser?.email!==ADMIN_EMAIL && currentUser?.role!=='moderator') { showPage('home'); return; }
             const main = document.getElementById('main-content');
@@ -993,8 +978,7 @@
                     </div>
                     <div class="admin-card">
                         <h3 class="font-bold mb-4">البحث عن عضو</h3>
-                        <div class="flex gap-2"><input type="text" id="admin-search" class="input-field mb-0" placeholder="الاسم أو UIA..." onkeypress="if(event.key==='Enter')adminSearch()"><button onclick="adminSearch()" class="gold-btn px-4"><i class="fa-solid fa-search"></i></button></div>
-                        <div id="admin-results" class="mt-4 space-y-2"></div>
+                        <div class="flex gap-2"><input type="text" id="admin-search" class="input-field mb-0" placeholder="الاسم أو UIA..." onkeypress="if(event.key==='Enter')adminSearch()"><button onclick="adminSearch()" class="gold-btn px-4"><i class="fa-solid fa-search"></i></button></div>                        <div id="admin-results" class="mt-4 space-y-2"></div>
                     </div>
                     <div class="admin-card"><h3 class="font-bold mb-4">البلاغات</h3><div id="reports-list" class="space-y-3"></div></div>
                 </div>`;
@@ -1027,7 +1011,8 @@
                 const container = document.getElementById('admin-results');
                 if (!container) return;
                 if (!results.length) { container.innerHTML = '<p class="text-zinc-500 text-sm text-center py-2">لا توجد نتائج</p>'; return; }
-                container.innerHTML = results.map(u => {                    const nameClass = getNameColorClass(u.gender);
+                container.innerHTML = results.map(u => {
+                    const nameClass = getNameColorClass(u.gender);
                     return `<div class="flex justify-between items-center p-3 bg-black rounded-lg border border-zinc-800"><div><div class="font-bold text-sm flex items-center gap-1 flex-wrap"><span class="${nameClass}">${escapeHtml(u.username)}</span>${u.verified?'<i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>':''}${u.role==='moderator'?'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-1 rounded">مشرف</span>':''}</div><div class="text-[10px] text-zinc-500">UIA:${u.uia}•${u.email}</div></div><div class="flex gap-2 flex-wrap">${!u.verified&&currentUser.email===ADMIN_EMAIL?`<button onclick="verifyUser('${u.email}')" class="text-blue-500 text-xs hover:underline">✓ توثيق</button>`:''}<button onclick="toggleBan('${u.email}')" class="text-red-500 text-xs hover:underline">${u.isBanned?'فك':'حظر'}</button>${currentUser.email===ADMIN_EMAIL?`<button onclick="toggleMod('${u.email}')" class="text-gold-primary text-xs hover:underline">${u.role==='moderator'?'عزل':'مشرف'}</button>`:''}</div></div>`;
                 }).join('');
             });
@@ -1039,11 +1024,9 @@
         function dismissReport(id) { db.collection('reports').doc(id).update({status:'dismissed'}).then(()=>{showToast("✅ تم التجاهل");}).catch(e=>showToast("خطأ: "+e.message,'error')); }
         async function viewReportPost(postId) { try { const doc=await db.collection('posts').doc(postId).get(); if (!doc.exists) return showToast("المنشور محذوف",'error'); const content=doc.data().content; const modal=document.getElementById('modal-container'); const body=document.getElementById('modal-body'); body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(content)}</p></div><button onclick="deletePost('${postId}');closeModal();" class="gold-btn w-full py-2 rounded-lg bg-red-600 text-white">🗑️ حذف المنشور</button>`; modal.classList.remove('hidden'); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
 
-        // ==================== الإشعارات ====================
         function addNotification(target, text, type, relatedId=null) {
             db.collection('notifications').add({targetEmail:target, text, type, relatedId, timestamp:firebase.firestore.FieldValue.serverTimestamp(), read:false}).catch(e=>console.error('Notif error:',e));
         }
-
         function updateNotifBadge() {
             if (!currentUser) return;
             db.collection('notifications').where('targetEmail','==',currentUser.email).where('read','==',false).get().then(snap=>{
@@ -1065,10 +1048,9 @@
                 list.innerHTML = snap.docs.map(doc=>{const n=doc.data();return`<div class="p-4 rounded-xl border ${n.read?'bg-zinc-900/30 border-zinc-800':'bg-gold-primary/5 border-gold-primary/30'} animate-fade"><div class="flex justify-between items-start"><p class="text-sm">${escapeHtml(n.text)}</p><span class="text-[9px] text-zinc-600 whitespace-nowrap mr-3">${formatDate(n.timestamp)}</span></div></div>`;}).join('');
                 const batch = db.batch(); snap.docs.forEach(doc=>batch.update(doc.ref,{read:true})); await batch.commit();
                 updateNotifBadge();
-            } catch(e) { console.error('Notif render error:',e); document.getElementById('notif-list').innerHTML = '<p class="text-center text-red-500 py-10">خطأ في التحميل</p>'; }
+            } catch(e) { console.error('Notif render error:',e); document.getElementById('notif-list').innerHTML = '<p class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</p>'; }
         }
 
-        // ==================== البحث ====================
         function handleGlobalSearch(query) {
             const dropdown = document.getElementById('search-results-dropdown');
             const content = document.getElementById('search-results-content');
@@ -1076,7 +1058,8 @@
             dropdown?.classList.remove('hidden');
             content.innerHTML = '<div class="text-center text-zinc-500 text-sm py-2">جاري البحث...</div>';
             db.collection('posts').orderBy('timestamp','desc').limit(10).get().then(snap=>{
-                const results = [];                snap.forEach(doc=>{const d=doc.data(); if (d.content?.toLowerCase().includes(query.toLowerCase())) results.push({id:doc.id,...d});});
+                const results = [];
+                snap.forEach(doc=>{const d=doc.data(); if (d.content?.toLowerCase().includes(query.toLowerCase())) results.push({id:doc.id,...d});});
                 if (content) {
                     if (!results.length) content.innerHTML = '<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>';
                     else content.innerHTML = results.map(r=>`<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm" onclick="showPost('${r.id}')">${escapeHtml(r.content.substring(0,80))}...</div>`).join('');
@@ -1085,7 +1068,6 @@
         }
         function showPost(id) { closeModal(); showToast("سيتم عرض المنشور قريباً"); }
 
-        // ==================== التهيئة ====================
         document.addEventListener('DOMContentLoaded', ()=>{ /* Auth handles init */ });
         setInterval(updateNotifBadge, 30000);
         document.addEventListener('backbutton', function(e) {
