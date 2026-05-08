@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منتدى صفاء الروح - النسخة النهائية</title>
+    <title>منتدى صفاء الروح - النسخة النهائية الذهبية ✨</title>
     
     <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -308,6 +308,12 @@
             transition: all 0.2s ease;
         }
         .clickable-username:hover { text-decoration: underline; }
+        
+        .admin-only { display: none; }
+        .mod-only { display: none; }
+        body.admin-mode .admin-only { display: inline-flex !important; }
+        body.admin-mode .mod-only { display: inline-flex !important; }
+        body.mod-mode .mod-only { display: inline-flex !important; }
     </style>
 </head>
 <body>
@@ -335,21 +341,24 @@
         <button id="nav-home" class="nav-item active" onclick="showPage('home')" title="الرئيسية"><i class="fa-solid fa-house"></i></button>
         <button id="nav-trending" class="nav-item" onclick="showPage('trending')" title="الرائج"><i class="fa-solid fa-fire"></i></button>
         <button id="nav-compose" class="nav-item" onclick="openCreatePostModal()" title="منشور جديد"><i class="fa-solid fa-feather"></i></button>
-        <button id="nav-profile" class="nav-item" onclick="showPage('profile')" title="الملف الشخصي"><i class="fa-solid fa-user"></i></button>
-        <button id="nav-admin" class="nav-item" onclick="showPage('admin')" title="الإدارة"><i class="fa-solid fa-shield-halved"></i></button>
+        <button id="nav-profile" class="nav-item" onclick="showPage('profile')" title="الملف الشخصي"><i class="fa-solid fa-user"></i></button>        <button id="nav-admin" class="nav-item admin-only mod-only" onclick="showPage('admin')" title="لوحة التحكم"><i class="fa-solid fa-shield-halved"></i></button>
     </div>
     
     <div id="modal-container" class="modal hidden">
         <div class="modal-content" id="modal-body"></div>
-    </div>    
+    </div>
+    
     <script>
-        const ADMIN_EMAIL = 'admin@safaa.com';
+        // ⚙️ إعدادات النظام الأساسية
+        const ADMIN_EMAIL = 'a1sabriweb@gmail.com'; // ✅ حساب الأدمن الرئيسي
+        const FORBIDDEN_WORDS = ['كس امك', 'انيك امك', 'مخنوث', 'شرموطه', 'قذر', 'سافل', 'منحط', 'تفه', 'قحبه', 'مخنث', 'شتم', 'سب', 'قذف'];
+        
         let currentUser = null;
         let currentView = 'home';
         let currentPostId = null;
         let commentsPageState = {};
         
-        // ✅ إعدادات Firebase الصحيحة من الصورة
+        // ✅ إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBsZc0MRl8jfmMLEPp2zm_nftOs82KUbZ8",
             authDomain: "safaa-forum.firebaseapp.com",
@@ -370,6 +379,25 @@
         const db = firebase.firestore();
         const analytics = firebase.analytics();
         
+        // ✅ دالة التحقق من الصلاحيات
+        function hasPermission(action, targetEmail = null) {
+            if (!currentUser) return false;
+            const isAdmin = currentUser.email === ADMIN_EMAIL;
+            const isMod = currentUser.role === 'moderator';
+            const isOwner = targetEmail && currentUser.email === targetEmail;
+            
+            switch(action) {
+                case 'delete_any': return isAdmin || isMod;
+                case 'delete_own': return isOwner;
+                case 'verify_user': return isAdmin;
+                case 'assign_mod': return isAdmin;                case 'ban_user': return isAdmin;
+                case 'pin_post': return isAdmin;
+                case 'view_admin_panel': return isAdmin || isMod;
+                case 'dismiss_report': return isAdmin || isMod;
+                default: return false;
+            }
+        }
+        
         // ✅ التحقق من حالة المصادقة
         auth.onAuthStateChanged(async (user) => {
             console.log("Auth state changed:", user ? user.email : "null");
@@ -384,13 +412,22 @@
                             return; 
                         }
                         currentUser = {...userData, email: user.email};
-                        console.log("User loaded:", currentUser.username);
+                        console.log("User loaded:", currentUser.username, "Role:", currentUser.role);
+                        
+                        // ✅ تطبيق وضع الأدمن/المشرف في الواجهة
+                        document.body.classList.remove('admin-mode', 'mod-mode');
+                        if (currentUser.email === ADMIN_EMAIL) {
+                            document.body.classList.add('admin-mode');
+                        } else if (currentUser.role === 'moderator') {
+                            document.body.classList.add('mod-mode');
+                        }
+                        
                         showPage('home');
                         updateNotifBadge();
                     } else {
                         console.log("User document not found, creating...");
-                        // إنشاء مستند المستخدم إذا لم يكن موجوداً
-                        await db.collection('users').doc(user.email).set({                            username: user.displayName || user.email.split('@')[0],
+                        await db.collection('users').doc(user.email).set({
+                            username: user.displayName || user.email.split('@')[0],
                             email: user.email,
                             uia: Math.floor(1000+Math.random()*9000).toString(),
                             verified: false, 
@@ -402,8 +439,7 @@
                             isBanned: false, 
                             followingCount: 0, 
                             followersCount: 0
-                        });
-                        currentUser = {
+                        });                        currentUser = {
                             username: user.displayName || user.email.split('@')[0],
                             email: user.email,
                             uia: Math.floor(1000+Math.random()*9000).toString(),
@@ -423,6 +459,8 @@
                 }
             } else { 
                 console.log("No user, showing auth page");
+                currentUser = null;
+                document.body.classList.remove('admin-mode', 'mod-mode');
                 showAuthPage(); 
             }
         });
@@ -439,7 +477,8 @@
                     </div>
                 </div>`;
         }
-                function showLoginForm() {
+        
+        function showLoginForm() {
             const main = document.getElementById('main-content');
             if (!main) return;
             main.innerHTML = `
@@ -449,8 +488,7 @@
                         <input type="email" id="login-email" class="input-field" placeholder="البريد الإلكتروني">
                         <input type="password" id="login-pass" class="input-field" placeholder="كلمة المرور">
                         <button onclick="login()" class="gold-btn w-full py-3 rounded-lg">دخول</button>
-                        <button onclick="showAuthPage()" class="text-gold-primary text-sm underline w-full">العودة</button>
-                    </div>
+                        <button onclick="showAuthPage()" class="text-gold-primary text-sm underline w-full">العودة</button>                    </div>
                 </div>`;
         }
         
@@ -488,12 +526,21 @@
             }
         }
         
-        async function register() {            const name = document.getElementById('reg-name')?.value;
+        async function register() {
+            const name = document.getElementById('reg-name')?.value;
             const email = document.getElementById('reg-email')?.value;
             const pass = document.getElementById('reg-pass')?.value;
             const gender = document.getElementById('reg-gender')?.value || 'male';
+            
             if (!name || !email || !pass) return showToast("املأ جميع الحقول", 'error');
             if (pass.length < 6) return showToast("كلمة المرور 6 أحرف على الأقل", 'error');
+            
+            // ✅ فلتر الكلمات الممنوعة
+            for (const word of FORBIDDEN_WORDS) {
+                if (name.toLowerCase().includes(word.toLowerCase())) {                    return showToast("⚠️ الاسم يحتوي على كلمات غير مسموحة", 'error');
+                }
+            }
+            
             try {
                 console.log("Attempting registration for:", email);
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
@@ -522,6 +569,7 @@
         function logout() { 
             auth.signOut(); 
             currentUser = null; 
+            document.body.classList.remove('admin-mode', 'mod-mode');
             showToast("✅ تم الخروج"); 
             showAuthPage(); 
         }
@@ -537,9 +585,9 @@
             
             switch(page) {
                 case 'home': renderHome(); break;
-                case 'trending': renderTrending(); break;                case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;
-                case 'admin': 
-                    if (currentUser && (currentUser.email===ADMIN_EMAIL || currentUser.role==='moderator')) renderAdminPanel();
+                case 'trending': renderTrending(); break;
+                case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;                case 'admin': 
+                    if (hasPermission('view_admin_panel')) renderAdminPanel();
                     else { showPage('home'); showToast("غير مصرح", 'error'); }
                     break;
                 case 'notifications': currentUser ? renderNotifications() : showAuthPage(); break;
@@ -563,6 +611,8 @@
                         posts.push({ id: doc.id, ...data, author: u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'} });
                     } catch(e) { console.error('Load post error:', e); }
                 }
+                // ✅ المنشورات المثبتة تظهر أولاً
+                posts.sort((a,b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
                 renderPosts(posts, 'posts-container', false);
             }, err => {
                 console.error('Home error:', err);
@@ -585,8 +635,8 @@
                         const data = doc.data();
                         const u = await db.collection('users').doc(data.authorEmail).get();
                         const author = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
-                        posts.push({ id: doc.id, ...data, author, _score: calculateTrendingScore({...data,id:doc.id}, author) });
-                    } catch(e) { console.error('Trending error:', e); }                }
+                        posts.push({ id: doc.id, ...data, author, _score: calculateTrendingScore({...data,id:doc.id}, author) });                    } catch(e) { console.error('Trending error:', e); }
+                }
                 posts.sort((a,b)=>b._score-a._score);
                 renderPosts(posts.slice(0,30), 'trending-container', true);
             }).catch(err => {
@@ -595,12 +645,30 @@
             });
         }
         
+        // ✅ خوارزمية المحتوى الرائج المحسّنة
         function calculateTrendingScore(post, author) {
-            const likes = (post.likes?.length || 0) * 2;
-            const comments = (post.commentsCount || 0) * 3;
-            const age = (Date.now() - (post.timestamp?.toMillis?.() || 0)) / (1000 * 60 * 60);
-            const decay = Math.max(1, 1 + Math.log10(age + 1));
-            return (likes + comments) / decay;
+            const likes = (post.likes?.length || 0);
+            const comments = (post.commentsCount || 0);
+            const isVerified = author?.verified || false;
+            const isPinned = post.isPinned || false;
+            
+            // ✅ للموثقين: 50% تفاعل + 50% شارة
+            // ✅ لغير الموثقين: 80% لايكات + 20% تعليقات
+            let baseScore;
+            if (isVerified) {
+                baseScore = (likes * 0.5) + (comments * 0.5);
+            } else {
+                baseScore = (likes * 0.8) + (comments * 0.2);
+            }
+            
+            // ✅ Time Decay بأس 1.2
+            const ageHours = (Date.now() - (post.timestamp?.toMillis?.() || 0)) / (1000 * 60 * 60);
+            const decay = Math.pow(ageHours + 1, 1.2);
+            
+            // ✅ المنشور المثبت يضيف 10000 نقطة
+            const pinnedBonus = isPinned ? 10000 : 0;
+            
+            return (baseScore / decay) + pinnedBonus;
         }
         
         function renderPosts(posts, containerId, isTrending=false) {
@@ -612,9 +680,11 @@
                 try {
                     const user = post.author || {username:"عضو",verified:false,gender:'male'};
                     const isOwner = currentUser?.email === post.authorEmail;
-                    const isAdmin = currentUser?.email===ADMIN_EMAIL || currentUser?.role==='moderator';
-                    const isLiked = post.likes?.includes(currentUser?.email);
-                    const nameClass = getNameColorClass(user.gender);
+                    const isAdmin = currentUser?.email === ADMIN_EMAIL;
+                    const isMod = currentUser?.role === 'moderator';
+                    const canDelete = hasPermission('delete_any', post.authorEmail) || hasPermission('delete_own', post.authorEmail);
+                    const canPin = hasPermission('pin_post');
+                    const isLiked = post.likes?.includes(currentUser?.email);                    const nameClass = getNameColorClass(user.gender);
                     
                     return `
                         <div class="post-card animate-fade" data-id="${post.id}">
@@ -632,10 +702,11 @@
                                 </div>
                                 <div class="flex gap-1">
                                     <button onclick="reportPost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="تبليغ"><i class="fa-solid fa-flag text-xs"></i></button>
-                                    ${(isOwner||isAdmin) ? `<button onclick="deletePost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="حذف"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
+                                    ${canDelete ? `<button onclick="deletePost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="حذف"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
                                 </div>
                             </div>
-                            <div class="text-sm leading-relaxed mb-4 whitespace-pre-wrap break-words">${escapeHtml(post.content)}</div>                            <div class="flex flex-wrap justify-between items-center pt-3 border-t border-zinc-800/50 gap-2">
+                            <div class="text-sm leading-relaxed mb-4 whitespace-pre-wrap break-words">${escapeHtml(post.content)}</div>
+                            <div class="flex flex-wrap justify-between items-center pt-3 border-t border-zinc-800/50 gap-2">
                                 <div class="flex gap-4">
                                     <button onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 text-xs ${isLiked?'text-red-500':'text-zinc-400'} hover:text-red-400">
                                         <i class="fa-${isLiked?'solid':'regular'} fa-heart"></i><span>${formatNumber(post.likes?.length||0)}</span>
@@ -644,7 +715,7 @@
                                         <i class="fa-regular fa-comment"></i><span>${formatNumber(post.commentsCount||0)}</span>
                                     </button>
                                     <button onclick="copyPostLink('${post.id}')" class="text-zinc-400 hover:text-gold-primary p-1" title="نسخ الرابط"><i class="fa-solid fa-link text-xs"></i></button>
-                                    ${isAdmin ? `<button onclick="togglePin('${post.id}',${post.isPinned})" class="${post.isPinned?'text-blue-400':'text-zinc-400'} hover:text-blue-300 p-1"><i class="fa-solid fa-thumbtack text-xs"></i></button>`:''}
+                                    ${canPin ? `<button onclick="togglePin('${post.id}',${post.isPinned})" class="${post.isPinned?'text-blue-400':'text-zinc-400'} hover:text-blue-300 p-1"><i class="fa-solid fa-thumbtack text-xs"></i></button>`:''}
                                 </div>
                                 <div class="flex gap-2 items-center">
                                     <button onclick="copyPostText('${post.id}')" class="copy-btn text-zinc-400 hover:text-gold-primary text-xs flex items-center gap-1" title="نسخ النص">
@@ -662,8 +733,8 @@
         function getNameColorClass(gender) {
             return gender === 'female' ? 'female-name' : 'male-name';
         }
-        
-        function escapeHtml(text) {
+                function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
@@ -684,8 +755,10 @@
             if (hours < 24) return `قبل ${hours} س`;
             if (days < 7) return `قبل ${days} ي`;
             return date.toLocaleDateString('ar-SA');
-        }        
+        }
+        
         function formatNumber(num) {
+            if (!num) return '0';
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'م';
             if (num >= 1000) return (num / 1000).toFixed(1) + 'ك';
             return num.toString();
@@ -709,8 +782,7 @@
             const modal = document.getElementById('modal-container');
             const body = document.getElementById('modal-body');
             const max = currentUser.verified ? 4000 : 2000;
-            body.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
+            body.innerHTML = `                <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold gold-text">منشور جديد ${currentUser.verified?'<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded mr-2">✓ موثق</span>':''}</h3>
                     <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
@@ -721,7 +793,15 @@
                 </div>`;
             modal.classList.remove('hidden');
             const ta = document.getElementById('post-text');
-            ta?.addEventListener('input', function() { document.getElementById('char-count').innerText = this.value.length+' / '+max; });
+            ta?.addEventListener('input', function() { 
+                document.getElementById('char-count').innerText = this.value.length+' / '+max;
+                // ✅ فلتر الكلمات الممنوعة أثناء الكتابة
+                FORBIDDEN_WORDS.forEach(word => {
+                    if (this.value.toLowerCase().includes(word.toLowerCase())) {
+                        showToast("⚠️ كلمة غير مسموحة: " + word, 'warning');
+                    }
+                });
+            });
             setTimeout(()=>ta?.focus(), 100);
         }
         
@@ -729,14 +809,30 @@
             const content = document.getElementById('post-text')?.value.trim();
             const btn = document.getElementById('submit-btn');
             if (!content) return showToast("اكتب شيئاً قبل النشر!", 'error');
+            
+            // ✅ فلتر الكلمات الممنوعة قبل النشر
+            for (const word of FORBIDDEN_WORDS) {
+                if (content.toLowerCase().includes(word.toLowerCase())) {
+                    return showToast("⚠️ المنشور يحتوي على كلمات غير مسموحة", 'error');
+                }
+            }
+            
             if (btn) { btn.disabled=true; btn.innerText="جاري النشر..."; }
             try {
                 await db.collection('posts').add({
-                    authorEmail: currentUser.email, content,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),                    likes: [], commentsCount: 0, isPinned: false
+                    authorEmail: currentUser.email, 
+                    content,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    likes: [], 
+                    commentsCount: 0, 
+                    isPinned: false
                 });
-                closeModal(); showToast("✅ تم النشر!"); refreshCurrentView();
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); if(btn){btn.disabled=false;btn.innerText="نشر الآن";} }
+                closeModal(); 
+                showToast("✅ تم النشر!"); 
+                refreshCurrentView();
+            } catch(e) { 
+                showToast("خطأ: "+e.message, 'error');                 if(btn){btn.disabled=false;btn.innerText="نشر الآن";} 
+            }
         }
         
         async function toggleLike(postId) {
@@ -752,7 +848,9 @@
                     if (author && author !== currentUser.email) {
                         addNotification(author, `${currentUser.username} أعجب بمنشورك ❤️`, 'like', postId);
                     }
-                } else { likes.splice(idx,1); }
+                } else { 
+                    likes.splice(idx,1); 
+                }
                 await ref.update({likes});
             } catch(e) { console.error('Like error:',e); }
         }
@@ -765,12 +863,15 @@
                 const batch = db.batch();
                 comments.forEach(doc => batch.delete(doc.ref));
                 await batch.commit();
-                showToast("✅ تم الحذف"); refreshCurrentView();
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
+                showToast("✅ تم الحذف"); 
+                refreshCurrentView();
+            } catch(e) { 
+                showToast("خطأ: "+e.message, 'error'); 
+            }
         }
         
         async function togglePin(postId, current) {
-            if (currentUser?.email !== ADMIN_EMAIL) return showToast("غير مصرح", 'error');
+            if (!hasPermission('pin_post')) return showToast("غير مصرح", 'error');
             try {
                 await db.collection('posts').doc(postId).update({isPinned: !current});
                 showToast(!current ? "📌 تم التثبيت" : "تم إلغاء التثبيت");
@@ -779,10 +880,11 @@
         }
         
         function reportPost(postId) {
-            if (!currentUser) return showToast("سجل الدخول", 'error');
-            const reason = prompt("سبب التبليغ:");
+            if (!currentUser) return showToast("سجل الدخول", 'error');            const reason = prompt("سبب التبليغ:");
             if (reason?.trim()) {
-                db.collection('reports').add({                    postId, reporter: currentUser.email,
+                db.collection('reports').add({
+                    postId, 
+                    reporter: currentUser.email,
                     reason: reason.trim(),
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     status: 'pending'
@@ -827,11 +929,11 @@
         async function openComments(postId) {
             if (!currentUser) return showToast("سجل الدخول", 'error');
             currentPostId = postId;
-            commentsPageState[postId] = { page: 0, totalComments: 0 };
-            const modal = document.getElementById('modal-container');
+            commentsPageState[postId] = { page: 0, totalComments: 0 };            const modal = document.getElementById('modal-container');
             const body = document.getElementById('modal-body');
             body.innerHTML = `
-                <div class="flex justify-between items-center mb-4">                    <h3 class="text-lg font-bold gold-text">التعليقات</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold gold-text">التعليقات</h3>
                     <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
                 <div id="comments-list" class="max-h-80 overflow-y-auto mb-4 space-y-3"><div class="loading">جاري التحميل...</div></div>
@@ -840,7 +942,6 @@
                     <button onclick="submitComment('${postId}')" class="gold-btn px-4"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>`;
             modal.classList.remove('hidden');
-            
             loadCommentsPage(postId, 0);
             setTimeout(()=>document.getElementById('comment-input')?.focus(), 100);
         }
@@ -877,10 +978,10 @@
                         const u = await db.collection('users').doc(c.authorEmail).get();
                         const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
                         const liked = c.likes?.includes(currentUser?.email);
-                        const nameClass = getNameColorClass(user.gender);
-                        html += `
+                        const nameClass = getNameColorClass(user.gender);                        html += `
                             <div class="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800" id="c-${doc.id}">
-                                <div class="flex justify-between items-start mb-1">                                    <div class="flex items-center gap-2 flex-wrap">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
                                         <span class="font-bold ${nameClass} text-xs clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>
                                         ${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}
                                     </div>
@@ -926,10 +1027,10 @@
                     for (const doc of snap.docs) {
                         try {
                             const c = doc.data();
-                            const u = await db.collection('users').doc(c.authorEmail).get();
-                            const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
+                            const u = await db.collection('users').doc(c.authorEmail).get();                            const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
                             const liked = c.likes?.includes(currentUser?.email);
-                            const nameClass = getNameColorClass(user.gender);                            html += `
+                            const nameClass = getNameColorClass(user.gender);
+                            html += `
                                 <div class="comment-reply bg-zinc-900/30 p-2 rounded-lg">
                                     <div class="flex justify-between items-start mb-1">
                                         <span class="font-bold ${nameClass} text-[10px] clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>
@@ -950,9 +1051,19 @@
             const input = document.getElementById('comment-input');
             const content = input?.value.trim();
             if (!content) return;
+            
+            // ✅ فلتر الكلمات الممنوعة في التعليقات
+            for (const word of FORBIDDEN_WORDS) {
+                if (content.toLowerCase().includes(word.toLowerCase())) {
+                    return showToast("⚠️ التعليق يحتوي على كلمات غير مسموحة", 'error');
+                }
+            }
+            
             try {
                 await db.collection('comments').add({
-                    postId, authorEmail: currentUser.email, content,
+                    postId, 
+                    authorEmail: currentUser.email, 
+                    content,
                     parentId: parentId || null,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     likes: []
@@ -965,8 +1076,7 @@
                         addNotification(author, `${currentUser.username} علق على منشورك 💬`, 'comment', postId);
                     }
                 }
-                input.value = '';
-                showToast("✅ تم النشر");
+                input.value = '';                showToast("✅ تم النشر");
                 loadCommentsPage(postId, commentsPageState[postId]?.page || 0);
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
@@ -978,7 +1088,8 @@
                 const doc = await ref.get();
                 const likes = doc.data()?.likes || [];
                 const idx = likes.indexOf(currentUser.email);
-                if (idx === -1) likes.push(currentUser.email); else likes.splice(idx,1);                await ref.update({likes});
+                if (idx === -1) likes.push(currentUser.email); else likes.splice(idx,1);
+                await ref.update({likes});
             } catch(e) { console.error('Comment like error:',e); }
         }
         
@@ -1014,8 +1125,7 @@
                         </h2>
                         <p class="text-zinc-500 text-sm mb-4">
                             UIA: ${user.uia} ${user.age?'• '+user.age+' سنة':''} ${user.country?'• '+user.country:''}<br>
-                            انضم في ${formatDate(user.joinedAt)}
-                        </p>
+                            انضم في ${formatDate(user.joinedAt)}                        </p>
                         <div class="flex justify-center gap-8 mb-6">
                             <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(followers)}</div><div class="text-[10px] text-zinc-500">متابع</div></div>
                             <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(following)}</div><div class="text-[10px] text-zinc-500">يتابع</div></div>
@@ -1027,7 +1137,8 @@
                         </div>
                     </div>
                     <div class="border-t border-zinc-800 pt-6"><h3 class="font-bold mb-4">منشوراتي</h3><div id="profile-posts" class="space-y-4"></div></div>`;
-                                if (!posts.length) document.getElementById('profile-posts').innerHTML = '<div class="empty-state">لا توجد منشورات بعد</div>';
+                
+                if (!posts.length) document.getElementById('profile-posts').innerHTML = '<div class="empty-state">لا توجد منشورات بعد</div>';
                 else renderPosts(posts, 'profile-posts', false);
             } catch(e) { console.error('Profile error:',e); main.innerHTML = '<div class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</div>'; }
         }
@@ -1057,11 +1168,26 @@
             const age = document.getElementById('edit-age')?.value;
             const gender = document.getElementById('edit-gender')?.value;
             const country = document.getElementById('edit-country')?.value.trim();
+            
             if (!name) return showToast("الاسم مطلوب", 'error');
+            
+            // ✅ فلتر الكلمات الممنوعة في الاسم الجديد
+            for (const word of FORBIDDEN_WORDS) {
+                if (name.toLowerCase().includes(word.toLowerCase())) {
+                    return showToast("⚠️ الاسم يحتوي على كلمات غير مسموحة", 'error');                }
+            }
+            
             try {
-                await db.collection('users').doc(currentUser.email).update({username:name, age:age||'', gender:gender||'male', country:country||''});
+                await db.collection('users').doc(currentUser.email).update({
+                    username:name, 
+                    age:age||'', 
+                    gender:gender||'male', 
+                    country:country||''
+                });
                 currentUser = {...currentUser, username:name, age:age||'', gender:gender||'male', country:country||''};
-                closeModal(); renderProfile(currentUser.email); showToast("✅ تم التحديث!");
+                closeModal(); 
+                renderProfile(currentUser.email); 
+                showToast("✅ تم التحديث!");
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
         
@@ -1070,34 +1196,54 @@
             try {
                 const ref = db.collection('follows').doc(`${currentUser.email}_${target}`);
                 if ((await ref.get()).exists) {
-                    await ref.delete(); showToast("تم إلغاء المتابعة");
+                    await ref.delete(); 
+                    showToast("تم إلغاء المتابعة");
                 } else {
-                    await ref.set({follower:currentUser.email, following:target, timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+                    await ref.set({
+                        follower:currentUser.email, 
+                        following:target, 
+                        timestamp:firebase.firestore.FieldValue.serverTimestamp()
+                    });
                     addNotification(target, `${currentUser.username} بدأ في متابعتك! 👋`, 'follow');
                     showToast("✅ تمت المتابعة");
                 }
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }        }
+            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
+        }
         
         function renderAdminPanel() {
-            if (currentUser?.email!==ADMIN_EMAIL && currentUser?.role!=='moderator') { showPage('home'); return; }
+            if (!hasPermission('view_admin_panel')) { showPage('home'); return; }
+            const isAdmin = currentUser?.email === ADMIN_EMAIL;
             const main = document.getElementById('main-content');
             if (!main) return;
+            
             main.innerHTML = `
                 <div class="space-y-6 animate-fade">
-                    <h2 class="text-2xl font-bold gold-text flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i>لوحة التحكم</h2>
+                    <h2 class="text-2xl font-bold gold-text flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i>لوحة التحكم ${isAdmin?'<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded">أدمن</span>':'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-2 py-0.5 rounded">مشرف</span>'}</h2>
+                    
                     <div class="grid grid-cols-2 gap-4">
                         <div class="admin-card text-center"><div class="text-2xl font-bold text-gold-primary" id="users-count">...</div><div class="text-xs text-zinc-500">الأعضاء</div></div>
                         <div class="admin-card text-center"><div class="text-2xl font-bold text-red-500" id="reports-count">...</div><div class="text-xs text-zinc-500">بلاغات معلقة</div></div>
-                    </div>
+                    </div>                    
+                    ${isAdmin ? `
                     <div class="admin-card">
-                        <h3 class="font-bold mb-4">البحث عن عضو</h3>
+                        <h3 class="font-bold mb-4">🔍 البحث عن عضو</h3>
                         <div class="flex gap-2"><input type="text" id="admin-search" class="input-field mb-0" placeholder="الاسم أو UIA..." onkeyup="adminSearch()"><button onclick="adminSearch()" class="gold-btn">بحث</button></div>
                         <div id="admin-results" class="mt-4 space-y-2"></div>
-                    </div>
+                    </div>` : ''}
+                    
                     <div class="admin-card">
-                        <h3 class="font-bold mb-4">البلاغات المعلقة</h3>
+                        <h3 class="font-bold mb-4">📋 البلاغات المعلقة</h3>
                         <div id="reports-list" class="space-y-2"></div>
                     </div>
+                    
+                    ${isAdmin ? `
+                    <div class="admin-card">
+                        <h3 class="font-bold mb-4">⚙️ إعدادات سريعة</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="backupData()" class="gold-btn text-sm">💾 نسخ احتياطي</button>
+                            <button onclick="clearOldPosts()" class="gold-btn text-sm bg-red-600">🗑️ تنظيف المنشورات القديمة</button>
+                        </div>
+                    </div>` : ''}
                 </div>`;
             
             db.collection('users').get().then(s=>{const el=document.getElementById('users-count'); if(el)el.innerText=formatNumber(s.size);});
@@ -1124,32 +1270,168 @@
             if (!q) return;
             db.collection('users').get().then(snap => {
                 const results = [];
-                snap.forEach(doc => { const u=doc.data(); if (u.username?.toLowerCase().includes(q)||u.uia?.includes(q)) results.push({email:doc.id,...u}); });
-                const container = document.getElementById('admin-results');                if (!container) return;
-                if (!results.length) { container.innerHTML = '<p class="text-zinc-500 text-sm text-center py-2">لا توجد نتائج</p>'; return; }
+                snap.forEach(doc => { 
+                    const u=doc.data(); 
+                    if (u.username?.toLowerCase().includes(q)||u.uia?.includes(q))                         results.push({email:doc.id,...u}); 
+                });
+                const container = document.getElementById('admin-results');
+                if (!container) return;
+                if (!results.length) { 
+                    container.innerHTML = '<p class="text-zinc-500 text-sm text-center py-2">لا توجد نتائج</p>'; 
+                    return; 
+                }
                 container.innerHTML = results.map(u => {
                     const nameClass = getNameColorClass(u.gender);
-                    return `<div class="flex justify-between items-center p-3 bg-black rounded-lg border border-zinc-800"><div><div class="font-bold text-sm flex items-center gap-1 flex-wrap"><span class="${nameClass}">${escapeHtml(u.username)}</span>${u.verified?'<i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>':''}${u.role==='moderator'?'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-1 rounded">مشرف</span>':''}</div><div class="text-[10px] text-zinc-500">UIA:${u.uia}•${u.email}</div></div><div class="flex gap-2 flex-wrap">${!u.verified&&currentUser.email===ADMIN_EMAIL?`<button onclick="verifyUser('${u.email}')" class="text-blue-500 text-xs hover:underline">✓ توثيق</button>`:''}<button onclick="toggleBan('${u.email}')" class="text-red-500 text-xs hover:underline">${u.isBanned?'فك':'حظر'}</button>${currentUser.email===ADMIN_EMAIL?`<button onclick="toggleMod('${u.email}')" class="text-gold-primary text-xs hover:underline">${u.role==='moderator'?'عزل':'مشرف'}</button>`:''}</div></div>`;
+                    const isAdmin = u.email === ADMIN_EMAIL;
+                    return `<div class="flex justify-between items-center p-3 bg-black rounded-lg border border-zinc-800">
+                        <div>
+                            <div class="font-bold text-sm flex items-center gap-1 flex-wrap">
+                                <span class="${nameClass}">${escapeHtml(u.username)}</span>
+                                ${u.verified?'<i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>':''}
+                                ${u.role==='moderator'?'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-1 rounded">مشرف</span>':''}
+                                ${isAdmin?'<span class="text-[10px] bg-red-500/20 text-red-400 px-1 rounded">أدمن</span>':''}
+                            </div>
+                            <div class="text-[10px] text-zinc-500">UIA:${u.uia}•${u.email}</div>
+                        </div>
+                        <div class="flex gap-2 flex-wrap">
+                            ${!u.verified && currentUser.email===ADMIN_EMAIL ? `<button onclick="verifyUser('${u.email}')" class="text-blue-500 text-xs hover:underline">✓ توثيق</button>`:''}
+                            <button onclick="toggleBan('${u.email}')" class="text-red-500 text-xs hover:underline">${u.isBanned?'فك':'حظر'}</button>
+                            ${currentUser.email===ADMIN_EMAIL && !isAdmin ? `<button onclick="toggleMod('${u.email}')" class="text-gold-primary text-xs hover:underline">${u.role==='moderator'?'عزل':'مشرف'}</button>`:''}
+                        </div>
+                    </div>`;
                 }).join('');
             });
         }
         
-        async function verifyUser(email) { if (!confirm(`توثيق ${email}؟`)) return; try { await db.collection('users').doc(email).update({verified:true}); showToast("✅ تم التوثيق"); adminSearch(); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
-        async function toggleBan(email) { if (email===ADMIN_EMAIL) return showToast("لا يمكن حظر الأدمن!",'error'); try { const u=await db.collection('users').doc(email).get(); const cur=u.data()?.isBanned||false; await db.collection('users').doc(email).update({isBanned:!cur}); showToast(!cur?"🚫 تم الحظر":"✅ تم الفك"); adminSearch(); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
-        async function toggleMod(email) { if (email===ADMIN_EMAIL) return; try { const u=await db.collection('users').doc(email).get(); const cur=u.data()?.role||'member'; const nw=cur==='moderator'?'member':'moderator'; await db.collection('users').doc(email).update({role:nw}); showToast(nw==='moderator'?"✅ تم التعيين":"تم العزل"); adminSearch(); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
-        function dismissReport(id) { db.collection('reports').doc(id).update({status:'dismissed'}).then(()=>{showToast("✅ تم التجاهل");}).catch(e=>showToast("خطأ: "+e.message,'error')); }
-        async function viewReportPost(postId) { try { const doc=await db.collection('posts').doc(postId).get(); if (!doc.exists) return showToast("المنشور محذوف",'error'); const content=doc.data().content; const modal=document.getElementById('modal-container'); const body=document.getElementById('modal-body'); body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(content)}</p></div><button onclick="deletePost('${postId}');closeModal();" class="gold-btn w-full py-2 rounded-lg bg-red-600 text-white">🗑️ حذف المنشور</button>`; modal.classList.remove('hidden'); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
-        
-        function addNotification(target, text, type, relatedId=null) {
-            db.collection('notifications').add({targetEmail:target, text, type, relatedId, timestamp:firebase.firestore.FieldValue.serverTimestamp(), read:false}).catch(e=>console.error('Notif error:',e));
+        async function verifyUser(email) { 
+            if (!hasPermission('verify_user')) return showToast("غير مصرح", 'error');
+            if (!confirm(`توثيق ${email}؟`)) return; 
+            try { 
+                await db.collection('users').doc(email).update({verified:true}); 
+                showToast("✅ تم التوثيق"); 
+                adminSearch(); 
+            } catch(e) { showToast("خطأ: "+e.message,'error'); } 
         }
         
-        function updateNotifBadge() {
+        async function toggleBan(email) { 
+            if (!hasPermission('ban_user')) return showToast("غير مصرح", 'error');
+            if (email===ADMIN_EMAIL) return showToast("لا يمكن حظر الأدمن!",'error'); 
+            try { 
+                const u=await db.collection('users').doc(email).get(); 
+                const cur=u.data()?.isBanned||false; 
+                await db.collection('users').doc(email).update({isBanned:!cur}); 
+                showToast(!cur?"🚫 تم الحظر":"✅ تم الفك"); 
+                adminSearch();             } catch(e) { showToast("خطأ: "+e.message,'error'); } 
+        }
+        
+        async function toggleMod(email) { 
+            if (!hasPermission('assign_mod')) return showToast("غير مصرح", 'error');
+            if (email===ADMIN_EMAIL) return showToast("لا يمكن تعديل صلاحيات الأدمن!",'error'); 
+            try { 
+                const u=await db.collection('users').doc(email).get(); 
+                const cur=u.data()?.role||'member'; 
+                const nw=cur==='moderator'?'member':'moderator'; 
+                await db.collection('users').doc(email).update({role:nw}); 
+                showToast(nw==='moderator'?"✅ تم التعيين":"تم العزل"); 
+                adminSearch(); 
+            } catch(e) { showToast("خطأ: "+e.message,'error'); } 
+        }
+        
+        function dismissReport(id) { 
+            if (!hasPermission('dismiss_report')) return showToast("غير مصرح", 'error');
+            db.collection('reports').doc(id).update({status:'dismissed'})
+                .then(()=>{showToast("✅ تم التجاهل");})
+                .catch(e=>showToast("خطأ: "+e.message,'error')); 
+        }
+        
+        async function viewReportPost(postId) { 
+            try { 
+                const doc=await db.collection('posts').doc(postId).get(); 
+                if (!doc.exists) return showToast("المنشور محذوف",'error'); 
+                const content=doc.data().content; 
+                const modal=document.getElementById('modal-container'); 
+                const body=document.getElementById('modal-body'); 
+                body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(content)}</p></div><button onclick="deletePost('${postId}');closeModal();" class="gold-btn w-full py-2 rounded-lg bg-red-600 text-white">🗑️ حذف المنشور</button>`; 
+                modal.classList.remove('hidden'); 
+            } catch(e) { showToast("خطأ: "+e.message,'error'); } 
+        }
+        
+        async function backupData() {
+            showToast("🔄 جاري إنشاء نسخة احتياطية...");
+            try {
+                const users = await db.collection('users').get();
+                const posts = await db.collection('posts').get();
+                const comments = await db.collection('comments').get();
+                
+                const backup = {
+                    timestamp: new Date().toISOString(),
+                    users: users.docs.map(d => ({id:d.id, ...d.data()})),
+                    posts: posts.docs.map(d => ({id:d.id, ...d.data()})),
+                    comments: comments.docs.map(d => ({id:d.id, ...d.data()}))
+                };
+                
+                const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `safaa-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast("✅ تم تحميل النسخة الاحتياطية");
+            } catch(e) {
+                showToast("خطأ: "+e.message, 'error');
+            }
+        }
+        
+        async function clearOldPosts() {
+            if (!confirm("⚠️ هل تريد حذف المنشورات الأقدم من 90 يوماً؟")) return;
+            try {
+                const cutoff = Date.now() - (90 * 24 * 60 * 60 * 1000);
+                const posts = await db.collection('posts').get();
+                let deleted = 0;
+                const batch = db.batch();
+                
+                posts.forEach(doc => {
+                    const ts = doc.data().timestamp?.toMillis?.() || 0;
+                    if (ts < cutoff && !doc.data().isPinned) {
+                        batch.delete(doc.ref);
+                        deleted++;
+                    }
+                });
+                
+                if (deleted > 0) {
+                    await batch.commit();
+                    showToast(`✅ تم حذف ${deleted} منشور قديم`);
+                } else {
+                    showToast("لا توجد منشورات قديمة للحذف");
+                }
+            } catch(e) {
+                showToast("خطأ: "+e.message, 'error');
+            }
+        }
+        
+        function addNotification(target, text, type, relatedId=null) {
+            db.collection('notifications').add({
+                targetEmail:target, 
+                text, 
+                type, 
+                relatedId, 
+                timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+                read:false
+            }).catch(e=>console.error('Notif error:',e));
+        }
+                function updateNotifBadge() {
             if (!currentUser) return;
             db.collection('notifications').where('targetEmail','==',currentUser.email).where('read','==',false).get().then(snap=>{
                 const count = snap.size;
                 const badge = document.getElementById('notif-count');
-                if (badge) { if (count>0) { badge.innerText = count>99?'99+':count; badge.classList.remove('hidden'); } else badge.classList.add('hidden'); }
+                if (badge) { 
+                    if (count>0) { 
+                        badge.innerText = count>99?'99+':count; 
+                        badge.classList.remove('hidden'); 
+                    } else {
+                        badge.classList.add('hidden'); 
+                    } 
+                }
             }).catch(e=>console.error('Badge error:',e));
         }
         
@@ -1168,20 +1450,25 @@
                     const cursorStyle = n.relatedId ? 'cursor-pointer hover:bg-gold-primary/10' : '';
                     return `<div class="p-4 rounded-xl border ${n.read?'bg-zinc-900/30 border-zinc-800':'bg-gold-primary/5 border-gold-primary/30'} animate-fade ${cursorStyle}" ${clickHandler}><div class="flex justify-between items-start"><p class="text-sm">${escapeHtml(n.text)}</p><span class="text-[9px] text-zinc-600 whitespace-nowrap mr-3">${formatDate(n.timestamp)}</span></div></div>`;
                 }).join('');
-                const batch = db.batch(); snap.docs.forEach(doc=>batch.update(doc.ref,{read:true})); await batch.commit();
+                const batch = db.batch(); 
+                snap.docs.forEach(doc=>batch.update(doc.ref,{read:true})); 
+                await batch.commit();
                 updateNotifBadge();
-            } catch(e) { console.error('Notif render error:',e); document.getElementById('notif-list').innerHTML = '<p class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</p>'; }
+            } catch(e) { 
+                console.error('Notif render error:',e); 
+                document.getElementById('notif-list').innerHTML = '<p class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</p>'; 
+            }
         }
         
         async function scrollToComment(postId) {
-            closeModal();            await openComments(postId);
+            closeModal();
+            await openComments(postId);
             setTimeout(() => {
                 const commentsList = document.getElementById('comments-list');
                 if (commentsList) {
                     commentsList.scrollTop = commentsList.scrollHeight;
                 }
-            }, 300);
-        }
+            }, 300);        }
         
         function handleGlobalSearch(query) {
             const dropdown = document.getElementById('search-results-dropdown');
@@ -1191,7 +1478,11 @@
             content.innerHTML = '<div class="text-center text-zinc-500 text-sm py-2">جاري البحث...</div>';
             db.collection('posts').orderBy('timestamp','desc').limit(10).get().then(snap=>{
                 const results = [];
-                snap.forEach(doc=>{const d=doc.data(); if (d.content?.toLowerCase().includes(query.toLowerCase())) results.push({id:doc.id,...d});});
+                snap.forEach(doc=>{
+                    const d=doc.data(); 
+                    if (d.content?.toLowerCase().includes(query.toLowerCase())) 
+                        results.push({id:doc.id,...d});
+                });
                 if (content) {
                     if (!results.length) content.innerHTML = '<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>';
                     else content.innerHTML = results.map(r=>`<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm" onclick="showPost('${r.id}')">${escapeHtml(r.content.substring(0,80))}...</div>`).join('');
@@ -1199,19 +1490,28 @@
             });
         }
         
-        function showPost(id) { closeModal(); showToast("سيتم عرض المنشور قريباً"); }
+        function showPost(id) { 
+            closeModal(); 
+            showToast("سيتم عرض المنشور قريباً"); 
+        }
         
         function refreshCurrentView() {
             if (currentView === 'home') renderHome();
             else if (currentView === 'trending') renderTrending();
-            else if (currentView === 'profile') renderProfile(currentUser?.email);
+            else if (currentView === 'profile' && currentUser) renderProfile(currentUser.email);
         }
         
         document.addEventListener('DOMContentLoaded', ()=>{ /* Auth handles init */ });
         setInterval(updateNotifBadge, 30000);
+        
+        // ✅ دعم زر الرجوع في أندرويد
         document.addEventListener('backbutton', function(e) {
             const modal = document.getElementById('modal-container');
-            if (modal && !modal.classList.contains('hidden')) { e.preventDefault(); closeModal(); return; }
+            if (modal && !modal.classList.contains('hidden')) { 
+                e.preventDefault(); 
+                closeModal(); 
+                return; 
+            }
         }, false);
     </script>
 </body>
