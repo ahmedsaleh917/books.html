@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK v9 Compat (متوافق مع Sketchware) -->
+    <!-- Firebase SDK v9 Compat -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -293,6 +293,9 @@
         .mod-only { display: none; }
         body.admin-mode .admin-only { display: inline-flex !important; }
         body.admin-mode .mod-only { display: inline-flex !important; }        body.mod-mode .mod-only { display: inline-flex !important; }
+
+        .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: #a1a1aa; }
+        .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-primary); }
     </style>
 </head>
 <body>
@@ -338,10 +341,10 @@
         let currentUser = null;
         let currentView = 'home';
         let currentPostId = null;
-        let commentsPageState = {};
-        
+        let commentsPageState = {};        
         // ✅ إعدادات Firebase
-        const firebaseConfig = {            apiKey: "AIzaSyBsZc0MRl8jfmMLEPp2zm_nftOs82KUbZ8",
+        const firebaseConfig = {
+            apiKey: "AIzaSyBsZc0MRl8jfmMLEPp2zm_nftOs82KUbZ8",
             authDomain: "safaa-forum.firebaseapp.com",
             databaseURL: "https://safaa-forum-default-rtdb.firebaseio.com",
             projectId: "safaa-forum",
@@ -351,10 +354,11 @@
             measurementId: "G-63WL44W9RF"
         };
         
-        // ✅ تهيئة Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        
+        // ✅ تفعيل حفظ جلسة الدخول (تذكرني)
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.error(e));
+        
         const auth = firebase.auth();
         const db = firebase.firestore();
         
@@ -364,10 +368,11 @@
             const isAdmin = currentUser.email === ADMIN_EMAIL;
             const isMod = currentUser.role === 'moderator';
             const isOwner = targetEmail && currentUser.email === targetEmail;
+            
             switch(action) {
                 case 'delete_any': return isAdmin || isMod;
                 case 'delete_own': return isOwner;
-                case 'verify_user': return isAdmin;
+                case 'verify_user': return isAdmin; // ✅ حصري للأدمن فقط
                 case 'assign_mod': return isAdmin;
                 case 'ban_user': return isAdmin;
                 case 'pin_post': return isAdmin;
@@ -384,13 +389,9 @@
                     const userDoc = await db.collection('users').doc(user.email).get();
                     if (userDoc.exists) {
                         const userData = userDoc.data();
-                        if (userData.isBanned) { 
-                            await auth.signOut(); 
-                            showToast("🚫 تم حظر حسابك", 'error'); 
-                            return; 
-                        }
-                        currentUser = {...userData, email: user.email};
-                        document.body.classList.remove('admin-mode', 'mod-mode');                        if (currentUser.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
+                        if (userData.isBanned) { await auth.signOut(); showToast("🚫 تم حظر حسابك", 'error'); return; }
+                        currentUser = {...userData, email: user.email};                        document.body.classList.remove('admin-mode', 'mod-mode');
+                        if (currentUser.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
                         else if (currentUser.role === 'moderator') document.body.classList.add('mod-mode');
                         showPage('home');
                         updateNotifBadge();
@@ -404,15 +405,8 @@
                             joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
                             isBanned: false, followingCount: 0, followersCount: 0
                         });
-                        currentUser = {
-                            username: user.displayName || user.email.split('@')[0],
-                            email: user.email,
-                            uia: Math.floor(1000+Math.random()*9000).toString(),
-                            verified: false, role: 'member', gender: 'male',
-                            age: '', country: '', isBanned: false
-                        };
-                        showPage('home');
-                        updateNotifBadge();
+                        currentUser = { username: user.displayName || user.email.split('@')[0], email: user.email, uia: Math.floor(1000+Math.random()*9000).toString(), verified: false, role: 'member', gender: 'male', age: '', country: '', isBanned: false };
+                        showPage('home'); updateNotifBadge();
                     }
                 } catch (error) {
                     console.error("Error loading user:", error);
@@ -428,58 +422,36 @@
         function showAuthPage() {
             const main = document.getElementById('main-content');
             if (!main) return;
-            main.innerHTML = `
-                <div class="max-w-md mx-auto mt-20 text-center animate-fade">
-                    <h2 class="text-3xl font-bold gold-text mb-8">✨ صفاء الروح</h2>
-                    <div class="space-y-4">
-                        <button onclick="showLoginForm()" class="gold-btn w-full py-3 rounded-lg">دخول</button>
-                        <button onclick="showRegisterForm()" class="w-full py-3 rounded-lg border border-gold-primary text-gold-primary font-bold hover:bg-gold-primary/10">تسجيل جديد</button>
-                    </div>
-                </div>`;
+            main.innerHTML = `<div class="max-w-md mx-auto mt-20 text-center animate-fade"><h2 class="text-3xl font-bold gold-text mb-8">✨ صفاء الروح</h2><div class="space-y-4"><button onclick="showLoginForm()" class="gold-btn w-full py-3 rounded-lg">دخول</button><button onclick="showRegisterForm()" class="w-full py-3 rounded-lg border border-gold-primary text-gold-primary font-bold hover:bg-gold-primary/10">تسجيل جديد</button></div></div>`;
         }
         
         function showLoginForm() {
-            const main = document.getElementById('main-content');            if (!main) return;
+            const main = document.getElementById('main-content');
+            if (!main) return;
             main.innerHTML = `
                 <div class="max-w-md mx-auto mt-20 animate-fade">
                     <h2 class="text-2xl font-bold gold-text mb-6 text-center">دخول</h2>
                     <div class="space-y-4">
                         <input type="email" id="login-email" class="input-field" placeholder="البريد الإلكتروني">
                         <input type="password" id="login-pass" class="input-field" placeholder="كلمة المرور">
+                        <div class="flex items-center justify-between"><label class="checkbox-label"><input type="checkbox" id="remember-me" checked><span>تذكرني</span></label></div>
                         <button onclick="login()" class="gold-btn w-full py-3 rounded-lg">دخول</button>
                         <button onclick="showAuthPage()" class="text-gold-primary text-sm underline w-full">العودة</button>
                     </div>
                 </div>`;
-        }
-        
+        }        
         function showRegisterForm() {
             const main = document.getElementById('main-content');
             if (!main) return;
-            main.innerHTML = `
-                <div class="max-w-md mx-auto mt-20 animate-fade">
-                    <h2 class="text-2xl font-bold gold-text mb-6 text-center">تسجيل جديد</h2>
-                    <div class="space-y-4">
-                        <input type="text" id="reg-name" class="input-field" placeholder="اسم المستخدم" maxlength="30">
-                        <input type="email" id="reg-email" class="input-field" placeholder="البريد الإلكتروني">
-                        <input type="password" id="reg-pass" class="input-field" placeholder="كلمة المرور">
-                        <select id="reg-gender" class="input-field mb-0">
-                            <option value="male">ذكر ♂</option>
-                            <option value="female">أنثى ♀</option>
-                        </select>
-                        <button onclick="register()" class="gold-btn w-full py-3 rounded-lg">تسجيل</button>
-                        <button onclick="showAuthPage()" class="text-gold-primary text-sm underline w-full">العودة</button>
-                    </div>
-                </div>`;
+            main.innerHTML = `<div class="max-w-md mx-auto mt-20 animate-fade"><h2 class="text-2xl font-bold gold-text mb-6 text-center">تسجيل جديد</h2><div class="space-y-4"><input type="text" id="reg-name" class="input-field" placeholder="اسم المستخدم" maxlength="30"><input type="email" id="reg-email" class="input-field" placeholder="البريد الإلكتروني"><input type="password" id="reg-pass" class="input-field" placeholder="كلمة المرور"><select id="reg-gender" class="input-field mb-0"><option value="male">ذكر ♂</option><option value="female">أنثى ♀</option></select><button onclick="register()" class="gold-btn w-full py-3 rounded-lg">تسجيل</button><button onclick="showAuthPage()" class="text-gold-primary text-sm underline w-full">العودة</button></div></div>`;
         }
         
         async function login() {
             const email = document.getElementById('login-email')?.value;
             const pass = document.getElementById('login-pass')?.value;
             if (!email || !pass) return showToast("املأ جميع الحقول", 'error');
-            try {
-                await auth.signInWithEmailAndPassword(email, pass);
-                showToast("✅ تم الدخول!");
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
+            try { await auth.signInWithEmailAndPassword(email, pass); showToast("✅ تم الدخول!"); } 
+            catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
         
         async function register() {
@@ -488,28 +460,15 @@
             const pass = document.getElementById('reg-pass')?.value;
             const gender = document.getElementById('reg-gender')?.value || 'male';
             if (!name || !email || !pass) return showToast("املأ جميع الحقول", 'error');
-            if (pass.length < 6) return showToast("كلمة المرور 6 أحرف على الأقل", 'error');            try {
+            if (pass.length < 6) return showToast("كلمة المرور 6 أحرف على الأقل", 'error');
+            try {
                 await auth.createUserWithEmailAndPassword(email, pass);
-                await db.collection('users').doc(email).set({
-                    username: name, email,
-                    uia: Math.floor(1000+Math.random()*9000).toString(),
-                    verified: false, role: 'member', gender,
-                    age: '', country: '',
-                    joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    isBanned: false, followingCount: 0, followersCount: 0
-                });
-                showToast("✅ تم التسجيل! يمكنك الدخول الآن.");
-                showAuthPage();
+                await db.collection('users').doc(email).set({ username: name, email, uia: Math.floor(1000+Math.random()*9000).toString(), verified: false, role: 'member', gender, age: '', country: '', joinedAt: firebase.firestore.FieldValue.serverTimestamp(), isBanned: false, followingCount: 0, followersCount: 0 });
+                showToast("✅ تم التسجيل! يمكنك الدخول الآن."); showAuthPage();
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
         
-        function logout() { 
-            auth.signOut(); 
-            currentUser = null; 
-            document.body.classList.remove('admin-mode', 'mod-mode');
-            showToast("✅ تم الخروج"); 
-            showAuthPage(); 
-        }
+        function logout() { auth.signOut(); currentUser = null; document.body.classList.remove('admin-mode', 'mod-mode'); showToast("✅ تم الخروج"); showAuthPage(); }
         
         function showPage(page) {
             currentView = page;
@@ -523,35 +482,26 @@
                 case 'home': renderHome(); break;
                 case 'trending': renderTrending(); break;
                 case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;
-                case 'admin': 
-                    if (hasPermission('view_admin_panel')) renderAdminPanel();
-                    else { showPage('home'); showToast("غير مصرح", 'error'); }
-                    break;
+                case 'admin': if (hasPermission('view_admin_panel')) renderAdminPanel(); else { showPage('home'); showToast("غير مصرح", 'error'); } break;
                 case 'notifications': currentUser ? renderNotifications() : showAuthPage(); break;
             }
         }
         
         function renderHome() {
-            const main = document.getElementById('main-content');
-            if (!main) return;
+            const main = document.getElementById('main-content');            if (!main) return;
             main.innerHTML = `<div class="mb-4"><h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-house text-gold-primary"></i>آخر المتابعات</h2><div id="posts-container" class="space-y-4"><div class="loading">جاري التحميل...</div></div></div>`;
             db.collection('posts').orderBy('timestamp','desc').limit(50).onSnapshot(async (snap) => {
                 const container = document.getElementById('posts-container');
-                if (!container) return;                if (snap.empty) { container.innerHTML = '<div class="empty-state"><i class="fa-regular fa-folder-open"></i><br>لا توجد منشورات حالياً.<br>كن أول من ينشر! ✨</div>'; return; }
+                if (!container) return;
+                if (snap.empty) { container.innerHTML = '<div class="empty-state"><i class="fa-regular fa-folder-open"></i><br>لا توجد منشورات حالياً.<br>كن أول من ينشر! ✨</div>'; return; }
                 const posts = [];
                 for (const doc of snap.docs) {
-                    try {
-                        const data = doc.data();
-                        const u = await db.collection('users').doc(data.authorEmail).get();
-                        posts.push({ id: doc.id, ...data, author: u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'} });
-                    } catch(e) { console.error('Load post error:', e); }
+                    try { const data = doc.data(); const u = await db.collection('users').doc(data.authorEmail).get(); posts.push({ id: doc.id, ...data, author: u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'} }); } 
+                    catch(e) { console.error('Load post error:', e); }
                 }
                 posts.sort((a,b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
                 renderPosts(posts, 'posts-container', false);
-            }, err => {
-                console.error('Home error:', err);
-                document.getElementById('posts-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ في التحميل</div>';
-            });
+            }, err => { document.getElementById('posts-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ في التحميل</div>'; });
         }
         
         function renderTrending() {
@@ -564,19 +514,12 @@
                 if (snap.empty) { container.innerHTML = '<div class="empty-state">لا توجد منشورات كافية</div>'; return; }
                 const posts = [];
                 for (const doc of snap.docs) {
-                    try {
-                        const data = doc.data();
-                        const u = await db.collection('users').doc(data.authorEmail).get();
-                        const author = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
-                        posts.push({ id: doc.id, ...data, author, _score: calculateTrendingScore({...data,id:doc.id}, author) });
-                    } catch(e) { console.error('Trending error:', e); }
+                    try { const data = doc.data(); const u = await db.collection('users').doc(data.authorEmail).get(); const author = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'}; posts.push({ id: doc.id, ...data, author, _score: calculateTrendingScore({...data,id:doc.id}, author) }); } 
+                    catch(e) { console.error('Trending error:', e); }
                 }
                 posts.sort((a,b)=>b._score-a._score);
                 renderPosts(posts.slice(0,30), 'trending-container', true);
-            }).catch(err => {
-                console.error('Trending fetch error:', err);
-                document.getElementById('trending-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>';
-            });
+            }).catch(err => { document.getElementById('trending-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>'; });
         }
         
         function calculateTrendingScore(post, author) {
@@ -584,16 +527,17 @@
             const comments = (post.commentsCount || 0);
             const isVerified = author?.verified || false;
             const isPinned = post.isPinned || false;
+            // ✅ التوثيق يغير معادلة النقاط فقط (نصف النقاط كما طلبت)
             let baseScore = isVerified ? (likes * 0.5) + (comments * 0.5) : (likes * 0.8) + (comments * 0.2);
             const ageHours = (Date.now() - (post.timestamp?.toMillis?.() || 0)) / (1000 * 60 * 60);
-            const decay = Math.pow(ageHours + 1, 1.2);            const pinnedBonus = isPinned ? 10000 : 0;
+            const decay = Math.pow(ageHours + 1, 1.2);
+            const pinnedBonus = isPinned ? 10000 : 0;
             return (baseScore / decay) + pinnedBonus;
         }
         
         function renderPosts(posts, containerId, isTrending=false) {
             const container = document.getElementById(containerId);
-            if (!container) return;
-            if (!posts?.length) { container.innerHTML = '<div class="empty-state">لا توجد منشورات</div>'; return; }
+            if (!container) return;            if (!posts?.length) { container.innerHTML = '<div class="empty-state">لا توجد منشورات</div>'; return; }
             container.innerHTML = posts.map(post => {
                 try {
                     const user = post.author || {username:"عضو",verified:false,gender:'male'};
@@ -618,34 +562,31 @@
                                 </div>
                                 <div class="flex gap-1">
                                     <button onclick="reportPost('${post.id}', 'post')" class="text-zinc-500 hover:text-red-500 p-1" title="تبليغ"><i class="fa-solid fa-flag text-xs"></i></button>
-                                    ${canDelete ? `<button onclick="deletePost('${post.id}')" class="text-zinc-500 hover:text-red-500 p-1" title="حذف"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
                                 </div>
                             </div>
                             <div class="text-sm leading-relaxed mb-4 whitespace-pre-wrap break-words">${escapeHtml(post.content)}</div>
+                            
                             <div class="flex flex-wrap justify-between items-center pt-3 border-t border-zinc-800/50 gap-2">
                                 <div class="flex gap-4">
-                                    <button onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 text-xs ${isLiked?'text-red-500':'text-zinc-400'} hover:text-red-400">
-                                        <i class="fa-${isLiked?'solid':'regular'} fa-heart"></i><span>${formatNumber(post.likes?.length||0)}</span>
-                                    </button>
-                                    <button onclick="openComments('${post.id}')" class="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-gold-primary">
-                                        <i class="fa-regular fa-comment"></i><span>${formatNumber(post.commentsCount||0)}</span>
-                                    </button>
+                                    <button onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 text-xs ${isLiked?'text-red-500':'text-zinc-400'} hover:text-red-400"><i class="fa-${isLiked?'solid':'regular'} fa-heart"></i><span>${formatNumber(post.likes?.length||0)}</span></button>
+                                    <button onclick="openComments('${post.id}')" class="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-gold-primary"><i class="fa-regular fa-comment"></i><span>${formatNumber(post.commentsCount||0)}</span></button>
                                     <button onclick="copyPostLink('${post.id}')" class="text-zinc-400 hover:text-gold-primary p-1" title="نسخ الرابط"><i class="fa-solid fa-link text-xs"></i></button>
                                     ${canPin ? `<button onclick="togglePin('${post.id}',${post.isPinned})" class="${post.isPinned?'text-blue-400':'text-zinc-400'} hover:text-blue-300 p-1"><i class="fa-solid fa-thumbtack text-xs"></i></button>`:''}
                                 </div>
                                 <div class="flex gap-2 items-center">
-                                    <button onclick="copyPostText('${post.id}')" class="copy-btn text-zinc-400 hover:text-gold-primary text-xs flex items-center gap-1" title="نسخ النص">
-                                        <i class="fa-solid fa-copy"></i> نسخ                                    </button>
+                                    <button onclick="copyPostText('${post.id}')" class="copy-btn text-zinc-400 hover:text-gold-primary text-xs flex items-center gap-1" title="نسخ النص"><i class="fa-solid fa-copy"></i> نسخ</button>
                                     ${post.isPinned?'<span class="pinned-badge">📌 مثبت</span>':''}
                                     ${isTrending?'<span class="trending-tag">🔥 رائج</span>':''}
                                 </div>
                             </div>
+                            
+                            <!-- ✅ زر الحذف البارز في الأسفل -->
+                            ${canDelete ? `<div class="mt-3 pt-3 border-t border-zinc-800/50"><button onclick="deletePost('${post.id}')" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-all text-sm font-bold border border-red-600/30"><i class="fa-solid fa-trash-can"></i> حذف المنشور</button></div>` : ''}
                         </div>`;
                 } catch(e) { console.error('Render post error:',e); return ''; }
             }).join('');
         }
-        
-        function getNameColorClass(gender) { return gender === 'female' ? 'female-name' : 'male-name'; }
+                function getNameColorClass(gender) { return gender === 'female' ? 'female-name' : 'male-name'; }
         function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
         function formatDate(timestamp) {
             if (!timestamp) return '';
@@ -662,42 +603,18 @@
             if (days < 7) return `قبل ${days} ي`;
             return date.toLocaleDateString('ar-SA');
         }
-        function formatNumber(num) {
-            if (!num) return '0';
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'م';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'ك';
-            return num.toString();
-        }
-        function showToast(message, type='success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<span>${message}</span>`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
-        }
-        function closeModal() {
-            document.getElementById('modal-container')?.classList.add('hidden');
-            commentsPageState = {};
-        }
+        function formatNumber(num) { if (!num) return '0'; if (num >= 1000000) return (num / 1000000).toFixed(1) + 'م'; if (num >= 1000) return (num / 1000).toFixed(1) + 'ك'; return num.toString(); }
+        function showToast(message, type='success') { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<span>${message}</span>`; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2500); }
+        function closeModal() { document.getElementById('modal-container')?.classList.add('hidden'); commentsPageState = {}; }
         function openCreatePostModal() {
             if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
             const modal = document.getElementById('modal-container');
             const body = document.getElementById('modal-body');
             const max = currentUser.verified ? 4000 : 2000;
-            body.innerHTML = `                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold gold-text">منشور جديد ${currentUser.verified?'<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded mr-2">✓ موثق</span>':''}</h3>
-                    <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                <textarea id="post-text" class="input-field h-40 resize-none" placeholder="ماذا يدور في ذهنك؟ (حد أقصى ${max} حرف)" maxlength="${max}"></textarea>
-                <div class="flex justify-between items-center">
-                    <span id="char-count" class="text-xs text-zinc-500">0 / ${max}</span>
-                    <button onclick="submitPost()" class="gold-btn" id="submit-btn">نشر الآن</button>
-                </div>`;
+            body.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">منشور جديد ${currentUser.verified?'<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded mr-2">✓ موثق</span>':''}</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><textarea id="post-text" class="input-field h-40 resize-none" placeholder="ماذا يدور في ذهنك؟ (حد أقصى ${max} حرف)" maxlength="${max}"></textarea><div class="flex justify-between items-center"><span id="char-count" class="text-xs text-zinc-500">0 / ${max}</span><button onclick="submitPost()" class="gold-btn" id="submit-btn">نشر الآن</button></div>`;
             modal.classList.remove('hidden');
             const ta = document.getElementById('post-text');
-            ta?.addEventListener('input', function() { 
-                document.getElementById('char-count').innerText = this.value.length+' / '+max;
-            });
+            ta?.addEventListener('input', function() { document.getElementById('char-count').innerText = this.value.length+' / '+max; });
             setTimeout(()=>ta?.focus(), 100);
         }
         async function submitPost() {
@@ -705,22 +622,8 @@
             const btn = document.getElementById('submit-btn');
             if (!content) return showToast("اكتب شيئاً قبل النشر!", 'error');
             if (btn) { btn.disabled=true; btn.innerText="جاري النشر..."; }
-            try {
-                await db.collection('posts').add({
-                    authorEmail: currentUser.email, 
-                    content,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    likes: [], 
-                    commentsCount: 0, 
-                    isPinned: false
-                });
-                closeModal(); 
-                showToast("✅ تم النشر!"); 
-                refreshCurrentView();
-            } catch(e) { 
-                showToast("خطأ: "+e.message, 'error'); 
-                if(btn){btn.disabled=false;btn.innerText="نشر الآن";} 
-            }
+            try { await db.collection('posts').add({ authorEmail: currentUser.email, content, timestamp: firebase.firestore.FieldValue.serverTimestamp(), likes: [], commentsCount: 0, isPinned: false }); closeModal(); showToast("✅ تم النشر!"); refreshCurrentView(); } 
+            catch(e) { showToast("خطأ: "+e.message, 'error'); if(btn){btn.disabled=false;btn.innerText="نشر الآن";} }
         }
         async function toggleLike(postId) {
             if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
@@ -731,107 +634,34 @@
                 const postData = postDoc.data();
                 const likes = postData.likes || [];
                 const hasLiked = likes.includes(currentUser.email);
-                if (hasLiked) {
-                    await postRef.update({ likes: firebase.firestore.FieldValue.arrayRemove(currentUser.email) });
-                    showToast("تم إزالة الإعجاب");                } else {
-                    await postRef.update({ likes: firebase.firestore.FieldValue.arrayUnion(currentUser.email) });
-                    const authorEmail = postData.authorEmail;
-                    if (authorEmail && authorEmail !== currentUser.email) {
-                        await addNotification(authorEmail, `${currentUser.username} أعجب بمنشورك ❤️`, 'like', postId);
-                    }
-                    showToast("✅ أعجبك المنشور");
-                }
-                refreshCurrentView();
-            } catch (error) {
-                console.error('Like error:', error);
-                showToast("❌ خطأ: " + error.message, 'error');
-            }
+                if (hasLiked) { await postRef.update({ likes: firebase.firestore.FieldValue.arrayRemove(currentUser.email) }); showToast("تم إزالة الإعجاب"); } 
+                else { await postRef.update({ likes: firebase.firestore.FieldValue.arrayUnion(currentUser.email) }); if (postData.authorEmail && postData.authorEmail !== currentUser.email) addNotification(postData.authorEmail, `${currentUser.username} أعجب بمنشورك ❤️`, 'like', postId); showToast("✅ أعجبك المنشور"); }                refreshCurrentView();
+            } catch (error) { console.error('Like error:', error); showToast("❌ خطأ: " + error.message, 'error'); }
         }
-        async function deletePost(postId) {
-            if (!confirm("حذف هذا المنشور نهائياً؟")) return;
-            try {
-                await db.collection('posts').doc(postId).delete();
-                const comments = await db.collection('comments').where('postId','==',postId).get();
-                const batch = db.batch();
-                comments.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
-                showToast("✅ تم الحذف"); 
-                refreshCurrentView();
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
-        }
-        async function togglePin(postId, current) {
-            if (!hasPermission('pin_post')) return showToast("غير مصرح", 'error');
-            try {
-                await db.collection('posts').doc(postId).update({isPinned: !current});
-                showToast(!current ? "📌 تم التثبيت" : "تم إلغاء التثبيت");
-                refreshCurrentView();
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
-        }
-        function reportPost(id, type = 'post') {
-            if (!currentUser) return showToast("سجل الدخول", 'error');
-            const reason = prompt("سبب التبليغ:");
-            if (reason?.trim()) {
-                db.collection('reports').add({
-                    targetId: id,
-                    targetType: type,
-                    reporter: currentUser.email,
-                    reason: reason.trim(),
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'pending'
-                }).then(()=>showToast("✅ تم إرسال التبليغ")).catch(e=>showToast("خطأ: "+e.message,'error'));
-            }
-        }
-        function copyPostLink(id) {
-            const url = location.href.split('#')[0] + "#post="+id;            navigator.clipboard?.writeText(url).then(()=>showToast("✅ تم نسخ الرابط")).catch(()=>fallbackCopy(url));
-        }
-        function copyPostText(postId) {
-            db.collection('posts').doc(postId).get().then(doc => {
-                if (doc.exists) {
-                    const text = doc.data().content;
-                    navigator.clipboard?.writeText(text).then(()=>showToast("✅ تم نسخ النص")).catch(()=>fallbackCopy(text));
-                }
-            }).catch(e => showToast("خطأ في النسخ", 'error'));
-        }
-        function fallbackCopy(text) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position='fixed'; ta.style.left='-9999px';
-            document.body.appendChild(ta);
-            ta.focus(); ta.select();
-            try { document.execCommand('copy'); showToast("✅ تم النسخ"); } 
-            catch { showToast("تعذر النسخ", 'error'); }
-            document.body.removeChild(ta);
-        }
+        async function deletePost(postId) { if (!confirm("⚠️ هل أنت متأكد من حذف هذا المنشور نهائياً؟")) return; try { await db.collection('posts').doc(postId).delete(); const comments = await db.collection('comments').where('postId','==',postId).get(); const batch = db.batch(); comments.forEach(doc => batch.delete(doc.ref)); await batch.commit(); showToast("✅ تم الحذف"); refreshCurrentView(); } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
+        async function togglePin(postId, current) { if (!hasPermission('pin_post')) return showToast("غير مصرح", 'error'); try { await db.collection('posts').doc(postId).update({isPinned: !current}); showToast(!current ? "📌 تم التثبيت" : "تم إلغاء التثبيت"); refreshCurrentView(); } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
+        function reportPost(id, type = 'post') { if (!currentUser) return showToast("سجل الدخول", 'error'); const reason = prompt("سبب التبليغ:"); if (reason?.trim()) { db.collection('reports').add({ targetId: id, targetType: type, reporter: currentUser.email, reason: reason.trim(), timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending' }).then(()=>showToast("✅ تم إرسال التبليغ")).catch(e=>showToast("خطأ: "+e.message,'error')); } }
+        function copyPostLink(id) { const url = location.href.split('#')[0] + "#post="+id; navigator.clipboard?.writeText(url).then(()=>showToast("✅ تم نسخ الرابط")).catch(()=>fallbackCopy(url)); }
+        function copyPostText(postId) { db.collection('posts').doc(postId).get().then(doc => { if (doc.exists) { const text = doc.data().content; navigator.clipboard?.writeText(text).then(()=>showToast("✅ تم نسخ النص")).catch(()=>fallbackCopy(text)); } }).catch(e => showToast("خطأ في النسخ", 'error')); }
+        function fallbackCopy(text) { const ta = document.createElement('textarea'); ta.value = text; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); try { document.execCommand('copy'); showToast("✅ تم النسخ"); } catch { showToast("تعذر النسخ", 'error'); } document.body.removeChild(ta); }
         async function openComments(postId) {
             if (!currentUser) return showToast("سجل الدخول", 'error');
             currentPostId = postId;
             commentsPageState[postId] = { page: 0, totalComments: 0 };
             const modal = document.getElementById('modal-container');
             const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold gold-text">التعليقات</h3>
-                    <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                <div id="comments-list" class="max-h-80 overflow-y-auto mb-4 space-y-3"><div class="loading">جاري التحميل...</div></div>
-                <div class="flex gap-2">
-                    <input type="text" id="comment-input" class="input-field mb-0" placeholder="اكتب تعليقاً..." onkeypress="if(event.key==='Enter')submitComment('${postId}')">
-                    <button onclick="submitComment('${postId}')" class="gold-btn px-4"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>`;
+            body.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">التعليقات</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div id="comments-list" class="max-h-80 overflow-y-auto mb-4 space-y-3"><div class="loading">جاري التحميل...</div></div><div class="flex gap-2"><input type="text" id="comment-input" class="input-field mb-0" placeholder="اكتب تعليقاً..." onkeypress="if(event.key==='Enter')submitComment('${postId}')"><button onclick="submitComment('${postId}')" class="gold-btn px-4"><i class="fa-solid fa-paper-plane"></i></button></div>`;
             modal.classList.remove('hidden');
             loadCommentsPage(postId, 0);
             setTimeout(()=>document.getElementById('comment-input')?.focus(), 100);
         }
         async function loadCommentsPage(postId, page) {
             try {
-                const snap = await db.collection('comments')
-                    .where('postId','==',postId)
-                    .where('parentId','==',null)
-                    .orderBy('timestamp','asc')
-                    .get();
+                const snap = await db.collection('comments').where('postId','==',postId).where('parentId','==',null).orderBy('timestamp','asc').get();
                 const allComments = snap.docs;
                 const totalComments = allComments.length;
-                commentsPageState[postId].totalComments = totalComments;                const pageSize = 5;
+                commentsPageState[postId].totalComments = totalComments;
+                const pageSize = 5;
                 const startIdx = page * pageSize;
                 const endIdx = startIdx + pageSize;
                 const pageComments = allComments.slice(startIdx, endIdx);
@@ -846,109 +676,46 @@
                         const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
                         const liked = c.likes?.includes(currentUser?.email);
                         const nameClass = getNameColorClass(user.gender);
-                        html += `
-                            <div class="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800" id="c-${doc.id}">
-                                <div class="flex justify-between items-start mb-1">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="font-bold ${nameClass} text-xs clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>
-                                        ${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}
-                                    </div>
-                                    <span class="text-[9px] text-zinc-600">${formatDate(c.timestamp)}</span>
-                                </div>
-                                <p class="text-xs text-zinc-300 mb-2 break-words">${escapeHtml(c.content)}</p>
-                                <div class="flex gap-4 items-center">
-                                    <button onclick="toggleCommentLike('${doc.id}')" class="text-[10px] ${liked?'text-red-500':'text-zinc-500'} hover:text-red-400 flex items-center gap-1">
-                                        <i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${c.likes?.length||0}
-                                    </button>
-                                    <button onclick="replyTo('${doc.id}','${user.username}')" class="text-[10px] text-zinc-500 hover:text-gold-primary">↩️ رد</button>
-                                    <button onclick="reportPost('${doc.id}', 'comment')" class="text-[10px] text-zinc-500 hover:text-red-500" title="تبليغ">🚩</button>
-                                </div>
-                                <div id="replies-${doc.id}" class="mt-2"></div>
-                            </div>`;
+                        html += `<div class="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800" id="c-${doc.id}"><div class="flex justify-between items-start mb-1"><div class="flex items-center gap-2 flex-wrap"><span class="font-bold ${nameClass} text-xs clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}</div><span class="text-[9px] text-zinc-600">${formatDate(c.timestamp)}</span></div><p class="text-xs text-zinc-300 mb-2 break-words">${escapeHtml(c.content)}</p><div class="flex gap-4 items-center"><button onclick="toggleCommentLike('${doc.id}')" class="text-[10px] ${liked?'text-red-500':'text-zinc-500'} hover:text-red-400 flex items-center gap-1"><i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${c.likes?.length||0}</button><button onclick="replyTo('${doc.id}','${user.username}')" class="text-[10px] text-zinc-500 hover:text-gold-primary">↩️ رد</button><button onclick="reportPost('${doc.id}', 'comment')" class="text-[10px] text-zinc-500 hover:text-red-500" title="تبليغ">🚩</button></div><div id="replies-${doc.id}" class="mt-2"></div></div>`;
                     } catch(e) { console.error('Comment render error:',e); }
                 }
                 if (endIdx < totalComments) html += `<button onclick="loadCommentsPage('${postId}', ${page + 1})" class="show-more-btn">عرض المزيد (${totalComments - endIdx} متبقي)</button>`;
                 list.innerHTML = html;
                 for (const doc of pageComments) loadReplies(postId, doc.id);
-            } catch(e) {
-                console.error('Load comments error:', e);
-                const list = document.getElementById('comments-list');
-                if (list) list.innerHTML = '<p class="text-center text-red-500 py-4">خطأ في التحميل</p>';
-            }
+            } catch(e) { console.error('Load comments error:', e); document.getElementById('comments-list').innerHTML = '<p class="text-center text-red-500 py-4">خطأ في التحميل</p>'; }
         }
-        async function loadReplies(postId, parentId) {
-            const container = document.getElementById(`replies-${parentId}`);
+        async function loadReplies(postId, parentId) {            const container = document.getElementById(`replies-${parentId}`);
             if (!container) return;
-            db.collection('comments')
-                .where('postId','==',postId)                .where('parentId','==',parentId)
-                .orderBy('timestamp','asc')
-                .onSnapshot(async (snap) => {
-                    if (snap.empty) return;
-                    let html = '';
-                    for (const doc of snap.docs) {
-                        try {
-                            const c = doc.data();
-                            const u = await db.collection('users').doc(c.authorEmail).get();
-                            const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
-                            const liked = c.likes?.includes(currentUser?.email);
-                            const nameClass = getNameColorClass(user.gender);
-                            html += `
-                                <div class="comment-reply bg-zinc-900/30 p-2 rounded-lg">
-                                    <div class="flex justify-between items-start mb-1">
-                                        <span class="font-bold ${nameClass} text-[10px] clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span>
-                                        <span class="text-[8px] text-zinc-600">${formatDate(c.timestamp)}</span>
-                                    </div>
-                                    <p class="text-[10px] text-zinc-300 mb-1 break-words">${escapeHtml(c.content)}</p>
-                                    <div class="flex gap-3 items-center">
-                                        <button onclick="toggleCommentLike('${doc.id}')" class="text-[9px] ${liked?'text-red-500':'text-zinc-500'} flex items-center gap-1">
-                                            <i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${c.likes?.length||0}
-                                        </button>
-                                        <button onclick="reportPost('${doc.id}', 'comment')" class="text-[9px] text-zinc-500 hover:text-red-500" title="تبليغ">🚩</button>
-                                    </div>
-                                </div>`;
-                        } catch(e) { console.error('Reply error:',e); }
-                    }
-                    container.innerHTML = html;
-                });
+            db.collection('comments').where('postId','==',postId).where('parentId','==',parentId).orderBy('timestamp','asc').onSnapshot(async (snap) => {
+                if (snap.empty) return;
+                let html = '';
+                for (const doc of snap.docs) {
+                    try {
+                        const c = doc.data();
+                        const u = await db.collection('users').doc(c.authorEmail).get();
+                        const user = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'};
+                        const liked = c.likes?.includes(currentUser?.email);
+                        const nameClass = getNameColorClass(user.gender);
+                        html += `<div class="comment-reply bg-zinc-900/30 p-2 rounded-lg"><div class="flex justify-between items-start mb-1"><span class="font-bold ${nameClass} text-[10px] clickable-username" onclick="renderProfile('${c.authorEmail}')">${escapeHtml(user.username)}</span><span class="text-[8px] text-zinc-600">${formatDate(c.timestamp)}</span></div><p class="text-[10px] text-zinc-300 mb-1 break-words">${escapeHtml(c.content)}</p><div class="flex gap-3 items-center"><button onclick="toggleCommentLike('${doc.id}')" class="text-[9px] ${liked?'text-red-500':'text-zinc-500'} flex items-center gap-1"><i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${c.likes?.length||0}</button><button onclick="reportPost('${doc.id}', 'comment')" class="text-[9px] text-zinc-500 hover:text-red-500" title="تبليغ">🚩</button></div></div>`;
+                    } catch(e) { console.error('Reply error:',e); }
+                }
+                container.innerHTML = html;
+            });
         }
         async function submitComment(postId, parentId=null) {
             const input = document.getElementById('comment-input');
             const content = input?.value.trim();
             if (!content) return;
             try {
-                await db.collection('comments').add({
-                    postId, authorEmail: currentUser.email, content,
-                    parentId: parentId || null,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    likes: []
-                });
-                if (!parentId) {
-                    await db.collection('posts').doc(postId).update({commentsCount: firebase.firestore.FieldValue.increment(1)});
-                    const post = await db.collection('posts').doc(postId).get();
-                    const author = post.data()?.authorEmail;
-                    if (author && author !== currentUser.email) {
-                        addNotification(author, `${currentUser.username} علق على منشورك 💬`, 'comment', postId);
-                    }
-                }                input.value = '';
+                await db.collection('comments').add({ postId, authorEmail: currentUser.email, content, parentId: parentId || null, timestamp: firebase.firestore.FieldValue.serverTimestamp(), likes: [] });
+                if (!parentId) { await db.collection('posts').doc(postId).update({commentsCount: firebase.firestore.FieldValue.increment(1)}); const post = await db.collection('posts').doc(postId).get(); const author = post.data()?.authorEmail; if (author && author !== currentUser.email) addNotification(author, `${currentUser.username} علق على منشورك 💬`, 'comment', postId); }
+                input.value = '';
                 showToast("✅ تم النشر");
                 loadCommentsPage(postId, commentsPageState[postId]?.page || 0);
             } catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
-        async function toggleCommentLike(id) {
-            if (!currentUser) return;
-            try {
-                const ref = db.collection('comments').doc(id);
-                const doc = await ref.get();
-                const likes = doc.data()?.likes || [];
-                const idx = likes.indexOf(currentUser.email);
-                if (idx === -1) likes.push(currentUser.email); else likes.splice(idx,1);
-                await ref.update({likes});
-            } catch(e) { console.error('Comment like error:',e); }
-        }
-        function replyTo(commentId, username) {
-            const input = document.getElementById('comment-input');
-            if (input) { input.value = `@${username} `; input.focus(); input.dataset.replyTo = commentId; }
-        }
+        async function toggleCommentLike(id) { if (!currentUser) return; try { const ref = db.collection('comments').doc(id); const doc = await ref.get(); const likes = doc.data()?.likes || []; const idx = likes.indexOf(currentUser.email); if (idx === -1) likes.push(currentUser.email); else likes.splice(idx,1); await ref.update({likes}); } catch(e) { console.error('Comment like error:',e); } }
+        function replyTo(commentId, username) { const input = document.getElementById('comment-input'); if (input) { input.value = `@${username} `; input.focus(); input.dataset.replyTo = commentId; } }
         async function renderProfile(email) {
             if (!email) return;
             const main = document.getElementById('main-content');
@@ -964,48 +731,15 @@
                 const followsSnap = await db.collection('follows').where('following','==',email).get();
                 const followers = followsSnap.size;
                 const following = user.followingCount || 0;
-                main.innerHTML = `
-                    <div class="text-center mb-8 animate-fade">
-                        <div class="profile-icon w-24 h-24 mx-auto text-4xl mb-4 cursor-pointer" onclick="${email===currentUser?.email?'openEditProfileModal()':''}"><i class="fa-solid fa-feather"></i></div>
-                        <h2 class="text-2xl font-bold flex items-center justify-center gap-2 flex-wrap">
-                            <span class="${nameClass}">${escapeHtml(user.username)}</span>
-                            ${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-xl"></i>':''}
-                        </h2>
-                        <p class="text-zinc-500 text-sm mb-4">
-                            UIA: ${user.uia} ${user.age?'• '+user.age+' سنة':''} ${user.country?'• '+user.country:''}<br>
-                            انضم في ${formatDate(user.joinedAt)}
-                        </p>
-                        <div class="flex justify-center gap-8 mb-6">
-                            <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(followers)}</div><div class="text-[10px] text-zinc-500">متابع</div></div>
-                            <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(following)}</div><div class="text-[10px] text-zinc-500">يتابع</div></div>
-                            <div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(posts.length)}</div><div class="text-[10px] text-zinc-500">منشور</div></div>                        </div>
-                        <div class="flex justify-center gap-3 flex-wrap">
-                            ${email!==currentUser?.email ? `<button onclick="toggleFollow('${email}')" class="gold-btn px-6 py-2 rounded-full text-sm">متابعة</button>` : ''}
-                            ${email===currentUser?.email ? `<button onclick="openEditProfileModal()" class="gold-btn px-6 py-2 rounded-full text-sm"><i class="fa-solid fa-pen ml-1"></i>تعديل البروفايل</button><button onclick="logout()" class="text-red-500 text-xs underline px-4 py-2">خروج</button>` : ''}
-                        </div>
-                    </div>
-                    <div class="border-t border-zinc-800 pt-6"><h3 class="font-bold mb-4">منشوراتي</h3><div id="profile-posts" class="space-y-4"></div></div>`;
+                main.innerHTML = `<div class="text-center mb-8 animate-fade"><div class="profile-icon w-24 h-24 mx-auto text-4xl mb-4 cursor-pointer" onclick="${email===currentUser?.email?'openEditProfileModal()':''}"><i class="fa-solid fa-feather"></i></div><h2 class="text-2xl font-bold flex items-center justify-center gap-2 flex-wrap"><span class="${nameClass}">${escapeHtml(user.username)}</span>${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-xl"></i>':''}</h2><p class="text-zinc-500 text-sm mb-4">UIA: ${user.uia} ${user.age?'• '+user.age+' سنة':''} ${user.country?'• '+user.country:''}<br>انضم في ${formatDate(user.joinedAt)}</p><div class="flex justify-center gap-8 mb-6"><div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(followers)}</div><div class="text-[10px] text-zinc-500">متابع</div></div><div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(following)}</div><div class="text-[10px] text-zinc-500">يتابع</div></div><div class="text-center"><div class="font-bold text-gold-primary">${formatNumber(posts.length)}</div><div class="text-[10px] text-zinc-500">منشور</div></div></div><div class="flex justify-center gap-3 flex-wrap">${email!==currentUser?.email ? `<button onclick="toggleFollow('${email}')" class="gold-btn px-6 py-2 rounded-full text-sm">متابعة</button>` : ''}${email===currentUser?.email ? `<button onclick="openEditProfileModal()" class="gold-btn px-6 py-2 rounded-full text-sm"><i class="fa-solid fa-pen ml-1"></i>تعديل البروفايل</button><button onclick="logout()" class="text-red-500 text-xs underline px-4 py-2">خروج</button>` : ''}</div></div><div class="border-t border-zinc-800 pt-6"><h3 class="font-bold mb-4">منشوراتي</h3><div id="profile-posts" class="space-y-4"></div></div>`;
                 if (!posts.length) document.getElementById('profile-posts').innerHTML = '<div class="empty-state">لا توجد منشورات بعد</div>';
-                else renderPosts(posts, 'profile-posts', false);
-            } catch(e) { console.error('Profile error:',e); main.innerHTML = '<div class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</div>'; }
+                else renderPosts(posts, 'profile-posts', false);            } catch(e) { console.error('Profile error:',e); main.innerHTML = '<div class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</div>'; }
         }
         async function openEditProfileModal() {
             if (!currentUser) return;
             const modal = document.getElementById('modal-container');
             const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold gold-text">تعديل البروفايل</h3>
-                    <button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                <div class="space-y-4">
-                    <div><label class="block text-xs text-zinc-400 mb-1">الاسم</label><input type="text" id="edit-name" class="input-field mb-0" value="${escapeHtml(currentUser.username||'')}" maxlength="30"></div>
-                    <div><label class="block text-xs text-zinc-400 mb-1">العمر</label><input type="number" id="edit-age" class="input-field mb-0" value="${currentUser.age||''}" min="13" max="100" placeholder="اختياري"></div>
-                    <div><label class="block text-xs text-zinc-400 mb-1">الجنس</label><select id="edit-gender" class="input-field mb-0"><option value="male" ${currentUser.gender==='male'?'selected':''}>ذكر ♂</option><option value="female" ${currentUser.gender==='female'?'selected':''}>أنثى ♀</option></select></div>
-                    <div><label class="block text-xs text-zinc-400 mb-1">البلد</label><input type="text" id="edit-country" class="input-field mb-0" value="${escapeHtml(currentUser.country||'')}" maxlength="50" placeholder="اختياري"></div>
-                    <div class="text-[10px] text-zinc-500 bg-zinc-900 p-2 rounded"><i class="fa-solid fa-info-circle ml-1"></i> لا يمكن تغيير البريد أو UIA</div>
-                </div>
-                <button onclick="saveProfile()" class="gold-btn w-full py-2 rounded-lg mt-4">حفظ</button>`;
+            body.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">تعديل البروفايل</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="space-y-4"><div><label class="block text-xs text-zinc-400 mb-1">الاسم</label><input type="text" id="edit-name" class="input-field mb-0" value="${escapeHtml(currentUser.username||'')}" maxlength="30"></div><div><label class="block text-xs text-zinc-400 mb-1">العمر</label><input type="number" id="edit-age" class="input-field mb-0" value="${currentUser.age||''}" min="13" max="100" placeholder="اختياري"></div><div><label class="block text-xs text-zinc-400 mb-1">الجنس</label><select id="edit-gender" class="input-field mb-0"><option value="male" ${currentUser.gender==='male'?'selected':''}>ذكر ♂</option><option value="female" ${currentUser.gender==='female'?'selected':''}>أنثى ♀</option></select></div><div><label class="block text-xs text-zinc-400 mb-1">البلد</label><input type="text" id="edit-country" class="input-field mb-0" value="${escapeHtml(currentUser.country||'')}" maxlength="50" placeholder="اختياري"></div><div class="text-[10px] text-zinc-500 bg-zinc-900 p-2 rounded"><i class="fa-solid fa-info-circle ml-1"></i> لا يمكن تغيير البريد أو UIA</div></div><button onclick="saveProfile()" class="gold-btn w-full py-2 rounded-lg mt-4">حفظ</button>`;
             modal.classList.remove('hidden');
         }
         async function saveProfile() {
@@ -1014,59 +748,16 @@
             const gender = document.getElementById('edit-gender')?.value;
             const country = document.getElementById('edit-country')?.value.trim();
             if (!name) return showToast("الاسم مطلوب", 'error');
-            try {
-                await db.collection('users').doc(currentUser.email).update({
-                    username:name, age:age||'', gender:gender||'male', country:country||''
-                });
-                currentUser = {...currentUser, username:name, age:age||'', gender:gender||'male', country:country||''};
-                closeModal(); renderProfile(currentUser.email); showToast("✅ تم التحديث!");
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
+            try { await db.collection('users').doc(currentUser.email).update({ username:name, age:age||'', gender:gender||'male', country:country||'' }); currentUser = {...currentUser, username:name, age:age||'', gender:gender||'male', country:country||''}; closeModal(); renderProfile(currentUser.email); showToast("✅ تم التحديث!"); } 
+            catch(e) { showToast("خطأ: "+e.message, 'error'); }
         }
-        async function toggleFollow(target) {
-            if (!currentUser) return showToast("سجل الدخول", 'error');
-            try {
-                const ref = db.collection('follows').doc(`${currentUser.email}_${target}`);
-                if ((await ref.get()).exists) {
-                    await ref.delete(); showToast("تم إلغاء المتابعة");                } else {
-                    await ref.set({
-                        follower:currentUser.email, following:target, 
-                        timestamp:firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    addNotification(target, `${currentUser.username} بدأ في متابعتك! 👋`, 'follow');
-                    showToast("✅ تمت المتابعة");
-                }
-            } catch(e) { showToast("خطأ: "+e.message, 'error'); }
-        }
+        async function toggleFollow(target) { if (!currentUser) return showToast("سجل الدخول", 'error'); try { const ref = db.collection('follows').doc(`${currentUser.email}_${target}`); if ((await ref.get()).exists) { await ref.delete(); showToast("تم إلغاء المتابعة"); } else { await ref.set({ follower:currentUser.email, following:target, timestamp:firebase.firestore.FieldValue.serverTimestamp() }); addNotification(target, `${currentUser.username} بدأ في متابعتك! 👋`, 'follow'); showToast("✅ تمت المتابعة"); } } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
         function renderAdminPanel() {
             if (!hasPermission('view_admin_panel')) { showPage('home'); return; }
             const isAdmin = currentUser?.email === ADMIN_EMAIL;
             const main = document.getElementById('main-content');
             if (!main) return;
-            main.innerHTML = `
-                <div class="space-y-6 animate-fade">
-                    <h2 class="text-2xl font-bold gold-text flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i>لوحة التحكم ${isAdmin?'<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded">أدمن</span>':'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-2 py-0.5 rounded">مشرف</span>'}</h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="admin-card text-center"><div class="text-2xl font-bold text-gold-primary" id="users-count">...</div><div class="text-xs text-zinc-500">الأعضاء</div></div>
-                        <div class="admin-card text-center"><div class="text-2xl font-bold text-red-500" id="reports-count">...</div><div class="text-xs text-zinc-500">بلاغات معلقة</div></div>
-                    </div>
-                    ${isAdmin ? `
-                    <div class="admin-card">
-                        <h3 class="font-bold mb-4">🔍 البحث عن عضو</h3>
-                        <div class="flex gap-2"><input type="text" id="admin-search" class="input-field mb-0" placeholder="الاسم أو UIA..." onkeyup="adminSearch()"><button onclick="adminSearch()" class="gold-btn">بحث</button></div>
-                        <div id="admin-results" class="mt-4 space-y-2"></div>
-                    </div>` : ''}
-                    <div class="admin-card">
-                        <h3 class="font-bold mb-4">📋 البلاغات المعلقة</h3>
-                        <div id="reports-list" class="space-y-2"></div>
-                    </div>
-                    ${isAdmin ? `<div class="admin-card">
-                        <h3 class="font-bold mb-4">⚙️ إعدادات سريعة</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="backupData()" class="gold-btn text-sm">💾 نسخ احتياطي</button>
-                            <button onclick="clearOldPosts()" class="gold-btn text-sm bg-red-600">🗑️ تنظيف المنشورات القديمة</button>
-                        </div>
-                    </div>` : ''}
-                </div>`;
+            main.innerHTML = `<div class="space-y-6 animate-fade"><h2 class="text-2xl font-bold gold-text flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i>لوحة التحكم ${isAdmin?'<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded">أدمن</span>':'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-2 py-0.5 rounded">مشرف</span>'}</h2><div class="grid grid-cols-2 gap-4"><div class="admin-card text-center"><div class="text-2xl font-bold text-gold-primary" id="users-count">...</div><div class="text-xs text-zinc-500">الأعضاء</div></div><div class="admin-card text-center"><div class="text-2xl font-bold text-red-500" id="reports-count">...</div><div class="text-xs text-zinc-500">بلاغات معلقة</div></div></div>${isAdmin ? `<div class="admin-card"><h3 class="font-bold mb-4">🔍 البحث عن عضو</h3><div class="flex gap-2"><input type="text" id="admin-search" class="input-field mb-0" placeholder="الاسم أو UIA..." onkeyup="adminSearch()"><button onclick="adminSearch()" class="gold-btn">بحث</button></div><div id="admin-results" class="mt-4 space-y-2"></div></div>` : ''}<div class="admin-card"><h3 class="font-bold mb-4">📋 البلاغات المعلقة</h3><div id="reports-list" class="space-y-2"></div></div>${isAdmin ? `<div class="admin-card"><h3 class="font-bold mb-4">⚙️ إعدادات سريعة</h3><div class="flex flex-wrap gap-2"><button onclick="backupData()" class="gold-btn text-sm">💾 نسخ احتياطي</button><button onclick="clearOldPosts()" class="gold-btn text-sm bg-red-600">🗑️ تنظيف المنشورات القديمة</button></div></div>` : ''}</div>`;
             db.collection('users').get().then(s=>{const el=document.getElementById('users-count'); if(el)el.innerText=formatNumber(s.size);});
             db.collection('reports').where('status','==','pending').get().then(s=>{const el=document.getElementById('reports-count'); if(el)el.innerText=formatNumber(s.size);});
             db.collection('reports').where('status','==','pending').orderBy('timestamp','desc').limit(20).onSnapshot(async (snap) => {
@@ -1076,10 +767,9 @@
                 let html = '';
                 for (const doc of snap.docs) {
                     try {
-                        const r = doc.data();                        const reporter = (await db.collection('users').doc(r.reporter).get()).data()?.username || 'عضو';
-                        const actionBtn = r.targetType === 'post' 
-                            ? `<button onclick="viewReportPost('${r.targetId}')" class="text-gold-primary underline">👁️ معاينة المنشور</button>`
-                            : `<button onclick="viewReportComment('${r.targetId}')" class="text-gold-primary underline">👁️ معاينة التعليق</button>`;
+                        const r = doc.data();
+                        const reporter = (await db.collection('users').doc(r.reporter).get()).data()?.username || 'عضو';
+                        const actionBtn = r.targetType === 'post' ? `<button onclick="viewReportPost('${r.targetId}')" class="text-gold-primary underline">👁️ معاينة المنشور</button>` : `<button onclick="viewReportComment('${r.targetId}')" class="text-gold-primary underline">👁️ معاينة التعليق</button>`;
                         html += `<div class="p-3 bg-black rounded-lg border border-red-900/30 text-xs"><div class="flex justify-between mb-2"><span class="text-red-400 font-bold">من: ${escapeHtml(reporter)}</span><span class="text-zinc-600">${formatDate(r.timestamp)}</span></div><p class="mb-2"><strong>النوع:</strong> ${r.targetType==='post'?'📝 منشور':'💬 تعليق'}<br><strong>السبب:</strong> ${escapeHtml(r.reason)}</p><div class="flex gap-3">${actionBtn}<button onclick="dismissReport('${doc.id}')" class="text-zinc-500 underline">تجاهل</button></div></div>`;
                     } catch(e) { console.error('Report render error:',e); }
                 }
@@ -1091,33 +781,13 @@
             if (!q) return;
             db.collection('users').get().then(snap => {
                 const results = [];
-                snap.forEach(doc => { 
-                    const u=doc.data(); 
-                    if (u.username?.toLowerCase().includes(q)||u.uia?.includes(q)) 
-                        results.push({email:doc.id,...u}); 
-                });
-                const container = document.getElementById('admin-results');
-                if (!container) return;
+                snap.forEach(doc => { const u=doc.data(); if (u.username?.toLowerCase().includes(q)||u.uia?.includes(q)) results.push({email:doc.id,...u}); });
+                const container = document.getElementById('admin-results');                if (!container) return;
                 if (!results.length) { container.innerHTML = '<p class="text-zinc-500 text-sm text-center py-2">لا توجد نتائج</p>'; return; }
                 container.innerHTML = results.map(u => {
                     const nameClass = getNameColorClass(u.gender);
                     const isAdmin = u.email === ADMIN_EMAIL;
-                    return `<div class="flex justify-between items-center p-3 bg-black rounded-lg border border-zinc-800">
-                        <div>
-                            <div class="font-bold text-sm flex items-center gap-1 flex-wrap">
-                                <span class="${nameClass}">${escapeHtml(u.username)}</span>
-                                ${u.verified?'<i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>':''}
-                                ${u.role==='moderator'?'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-1 rounded">مشرف</span>':''}
-                                ${isAdmin?'<span class="text-[10px] bg-red-500/20 text-red-400 px-1 rounded">أدمن</span>':''}
-                            </div>
-                            <div class="text-[10px] text-zinc-500">UIA:${u.uia}•${u.email}</div>
-                        </div>
-                        <div class="flex gap-2 flex-wrap">
-                            ${!u.verified && currentUser.email===ADMIN_EMAIL ? `<button onclick="verifyUser('${u.email}')" class="text-blue-500 text-xs hover:underline">✓ توثيق</button>`:''}
-                            <button onclick="toggleBan('${u.email}')" class="text-red-500 text-xs hover:underline">${u.isBanned?'فك':'حظر'}</button>
-                            ${currentUser.email===ADMIN_EMAIL && !isAdmin ? `<button onclick="toggleMod('${u.email}')" class="text-gold-primary text-xs hover:underline">${u.role==='moderator'?'عزل':'مشرف'}</button>`:''}
-                        </div>
-                    </div>`;
+                    return `<div class="flex justify-between items-center p-3 bg-black rounded-lg border border-zinc-800"><div><div class="font-bold text-sm flex items-center gap-1 flex-wrap"><span class="${nameClass}">${escapeHtml(u.username)}</span>${u.verified?'<i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>':''}${u.role==='moderator'?'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-1 rounded">مشرف</span>':''}${isAdmin?'<span class="text-[10px] bg-red-500/20 text-red-400 px-1 rounded">أدمن</span>':''}</div><div class="text-[10px] text-zinc-500">UIA:${u.uia}•${u.email}</div></div><div class="flex gap-2 flex-wrap">${!u.verified && currentUser.email === ADMIN_EMAIL ? `<button onclick="verifyUser('${u.email}')" class="text-blue-500 text-xs hover:underline">✓ توثيق</button>`:''}<button onclick="toggleBan('${u.email}')" class="text-red-500 text-xs hover:underline">${u.isBanned?'فك':'حظر'}</button>${currentUser.email===ADMIN_EMAIL && !isAdmin ? `<button onclick="toggleMod('${u.email}')" class="text-gold-primary text-xs hover:underline">${u.role==='moderator'?'عزل':'مشرف'}</button>`:''}</div></div>`;
                 }).join('');
             });
         }
@@ -1125,7 +795,8 @@
         async function toggleBan(email) { if (!hasPermission('ban_user')) return showToast("غير مصرح", 'error'); if (email===ADMIN_EMAIL) return showToast("لا يمكن حظر الأدمن!",'error'); try { const u=await db.collection('users').doc(email).get(); const cur=u.data()?.isBanned||false; await db.collection('users').doc(email).update({isBanned:!cur}); showToast(!cur?"🚫 تم الحظر":"✅ تم الفك"); adminSearch(); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
         async function toggleMod(email) { if (!hasPermission('assign_mod')) return showToast("غير مصرح", 'error'); if (email===ADMIN_EMAIL) return showToast("لا يمكن تعديل صلاحيات الأدمن!",'error'); try { const u=await db.collection('users').doc(email).get(); const cur=u.data()?.role||'member'; const nw=cur==='moderator'?'member':'moderator'; await db.collection('users').doc(email).update({role:nw}); showToast(nw==='moderator'?"✅ تم التعيين":"تم العزل"); adminSearch(); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
         function dismissReport(id) { if (!hasPermission('dismiss_report')) return showToast("غير مصرح", 'error'); db.collection('reports').doc(id).update({status:'dismissed'}).then(()=>showToast("✅ تم التجاهل")).catch(e=>showToast("خطأ: "+e.message,'error')); }
-        async function viewReportPost(postId) { try { const doc=await db.collection('posts').doc(postId).get(); if (!doc.exists) return showToast("المنشور محذوف",'error'); const content=doc.data().content; const modal=document.getElementById('modal-container'); const body=document.getElementById('modal-body'); body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة المنشور</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(content)}</p></div><button onclick="deletePost('${postId}');closeModal();" class="gold-btn w-full py-2 rounded-lg bg-red-600 text-white">🗑️ حذف المنشور</button>`; modal.classList.remove('hidden'); } catch(e) { showToast("خطأ: "+e.message,'error'); } }        async function viewReportComment(commentId) { try { const doc = await db.collection('comments').doc(commentId).get(); if (!doc.exists) return showToast("التعليق محذوف", 'error'); const c = doc.data(); const post = await db.collection('posts').doc(c.postId).get(); const postData = post.exists ? post.data() : null; const modal = document.getElementById('modal-container'); const body = document.getElementById('modal-body'); body.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة التعليق</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4"><p class="text-xs text-zinc-500 mb-2">منشور مرتبط: ${postData ? escapeHtml(postData.content.substring(0,50))+'...' : 'غير موجود'}</p><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(c.content)}</p></div><div class="flex gap-2"><button onclick="deleteComment('${commentId}','${c.postId}');closeModal();" class="gold-btn flex-1 py-2 rounded-lg bg-red-600 text-white">🗑️ حذف التعليق</button><button onclick="openComments('${c.postId}');closeModal();" class="gold-btn flex-1 py-2 rounded-lg">🔗 goToالمنشور</button></div>`; modal.classList.remove('hidden'); } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
+        async function viewReportPost(postId) { try { const doc=await db.collection('posts').doc(postId).get(); if (!doc.exists) return showToast("المنشور محذوف",'error'); const content=doc.data().content; const modal=document.getElementById('modal-container'); const body=document.getElementById('modal-body'); body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة المنشور</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(content)}</p></div><button onclick="deletePost('${postId}');closeModal();" class="gold-btn w-full py-2 rounded-lg bg-red-600 text-white">🗑️ حذف المنشور</button>`; modal.classList.remove('hidden'); } catch(e) { showToast("خطأ: "+e.message,'error'); } }
+        async function viewReportComment(commentId) { try { const doc = await db.collection('comments').doc(commentId).get(); if (!doc.exists) return showToast("التعليق محذوف", 'error'); const c = doc.data(); const post = await db.collection('posts').doc(c.postId).get(); const postData = post.exists ? post.data() : null; const modal = document.getElementById('modal-container'); const body = document.getElementById('modal-body'); body.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة التعليق</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4"><p class="text-xs text-zinc-500 mb-2">منشور مرتبط: ${postData ? escapeHtml(postData.content.substring(0,50))+'...' : 'غير موجود'}</p><p class="text-sm whitespace-pre-wrap break-words">${escapeHtml(c.content)}</p></div><div class="flex gap-2"><button onclick="deleteComment('${commentId}','${c.postId}');closeModal();" class="gold-btn flex-1 py-2 rounded-lg bg-red-600 text-white">🗑️ حذف التعليق</button><button onclick="openComments('${c.postId}');closeModal();" class="gold-btn flex-1 py-2 rounded-lg">🔗 goToالمنشور</button></div>`; modal.classList.remove('hidden'); } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
         async function deleteComment(commentId, postId) { if (!confirm("حذف هذا التعليق نهائياً؟")) return; try { await db.collection('comments').doc(commentId).delete(); const postRef = db.collection('posts').doc(postId); const post = await postRef.get(); const currentCount = post.data()?.commentsCount || 0; if (currentCount > 0) await postRef.update({commentsCount: firebase.firestore.FieldValue.increment(-1)}); showToast("✅ تم حذف التعليق"); refreshCurrentView(); } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
         async function backupData() { showToast("🔄 جاري إنشاء نسخة احتياطية..."); try { const users = await db.collection('users').get(); const posts = await db.collection('posts').get(); const comments = await db.collection('comments').get(); const backup = { timestamp: new Date().toISOString(), users: users.docs.map(d => ({id:d.id, ...d.data()})), posts: posts.docs.map(d => ({id:d.id, ...d.data()})), comments: comments.docs.map(d => ({id:d.id, ...d.data()})) }; const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `safaa-backup-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url); showToast("✅ تم تحميل النسخة الاحتياطية"); } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
         async function clearOldPosts() { if (!confirm("⚠️ هل تريد حذف المنشورات الأقدم من 90 يوماً؟")) return; try { const cutoff = Date.now() - (90 * 24 * 60 * 60 * 1000); const posts = await db.collection('posts').get(); let deleted = 0; const batch = db.batch(); posts.forEach(doc => { const ts = doc.data().timestamp?.toMillis?.() || 0; if (ts < cutoff && !doc.data().isPinned) { batch.delete(doc.ref); deleted++; } }); if (deleted > 0) { await batch.commit(); showToast(`✅ تم حذف ${deleted} منشور قديم`); } else { showToast("لا توجد منشورات قديمة للحذف"); } } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
@@ -1133,12 +804,51 @@
         function updateNotifBadge() { if (!currentUser) return; db.collection('notifications').where('targetEmail','==',currentUser.email).where('read','==',false).get().then(snap=>{ const count = snap.size; const badge = document.getElementById('notif-count'); if (badge) { if (count>0) { badge.innerText = count>99?'99+':count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } } }).catch(e=>console.error('Badge error:',e)); }
         async function renderNotifications() { const main = document.getElementById('main-content'); if (!main || !currentUser) return; main.innerHTML = `<h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-bell text-gold-primary"></i>الإشعارات</h2><div id="notif-list" class="space-y-3"><div class="loading">جاري التحميل...</div></div>`; try { const snap = await db.collection('notifications').where('targetEmail','==',currentUser.email).orderBy('timestamp','desc').limit(50).get(); const list = document.getElementById('notif-list'); if (!list) return; if (snap.empty) { list.innerHTML = '<p class="text-center text-zinc-500 py-10">🔔 لا توجد إشعارات جديدة</p>'; return; } list.innerHTML = snap.docs.map(doc=>{ const n=doc.data(); const clickHandler = n.relatedId ? `onclick="scrollToComment('${n.relatedId}')"` : ''; const cursorStyle = n.relatedId ? 'cursor-pointer hover:bg-gold-primary/10' : ''; return `<div class="p-4 rounded-xl border ${n.read?'bg-zinc-900/30 border-zinc-800':'bg-gold-primary/5 border-gold-primary/30'} animate-fade ${cursorStyle}" ${clickHandler}><div class="flex justify-between items-start"><p class="text-sm">${escapeHtml(n.text)}</p><span class="text-[9px] text-zinc-600 whitespace-nowrap mr-3">${formatDate(n.timestamp)}</span></div></div>`; }).join(''); const batch = db.batch(); snap.docs.forEach(doc=>batch.update(doc.ref,{read:true})); await batch.commit(); updateNotifBadge(); } catch(e) { console.error('Notif render error:',e); document.getElementById('notif-list').innerHTML = '<p class="text-center text-red-500 py-10">خطأ في التحميل: '+e.message+'</p>'; } }
         async function scrollToComment(postId) { closeModal(); await openComments(postId); setTimeout(() => { const commentsList = document.getElementById('comments-list'); if (commentsList) commentsList.scrollTop = commentsList.scrollHeight; }, 300); }
-        function handleGlobalSearch(query) { const dropdown = document.getElementById('search-results-dropdown'); const content = document.getElementById('search-results-content'); if (!query || query.trim().length<2) { dropdown?.classList.add('hidden'); return; } dropdown?.classList.remove('hidden'); content.innerHTML = '<div class="text-center text-zinc-500 text-sm py-2">جاري البحث...</div>'; db.collection('posts').orderBy('timestamp','desc').limit(10).get().then(snap=>{ const results = []; snap.forEach(doc=>{ const d=doc.data(); if (d.content?.toLowerCase().includes(query.toLowerCase())) results.push({id:doc.id,...d}); }); if (content) { if (!results.length) content.innerHTML = '<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>'; else content.innerHTML = results.map(r=>`<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm" onclick="showPost('${r.id}')">${escapeHtml(r.content.substring(0,80))}...</div>`).join(''); } }); }
-        function showPost(id) { closeModal(); showToast("سيتم عرض المنشور قريباً"); }
+        
+        // ✅ دالة البحث العالمية المصححة (تبحث في المنشورات والأعضاء)
+        async function handleGlobalSearch(query) {
+            const dropdown = document.getElementById('search-results-dropdown');
+            const content = document.getElementById('search-results-content');
+            if (!query || query.trim().length < 2) { dropdown?.classList.add('hidden'); return; }
+            dropdown?.classList.remove('hidden');
+            content.innerHTML = '<div class="text-center text-zinc-500 text-sm py-2">جاري البحث...</div>';
+            const results = [];
+            const lowerQuery = query.toLowerCase().trim();
+            try {
+                // البحث في المنشورات
+                const postsSnap = await db.collection('posts').orderBy('timestamp', 'desc').limit(10).get();
+                postsSnap.forEach(doc => { const d = doc.data(); if (d.content?.toLowerCase().includes(lowerQuery)) results.push({ type: 'post', id: doc.id, title: d.content.substring(0, 60) + (d.content.length > 60 ? '...' : ''), author: d.authorEmail }); });
+                // البحث في المستخدمين
+                const usersSnap = await db.collection('users').orderBy('username').get();
+                usersSnap.forEach(doc => { const u = doc.data(); if (u.username?.toLowerCase().includes(lowerQuery) || u.uia?.includes(query)) results.push({ type: 'user', id: doc.id, title: u.username, uia: u.uia, verified: u.verified, gender: u.gender }); });
+                
+                if (content) {
+                    if (!results.length) content.innerHTML = '<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>';
+                    else content.innerHTML = results.map(r => {
+                        if (r.type === 'post') return `<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center gap-2" onclick="showPost('${r.id}')"><i class="fa-solid fa-feather text-gold-primary text-xs"></i><span>${escapeHtml(r.title)}</span></div>`;
+                        const nameClass = r.gender === 'female' ? 'female-name' : 'male-name';
+                        return `<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center gap-2" onclick="showUser('${r.id}')"><i class="fa-solid fa-user text-gold-primary text-xs"></i><span class="${nameClass}">${escapeHtml(r.title)}</span>${r.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}<span class="text-[10px] text-zinc-600 mr-auto">UIA:${r.uia}</span></div>`;
+                    }).join('');
+                }
+            } catch(e) { console.error('Search error:', e); if (content) content.innerHTML = '<p class="text-center text-red-500 text-sm py-2">خطأ في البحث</p>'; }
+        }        
+        function showPost(id) { closeModal(); document.getElementById('search-results-dropdown')?.classList.add('hidden'); showToast("سيتم عرض المنشور قريباً"); }
+        function showUser(email) { closeModal(); document.getElementById('search-results-dropdown')?.classList.add('hidden'); renderProfile(email); showToast("جاري عرض البروفايل..."); }
+        
         function refreshCurrentView() { if (currentView === 'home') renderHome(); else if (currentView === 'trending') renderTrending(); else if (currentView === 'profile' && currentUser) renderProfile(currentUser.email); }
-        document.addEventListener('DOMContentLoaded', ()=>{ /* Auth handles init */ });
-        setInterval(updateNotifBadge, 30000);
+        
+        document.addEventListener('DOMContentLoaded', ()=>{}); 
+        setInterval(updateNotifBadge, 30000); 
         document.addEventListener('backbutton', function(e) { const modal = document.getElementById('modal-container'); if (modal && !modal.classList.contains('hidden')) { e.preventDefault(); closeModal(); return; } }, false);
+        
+        // إغلاق قائمة البحث عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('search-results-dropdown');
+            const searchInput = document.getElementById('global-search-input');
+            if (dropdown && !dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && e.target !== searchInput) {
+                dropdown.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
