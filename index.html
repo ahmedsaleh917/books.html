@@ -333,6 +333,7 @@
     <div id="modal-container" class="modal hidden">
         <div class="modal-content" id="modal-body"></div>
     </div>
+
 <script>
     // ⚙️ إعدادات النظام
     const ADMIN_EMAIL = 'a1sabriweb@gmail.com';
@@ -340,8 +341,8 @@
     let currentView = 'home';
     let currentPostId = null;
     let commentsPageState = {};
-    
-    // ✅ إعدادات Firebase    const firebaseConfig = {
+        // ✅ إعدادات Firebase
+    const firebaseConfig = {
         apiKey: "AIzaSyBsZc0MRl8jfmMLEPp2zm_nftOs82KUbZ8",
         authDomain: "safaa-forum.firebaseapp.com",
         databaseURL: "https://safaa-forum-default-rtdb.firebaseio.com",
@@ -389,8 +390,8 @@
                     currentUser = {...userData, email: user.email};
                     document.body.classList.remove('admin-mode', 'mod-mode');
                     if (currentUser.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
-                    else if (currentUser.role === 'moderator') document.body.classList.add('mod-mode');
-                    showPage('home'); updateNotifBadge();                } else {
+                    else if (currentUser.role === 'moderator') document.body.classList.add('mod-mode');                    showPage('home'); updateNotifBadge();
+                } else {
                     await db.collection('users').doc(user.email).set({
                         username: user.displayName || user.email.split('@')[0], email: user.email,
                         uia: Math.floor(1000+Math.random()*9000).toString(), verified: false, role: 'member', gender: 'male',
@@ -438,8 +439,8 @@
         document.getElementById('search-results-dropdown')?.classList.add('hidden');
         switch(page) {
             case 'home': renderHome(); break; case 'trending': renderTrending(); break;
-            case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;
-            case 'admin': if (hasPermission('view_admin_panel')) renderAdminPanel(); else { showPage('home'); showToast("غير مصرح", 'error'); } break;            case 'notifications': currentUser ? renderNotifications() : showAuthPage(); break;
+            case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;            case 'admin': if (hasPermission('view_admin_panel')) renderAdminPanel(); else { showPage('home'); showToast("غير مصرح", 'error'); } break;
+            case 'notifications': currentUser ? renderNotifications() : showAuthPage(); break;
         }
     }
     
@@ -487,8 +488,8 @@
                 const canPin = hasPermission('pin_post');
                 const isLiked = post.likes?.includes(currentUser?.email);
                 const nameClass = getNameColorClass(user.gender);
-                return `<div class="post-card animate-fade" data-id="${post.id}">
-                    <div class="flex justify-between items-start mb-3">                        <div class="flex items-center gap-3">
+                return `<div class="post-card animate-fade" data-id="${post.id}">                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-3">
                             <div class="profile-icon" onclick="renderProfile('${post.authorEmail}')"><i class="fa-solid fa-feather"></i></div>
                             <div><div class="flex items-center gap-1 flex-wrap"><span class="font-bold ${nameClass} clickable-username" onclick="renderProfile('${post.authorEmail}')">${escapeHtml(user.username)}</span><i class="fa-solid fa-feather text-gold-primary text-xs"></i>${user.verified ? '<i class="fa-solid fa-circle-check verified-badge" title="موثق"></i>' : ''}</div><div class="text-[10px] text-zinc-500">${formatDate(post.timestamp)}</div></div>
                         </div>
@@ -536,8 +537,8 @@
         const content=document.getElementById('post-text')?.value.trim(), btn=document.getElementById('submit-btn');
         if (!content) return showToast("اكتب شيئاً قبل النشر!", 'error');
         if (btn) { btn.disabled=true; btn.innerText="جاري النشر..."; }
-        try { await db.collection('posts').add({ authorEmail:currentUser.email, content, timestamp:firebase.firestore.FieldValue.serverTimestamp(), likes:[], commentsCount:0, isPinned:false }); closeModal(); showToast("✅ تم النشر!"); refreshCurrentView(); } 
-        catch(e) { showToast("خطأ: "+e.message, 'error'); if(btn){btn.disabled=false;btn.innerText="نشر الآن";} }    }
+        try { await db.collection('posts').add({ authorEmail:currentUser.email, content, timestamp:firebase.firestore.FieldValue.serverTimestamp(), likes:[], commentsCount:0, isPinned:false }); closeModal(); showToast("✅ تم النشر!"); refreshCurrentView(); }         catch(e) { showToast("خطأ: "+e.message, 'error'); if(btn){btn.disabled=false;btn.innerText="نشر الآن";} }
+    }
     async function toggleLike(postId) {
         if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
         try {
@@ -551,7 +552,7 @@
     
     // ✅✅✅ دالة حذف المنشور المحسنة (مع التحقق من الصلاحيات) ✅✅✅
     async function deletePost(postId, authorEmail) {
-        // التحقق من الصلاحية قبل الحذف (حماية مزدوجة)
+        // 🔐 التحقق من الصلاحية قبل الحذف (حماية مزدوجة)
         const canDelete = hasPermission('delete_any', authorEmail) || hasPermission('delete_own', authorEmail);
         if (!canDelete) {
             return showToast("❌ ليس لديك صلاحية لحذف هذا المنشور", 'error');
@@ -585,8 +586,8 @@
         try {
             const snap=await db.collection('comments').where('postId','==',postId).where('parentId','==',null).orderBy('timestamp','asc').get();
             const all=snap.docs, total=all.length; commentsPageState[postId].totalComments=total;
-            const list=document.getElementById('comments-list'); if(!list) return;
-            if(total===0) { list.innerHTML='<p class="text-center text-zinc-500 py-4">لا توجد تعليقات بعد 💬</p>'; return; }            let html=''; const pSize=5, start=page*pSize, end=start+pSize, slice=all.slice(start, end);
+            const list=document.getElementById('comments-list'); if(!list) return;            if(total===0) { list.innerHTML='<p class="text-center text-zinc-500 py-4">لا توجد تعليقات بعد 💬</p>'; return; }
+            let html=''; const pSize=5, start=page*pSize, end=start+pSize, slice=all.slice(start, end);
             for(const doc of slice) {
                 const c=doc.data(), u=await db.collection('users').doc(c.authorEmail).get(), user=u.exists?u.data():{username:"عضو",verified:false,gender:'male'};
                 const liked=c.likes?.includes(currentUser?.email), nc=getNameColorClass(user.gender);
@@ -634,8 +635,8 @@
             const posts=[]; pSnap.forEach(d=>posts.push({id:d.id, ...d.data(), author:user}));
             const fSnap=await db.collection('follows').where('following','==',email).get();
             main.innerHTML=`<div class="text-center mb-8 animate-fade"><div class="profile-icon w-24 h-24 mx-auto text-4xl mb-4 cursor-pointer" onclick="${email===currentUser?.email?'openEditProfileModal()':''}"><i class="fa-solid fa-feather"></i></div><h2 class="text-2xl font-bold flex items-center justify-center gap-2 flex-wrap"><span class="${nc}">${escapeHtml(user.username)}</span>${user.verified?'<i class="fa-solid fa-circle-check verified-badge text-xl"></i>':''}</h2><p class="text-zinc-500 text-sm mb-4">UIA:${user.uia} ${user.age?'• '+user.age:' '} ${user.country?'• '+user.country:''}<br>انضم: ${formatDate(user.joinedAt)}</p><div class="flex justify-center gap-8 mb-6"><div class="text-center"><div class="font-bold text-gold-primary">${fSnap.size}</div><div class="text-[10px] text-zinc-500">متابع</div></div><div class="text-center"><div class="font-bold text-gold-primary">${user.followingCount||0}</div><div class="text-[10px] text-zinc-500">يتابع</div></div><div class="text-center"><div class="font-bold text-gold-primary">${posts.length}</div><div class="text-[10px] text-zinc-500">منشور</div></div></div><div class="flex justify-center gap-3 flex-wrap">${email!==currentUser?.email?`<button onclick="toggleFollow('${email}')" class="gold-btn px-6 py-2 rounded-full text-sm">متابعة</button>`:''}${email===currentUser?.email?`<button onclick="openEditProfileModal()" class="gold-btn px-6 py-2 rounded-full text-sm"><i class="fa-solid fa-pen ml-1"></i>تعديل</button><button onclick="logout()" class="text-red-500 text-xs underline px-4 py-2">خروج</button>`:''}</div></div><div class="border-t border-zinc-800 pt-6"><h3 class="font-bold mb-4">المنشورات</h3><div id="profile-posts" class="space-y-4">${posts.length?``:'<div class="empty-state">لا توجد منشورات</div>'}</div></div>`;
-            if(posts.length) renderPosts(posts, 'profile-posts', false);
-        } catch(e) { console.error(e); main.innerHTML='<div class="text-center text-red-500 py-10">خطأ</div>'; }    }
+            if(posts.length) renderPosts(posts, 'profile-posts', false);        } catch(e) { console.error(e); main.innerHTML='<div class="text-center text-red-500 py-10">خطأ</div>'; }
+    }
     async function openEditProfileModal() {
         if(!currentUser) return; const m=document.getElementById('modal-container'), b=document.getElementById('modal-body');
         b.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">تعديل البروفايل</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="space-y-4"><div><label class="block text-xs text-zinc-400 mb-1">الاسم</label><input type="text" id="edit-name" class="input-field mb-0" value="${escapeHtml(currentUser.username||'')}" maxlength="30"></div><div><label class="block text-xs text-zinc-400 mb-1">العمر</label><input type="number" id="edit-age" class="input-field mb-0" value="${currentUser.age||''}" min="13" max="100" placeholder="اختياري"></div><div><label class="block text-xs text-zinc-400 mb-1">الجنس</label><select id="edit-gender" class="input-field mb-0"><option value="male" ${currentUser.gender==='male'?'selected':''}>ذكر ♂</option><option value="female" ${currentUser.gender==='female'?'selected':''}>أنثى ♀</option></select></div><div><label class="block text-xs text-zinc-400 mb-1">البلد</label><input type="text" id="edit-country" class="input-field mb-0" value="${escapeHtml(currentUser.country||'')}" maxlength="50" placeholder="اختياري"></div></div><button onclick="saveProfile()" class="gold-btn w-full py-2 rounded-lg mt-4">حفظ</button>`;
@@ -683,11 +684,11 @@
                     </div>
                 </div>`;
             }).join('');
-        });
-    }    
+        });    }
+    
     // ✅✅✅ دالة توثيق المستخدم المحسنة (حصري للأدمن الرئيسي) ✅✅✅
     async function verifyUser(email) {
-        // حماية مزدوجة: التأكد أن المستخدم الحالي هو الأدمن الرئيسي فقط
+        // 🔐 حماية مزدوجة: التأكد أن المستخدم الحالي هو الأدمن الرئيسي فقط
         if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
             return showToast("❌ هذه الصلاحية للأدمن الرئيسي فقط", 'error');
         }
@@ -732,8 +733,8 @@
             us.forEach(d=>{const v=d.data(); if(v.username?.toLowerCase().includes(q)||v.uia?.includes(query)) res.push({type:'user',id:d.id,title:v.username,uia:v.uia,verified:v.verified,gender:v.gender});});
             if(ct) {
                 if(!res.length) ct.innerHTML='<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>';
-                else ct.innerHTML=res.map(r=>{
-                    if(r.type==='post') return `<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center gap-2" onclick="showPost('${r.id}')"><i class="fa-solid fa-feather text-gold-primary text-xs"></i><span>${escapeHtml(r.title)}</span></div>`;                    const nc=r.gender==='female'?'female-name':'male-name';
+                else ct.innerHTML=res.map(r=>{                    if(r.type==='post') return `<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center gap-2" onclick="showPost('${r.id}')"><i class="fa-solid fa-feather text-gold-primary text-xs"></i><span>${escapeHtml(r.title)}</span></div>`;
+                    const nc=r.gender==='female'?'female-name':'male-name';
                     return `<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center gap-2" onclick="showUser('${r.id}')"><i class="fa-solid fa-user text-gold-primary text-xs"></i><span class="${nc}">${escapeHtml(r.title)}</span>${r.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}<span class="text-[10px] text-zinc-600 mr-auto">UIA:${r.uia}</span></div>`;
                 }).join('');
             }
