@@ -145,8 +145,7 @@
             padding: 20px;
         }
         .modal.hidden { display: none; }
-                .modal-content {
-            background: var(--dark-card);
+        .modal-content {            background: var(--dark-card);
             border: 1px solid var(--gold-primary);
             border-radius: 20px;
             width: 100%;
@@ -194,8 +193,8 @@
             background: #1a1a1a;
             border: 1px solid var(--dark-border);
             border-radius: 14px;
-            padding: 20px;        }
-        
+            padding: 20px;
+        }        
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--dark-bg); }
         ::-webkit-scrollbar-thumb { background: var(--gold-primary); border-radius: 10px; }
@@ -243,8 +242,8 @@
         .animate-fade { animation: fadeIn 0.3s ease forwards; }
         
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .animate-pulse { animation: pulse 2s infinite; }        
-        .toast {
+        .animate-pulse { animation: pulse 2s infinite; }
+                .toast {
             position: fixed;
             top: 24px;
             left: 50%;
@@ -272,7 +271,6 @@
         .copy-btn:active { transform: scale(0.95); }
         
         .show-more-btn {
-            background: rgba(212, 175, 55, 0.1);
             color: var(--gold-primary);
             border: 1px solid var(--gold-primary);
             padding: 8px 16px;
@@ -292,8 +290,8 @@
         .admin-only { display: none; }
         .mod-only { display: none; }
         body.admin-mode .admin-only { display: inline-flex !important; }
-        body.admin-mode .mod-only { display: inline-flex !important; }        body.mod-mode .mod-only { display: inline-flex !important; }
-
+        body.admin-mode .mod-only { display: inline-flex !important; }
+        body.mod-mode .mod-only { display: inline-flex !important; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: #a1a1aa; }
         .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-primary); }
     </style>
@@ -334,6 +332,7 @@
     <div id="modal-container" class="modal hidden">
         <div class="modal-content" id="modal-body"></div>
     </div>
+
 <script>
     // ⚙️ إعدادات النظام
     const ADMIN_EMAIL = 'a1sabriweb@gmail.com';
@@ -341,8 +340,7 @@
     let currentView = 'home';
     let currentPostId = null;
     let commentsPageState = {};
-    
-    // ✅ إعدادات Firebase
+        // ✅ إعدادات Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBsZc0MRl8jfmMLEPp2zm_nftOs82KUbZ8",
         authDomain: "safaa-forum.firebaseapp.com",
@@ -370,7 +368,7 @@
         switch(action) {
             case 'delete_any': return isAdmin || isMod;
             case 'delete_own': return isOwner;
-            case 'verify_user': return isAdmin; // ✅ حصري للأدمن فقط
+            case 'verify_user': return isAdmin;
             case 'assign_mod': return isAdmin;
             case 'ban_user': return isAdmin;
             case 'pin_post': return isAdmin;
@@ -383,15 +381,15 @@
     // ✅ مراقبة حالة المصادقة
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            try {                const userDoc = await db.collection('users').doc(user.email).get();
+            try {
+                const userDoc = await db.collection('users').doc(user.email).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     if (userData.isBanned) { await auth.signOut(); showToast("🚫 تم حظر حسابك", 'error'); return; }
                     currentUser = {...userData, email: user.email};
                     document.body.classList.remove('admin-mode', 'mod-mode');
                     if (currentUser.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
-                    else if (currentUser.role === 'moderator') document.body.classList.add('mod-mode');
-                    showPage('home'); updateNotifBadge();
+                    else if (currentUser.role === 'moderator') document.body.classList.add('mod-mode');                    showPage('home'); updateNotifBadge();
                 } else {
                     await db.collection('users').doc(user.email).set({
                         username: user.displayName || user.email.split('@')[0], email: user.email,
@@ -432,15 +430,15 @@
     }
     function logout() { auth.signOut(); currentUser = null; document.body.classList.remove('admin-mode', 'mod-mode'); showToast("✅ تم الخروج"); showAuthPage(); }
     
-    function showPage(page) {        currentView = page; const main = document.getElementById('main-content'); if (!main) return;
+    function showPage(page) {
+        currentView = page; const main = document.getElementById('main-content'); if (!main) return;
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         document.getElementById('nav-'+page)?.classList.add('active');
         document.getElementById('global-search-input').value = '';
         document.getElementById('search-results-dropdown')?.classList.add('hidden');
         switch(page) {
             case 'home': renderHome(); break; case 'trending': renderTrending(); break;
-            case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;
-            case 'admin': if (hasPermission('view_admin_panel')) renderAdminPanel(); else { showPage('home'); showToast("غير مصرح", 'error'); } break;
+            case 'profile': currentUser ? renderProfile(currentUser.email) : showAuthPage(); break;            case 'admin': if (hasPermission('view_admin_panel')) renderAdminPanel(); else { showPage('home'); showToast("غير مصرح", 'error'); } break;
             case 'notifications': currentUser ? renderNotifications() : showAuthPage(); break;
         }
     }
@@ -455,7 +453,7 @@
             for (const doc of snap.docs) { try { const data = doc.data(); const u = await db.collection('users').doc(data.authorEmail).get(); posts.push({ id: doc.id, ...data, author: u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'} }); } catch(e) { console.error(e); } }
             posts.sort((a,b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
             renderPosts(posts, 'posts-container', false);
-        }, err => { document.getElementById('posts-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>'; });
+        }, err => { if(document.getElementById('posts-container')) document.getElementById('posts-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>'; });
     }
     
     function renderTrending() {
@@ -467,7 +465,7 @@
             const posts = [];
             for (const doc of snap.docs) { try { const data = doc.data(); const u = await db.collection('users').doc(data.authorEmail).get(); const author = u.exists ? u.data() : {username:"عضو",verified:false,gender:'male'}; posts.push({ id: doc.id, ...data, author, _score: calculateTrendingScore({...data,id:doc.id}, author) }); } catch(e) { console.error(e); } }
             posts.sort((a,b)=>b._score-a._score); renderPosts(posts.slice(0,30), 'trending-container', true);
-        }).catch(err => { document.getElementById('trending-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>'; });
+        }).catch(err => { if(document.getElementById('trending-container')) document.getElementById('trending-container').innerHTML = '<div class="text-center text-red-500 py-10">خطأ</div>'; });
     }
     
     function calculateTrendingScore(post, author) {
@@ -481,15 +479,14 @@
     function renderPosts(posts, containerId, isTrending=false) {
         const container = document.getElementById(containerId); if (!container) return;
         if (!posts?.length) { container.innerHTML = '<div class="empty-state">لا توجد منشورات</div>'; return; }
-        container.innerHTML = posts.map(post => {            try {
+        container.innerHTML = posts.map(post => {
+            try {
                 const user = post.author || {username:"عضو",verified:false,gender:'male'};
-                const isOwner = currentUser?.email === post.authorEmail;
                 const canDelete = hasPermission('delete_any', post.authorEmail) || hasPermission('delete_own', post.authorEmail);
                 const canPin = hasPermission('pin_post');
                 const isLiked = post.likes?.includes(currentUser?.email);
                 const nameClass = getNameColorClass(user.gender);
-                return `<div class="post-card animate-fade" data-id="${post.id}">
-                    <div class="flex justify-between items-start mb-3">
+                return `<div class="post-card animate-fade" data-id="${post.id}">                    <div class="flex justify-between items-start mb-3">
                         <div class="flex items-center gap-3">
                             <div class="profile-icon" onclick="renderProfile('${post.authorEmail}')"><i class="fa-solid fa-feather"></i></div>
                             <div><div class="flex items-center gap-1 flex-wrap"><span class="font-bold ${nameClass} clickable-username" onclick="renderProfile('${post.authorEmail}')">${escapeHtml(user.username)}</span><i class="fa-solid fa-feather text-gold-primary text-xs"></i>${user.verified ? '<i class="fa-solid fa-circle-check verified-badge" title="موثق"></i>' : ''}</div><div class="text-[10px] text-zinc-500">${formatDate(post.timestamp)}</div></div>
@@ -509,7 +506,7 @@
                             ${post.isPinned?'<span class="pinned-badge">📌 مثبت</span>':''} ${isTrending?'<span class="trending-tag">🔥 رائج</span>':''}
                         </div>
                     </div>
-                    ${canDelete ? `<div class="mt-3 pt-3 border-t border-zinc-800/50"><button onclick="deletePost('${post.id}')" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-all text-sm font-bold border border-red-600/30"><i class="fa-solid fa-trash-can"></i> حذف المنشور</button></div>` : ''}
+                    ${canDelete ? `<div class="mt-3 pt-3 border-t border-zinc-800/50"><button onclick="deletePost('${post.id}', '${post.authorEmail}')" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-all text-sm font-bold border border-red-600/30"><i class="fa-solid fa-trash-can"></i> حذف المنشور</button></div>` : ''}
                 </div>`;
             } catch(e) { console.error(e); return ''; }
         }).join('');
@@ -530,15 +527,15 @@
         if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
         const modal=document.getElementById('modal-container'), body=document.getElementById('modal-body'), max=currentUser.verified?4000:2000;
         body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">منشور جديد ${currentUser.verified?'<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded mr-2">✓ موثق</span>':''}</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><textarea id="post-text" class="input-field h-40 resize-none" placeholder="ماذا يدور في ذهنك؟ (حد أقصى ${max} حرف)" maxlength="${max}"></textarea><div class="flex justify-between items-center"><span id="char-count" class="text-xs text-zinc-500">0 / ${max}</span><button onclick="submitPost()" class="gold-btn" id="submit-btn">نشر الآن</button></div>`;
-        modal.classList.remove('hidden');        document.getElementById('post-text')?.addEventListener('input', function(){ document.getElementById('char-count').innerText=this.value.length+' / '+max; });
+        modal.classList.remove('hidden');
+        document.getElementById('post-text')?.addEventListener('input', function(){ document.getElementById('char-count').innerText=this.value.length+' / '+max; });
         setTimeout(()=>document.getElementById('post-text')?.focus(), 100);
     }
     async function submitPost() {
         const content=document.getElementById('post-text')?.value.trim(), btn=document.getElementById('submit-btn');
         if (!content) return showToast("اكتب شيئاً قبل النشر!", 'error');
         if (btn) { btn.disabled=true; btn.innerText="جاري النشر..."; }
-        try { await db.collection('posts').add({ authorEmail:currentUser.email, content, timestamp:firebase.firestore.FieldValue.serverTimestamp(), likes:[], commentsCount:0, isPinned:false }); closeModal(); showToast("✅ تم النشر!"); refreshCurrentView(); } 
-        catch(e) { showToast("خطأ: "+e.message, 'error'); if(btn){btn.disabled=false;btn.innerText="نشر الآن";} }
+        try { await db.collection('posts').add({ authorEmail:currentUser.email, content, timestamp:firebase.firestore.FieldValue.serverTimestamp(), likes:[], commentsCount:0, isPinned:false }); closeModal(); showToast("✅ تم النشر!"); refreshCurrentView(); }         catch(e) { showToast("خطأ: "+e.message, 'error'); if(btn){btn.disabled=false;btn.innerText="نشر الآن";} }
     }
     async function toggleLike(postId) {
         if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
@@ -550,9 +547,14 @@
             showToast(has?"تم إزالة الإعجاب":"✅ أعجبك المنشور"); refreshCurrentView();
         } catch(e) { console.error(e); showToast("خطأ", 'error'); }
     }
-    // ✅ إصلاح حذف المنشور مع تأكيد واضح ومعالجة أخطاء
-    async function deletePost(postId) {
-        if (!window.confirm("⚠️ هل أنت متأكد من حذف هذا المنشور نهائياً؟\nلا يمكن التراجع عن هذا الإجراء.")) return;
+    
+    // ✅ إصلاح دالة حذف المنشور
+    async function deletePost(postId, authorEmail) {
+        if (!currentUser) return showToast("سجل الدخول أولاً", 'error');
+        const canDelete = hasPermission('delete_any', authorEmail) || hasPermission('delete_own', authorEmail);
+        if (!canDelete) return showToast("❌ ليس لديك صلاحية لحذف هذا المنشور", 'error');
+        
+        if (!window.confirm("⚠️ هل أنت متأكد من حذف هذا المنشور نهائياً؟")) return;
         showToast("جاري الحذف...", "warning");
         try {
             await db.collection('posts').doc(postId).delete();
@@ -560,9 +562,11 @@
             if (!cSnap.empty) {
                 const batch = db.batch(); cSnap.forEach(d => batch.delete(d.ref)); await batch.commit();
             }
-            showToast("✅ تم حذف المنشور والتعليقات المرتبطة"); refreshCurrentView();
+            showToast("✅ تم حذف المنشور بنجاح");
+            refreshCurrentView();
         } catch(e) { console.error("Delete error:", e); showToast("❌ فشل الحذف: " + e.message, 'error'); }
     }
+    
     async function togglePin(postId, current) { if (!hasPermission('pin_post')) return showToast("غير مصرح", 'error'); try { await db.collection('posts').doc(postId).update({isPinned:!current}); showToast(!current?"📌 تم التثبيت":"تم إلغاء التثبيت"); refreshCurrentView(); } catch(e) { showToast("خطأ: "+e.message, 'error'); } }
     function reportPost(id, type='post') { if(!currentUser) return; const r=prompt("سبب التبليغ:"); if(r?.trim()) db.collection('reports').add({targetId:id, targetType:type, reporter:currentUser.email, reason:r.trim(), timestamp:firebase.firestore.FieldValue.serverTimestamp(), status:'pending'}).then(()=>showToast("✅ تم التبليغ")).catch(e=>showToast("خطأ", 'error')); }
     function copyPostLink(id) { navigator.clipboard?.writeText(location.href.split('#')[0]+"#post="+id).then(()=>showToast("✅ تم نسخ الرابط")).catch(()=>showToast("تعذر النسخ", 'error')); }
@@ -588,7 +592,7 @@
             }
             if(end<total) html+=`<button onclick="loadCommentsPage('${postId}',${page+1})" class="show-more-btn">عرض المزيد (${total-end} متبقي)</button>`;
             list.innerHTML=html; for(const doc of slice) loadReplies(postId, doc.id);
-        } catch(e) { console.error(e); document.getElementById('comments-list').innerHTML='<p class="text-center text-red-500 py-4">خطأ</p>'; }
+        } catch(e) { console.error(e); if(document.getElementById('comments-list')) document.getElementById('comments-list').innerHTML='<p class="text-center text-red-500 py-4">خطأ</p>'; }
     }
     async function loadReplies(postId, parentId) {
         const cont=document.getElementById(`replies-${parentId}`); if(!cont) return;
@@ -607,16 +611,30 @@
         try {
             await db.collection('comments').add({postId, authorEmail:currentUser.email, content:cont, parentId:parentId||null, timestamp:firebase.firestore.FieldValue.serverTimestamp(), likes:[]});
             if(!parentId) {
-                await db.collection('posts').doc(postId).update({commentsCount:firebase.firestore.FieldValue.increment(1)});
-                const p=await db.collection('posts').doc(postId).get(), au=p.data()?.authorEmail;
-                if(au && au!==currentUser.email) addNotification(au, `${currentUser.username} علق على منشورك 💬`, 'comment', postId);
+                const pRef = db.collection('posts').doc(postId);
+                const pDoc = await pRef.get();
+                if(pDoc.exists) {
+                    await pRef.update({ commentsCount: firebase.firestore.FieldValue.increment(1) });
+                }
             }
             inp.value=''; showToast("✅ تم النشر"); loadCommentsPage(postId, commentsPageState[postId]?.page||0);
         } catch(e) { showToast("خطأ: "+e.message, 'error'); }
     }
+    
+    // ✅ إصلاح دالة الإعجاب بالتعليقات
     async function toggleCommentLike(id) {
-        if(!currentUser) return; try { const ref=db.collection('comments').doc(id), doc=await ref.get(), likes=doc.data()?.likes||[], idx=likes.indexOf(currentUser.email); idx===-1?likes.push(currentUser.email):likes.splice(idx,1); await ref.update({likes}); } catch(e){}
+        if(!currentUser) return showToast("سجل الدخول أولاً", 'error');
+        try {
+            const ref=db.collection('comments').doc(id), doc=await ref.get();
+            if(!doc.exists) return;
+            const likes=doc.data()?.likes||[], idx=likes.indexOf(currentUser.email);
+            if(idx===-1) likes.push(currentUser.email); else likes.splice(idx,1);
+            await ref.update({likes});
+            // تحديث الواجهة فوراً
+            if(currentPostId) loadCommentsPage(currentPostId, commentsPageState[currentPostId]?.page||0);
+        } catch(e){ console.error(e); }
     }
+    
     function replyTo(id, name) { const i=document.getElementById('comment-input'); if(i){i.value=`@${name} `;i.focus();} }
     
     async function renderProfile(email) {
@@ -642,7 +660,6 @@
     }
     async function toggleFollow(t) { if(!currentUser) return; try { const ref=db.collection('follows').doc(`${currentUser.email}_${t}`); if((await ref.get()).exists) { await ref.delete(); showToast("تم إلغاء المتابعة"); } else { await ref.set({follower:currentUser.email, following:t, timestamp:firebase.firestore.FieldValue.serverTimestamp()}); addNotification(t, `${currentUser.username} بدأ في متابعتك! 👋`, 'follow'); showToast("✅ تمت المتابعة"); } } catch(e){ showToast("خطأ", 'error'); } }
     
-    // ✅ لوحة التحكم مع أزرار كبيرة وواضحة + إصلاح التوثيق
     function renderAdminPanel() {
         if (!hasPermission('view_admin_panel')) { showPage('home'); return; }
         const isAdmin = currentUser?.email === ADMIN_EMAIL;
@@ -665,32 +682,33 @@
             if(!res.length) { cont.innerHTML='<p class="text-zinc-500 text-sm text-center py-2">لا توجد نتائج</p>'; return; }
             cont.innerHTML=res.map(u=>{
                 const nc=getNameColorClass(u.gender), ia=u.email===ADMIN_EMAIL;
+                const isVerified = u.verified === true;
                 return `<div class="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-black rounded-lg border border-zinc-800 gap-3">
                     <div class="flex-1">
-                        <div class="font-bold text-base flex items-center gap-2 flex-wrap"><span class="${nc}">${escapeHtml(u.username)}</span>${u.verified?'<i class="fa-solid fa-circle-check text-blue-500"></i>':''}${u.role==='moderator'?'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-2 py-0.5 rounded">مشرف</span>':''}${ia?'<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded">أدمن</span>':''}</div>
+                        <div class="font-bold text-base flex items-center gap-2 flex-wrap"><span class="${nc}">${escapeHtml(u.username)}</span>${isVerified?'<i class="fa-solid fa-circle-check text-blue-500"></i>':''}${u.role==='moderator'?'<span class="text-[10px] bg-gold-primary/20 text-gold-primary px-2 py-0.5 rounded">مشرف</span>':''}${ia?'<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded">أدمن</span>':''}</div>
                         <div class="text-xs text-zinc-500 mt-1">UIA: ${u.uia} • ${u.email}</div>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                        ${!u.verified && currentUser.email===ADMIN_EMAIL ? `<button onclick="verifyUser('${u.email}')" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2">✓ توثيق الحساب</button>`:''}
+                        ${currentUser.email===ADMIN_EMAIL ? `<button onclick="verifyUser('${u.email}', ${isVerified})" class="flex-1 md:flex-none ${isVerified?'bg-zinc-700':'bg-blue-600 hover:bg-blue-700'} text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2">${isVerified?'إلغاء التوثيق':'✓ توثيق الحساب'}</button>`:''}
                         <button onclick="toggleBan('${u.email}')" class="flex-1 md:flex-none bg-red-900/50 hover:bg-red-800 text-red-300 font-bold py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">${u.isBanned?'🔓 فك الحظر':'🚫 حظر'}</button>
                         ${currentUser.email===ADMIN_EMAIL && !ia ? `<button onclick="toggleMod('${u.email}')" class="flex-1 md:flex-none bg-gold-primary/20 hover:bg-gold-primary/30 text-gold-primary font-bold py-2 px-4 rounded-lg text-sm transition shadow flex items-center justify-center gap-2">${u.role==='moderator'?'⬇️ عزل إشراف':'⭐ ترقية لمشرف'}</button>`:''}
                     </div>
                 </div>`;
             }).join('');
         });    }
-    // ✅ إصلاح دالة التوثيق (حصري للأدمن + تحديث آمن)
-    async function verifyUser(email) {
-        if (currentUser.email !== ADMIN_EMAIL) return showToast("غير مصرح", 'error');
-        if (!window.confirm(`توثيق حساب "${email}"؟\nسيتم منح علامة التوثيق الزرقاء.`)) return;
+    
+    // ✅ إصلاح دالة توثيق المستخدم (حصري للأدمن الرئيسي)
+    async function verifyUser(email, currentStatus) {
+        if (!currentUser || currentUser.email !== ADMIN_EMAIL) return showToast("❌ هذه الصلاحية للأدمن الرئيسي فقط", 'error');
+        const newStatus = !currentStatus;
+        if (!window.confirm(`${newStatus?'توثيق':'إلغاء توثيق'} حساب "${email}"؟`)) return;
         try {
-            await db.collection('users').doc(email).update({ verified: true });
-            showToast("✅ تم توثيق الحساب بنجاح");
+            await db.collection('users').doc(email).update({ verified: newStatus });
+            showToast(newStatus ? "✅ تم توثيق الحساب" : "تم إلغاء التوثيق");
             adminSearch();
-        } catch(e) {
-            console.error("Verify error:", e);
-            showToast("❌ فشل التوثيق: " + e.message, 'error');
-        }
+        } catch(e) { console.error("Verify error:", e); showToast("❌ فشل التوثيق", 'error'); }
     }
+    
     async function toggleBan(email) {
         if (!hasPermission('ban_user')) return showToast("غير مصرح", 'error'); if(email===ADMIN_EMAIL) return showToast("لا يمكن حظر الأدمن!",'error');
         try { const u=await db.collection('users').doc(email).get(); const cur=u.data()?.isBanned||false; await db.collection('users').doc(email).update({isBanned:!cur}); showToast(!cur?"🚫 تم الحظر":"✅ تم فك الحظر"); adminSearch(); } catch(e){ showToast("خطأ", 'error'); }
@@ -700,43 +718,55 @@
         try { const u=await db.collection('users').doc(email).get(); const cur=u.data()?.role||'member'; const nw=cur==='moderator'?'member':'moderator'; await db.collection('users').doc(email).update({role:nw}); showToast(nw==='moderator'?"✅ تم التعيين":"تم العزل"); adminSearch(); } catch(e){ showToast("خطأ", 'error'); }
     }
     function dismissReport(id) { if(!hasPermission('dismiss_report')) return; db.collection('reports').doc(id).update({status:'dismissed'}).then(()=>{showToast("✅ تم التجاهل"); adminSearch();}).catch(e=>showToast("خطأ", 'error')); }
-    async function viewReportPost(id) { try { const d=await db.collection('posts').doc(id).get(); if(!d.exists) return showToast("محذوف",'error'); const m=document.getElementById('modal-container'), b=document.getElementById('modal-body'); b.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4 max-h-60 overflow-y-auto"><p class="text-sm whitespace-pre-wrap">${escapeHtml(d.data().content)}</p></div><button onclick="deletePost('${id}');closeModal();" class="gold-btn w-full py-2 bg-red-600 text-white">🗑️ حذف</button>`; m.classList.remove('hidden'); } catch(e){ showToast("خطأ", 'error'); } }
-    async function viewReportComment(id) { try { const d=await db.collection('comments').doc(id).get(); if(!d.exists) return showToast("محذوف", 'error'); const p=await db.collection('posts').doc(d.data().postId).get(); const m=document.getElementById('modal-container'), b=document.getElementById('modal-body'); b.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة التعليق</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-xl mb-4"><p class="text-xs text-zinc-500 mb-2">المنشور: ${p.exists?escapeHtml(p.data().content.substring(0,40))+'...':'محذوف'}</p><p class="text-sm whitespace-pre-wrap">${escapeHtml(d.data().content)}</p></div><div class="flex gap-2"><button onclick="deleteComment('${id}','${d.data().postId}');closeModal();" class="gold-btn flex-1 py-2 bg-red-600 text-white">🗑️ حذف</button><button onclick="openComments('${d.data().postId}');closeModal();" class="gold-btn flex-1 py-2">🔗 فتح</button></div>`; m.classList.remove('hidden'); } catch(e){ showToast("خطأ", 'error'); } }
-    async function deleteComment(id, pid) { if(!confirm("حذف التعليق؟")) return; try { await db.collection('comments').doc(id).delete(); const pr=db.collection('posts').doc(pid), po=await pr.get(); if((po.data()?.commentsCount||0)>0) await pr.update({commentsCount:firebase.firestore.FieldValue.increment(-1)}); showToast("✅ تم الحذف"); refreshCurrentView(); } catch(e){ showToast("خطأ", 'error'); } }
-    async function backupData() { showToast("🔄 جاري النسخ..."); try { const u=await db.collection('users').get(), p=await db.collection('posts').get(), c=await db.collection('comments').get(); const bk={ts:new Date().toISOString(), users:u.docs.map(d=>({id:d.id,...d.data()})), posts:p.docs.map(d=>({id:d.id,...d.data()})), comments:c.docs.map(d=>({id:d.id,...d.data()}))}; const bl=new Blob([JSON.stringify(bk,null,2)],{type:'application/json'}), url=URL.createObjectURL(bl), a=document.createElement('a'); a.href=url; a.download=`safaa-backup-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url); showToast("✅ تم التحميل"); } catch(e){ showToast("خطأ", 'error'); } }
-    async function clearOldPosts() { if(!confirm("حذف المنشورات الأقدم من 90 يوم؟")) return; try { const cut=Date.now()-(90*864e5), ps=await db.collection('posts').get(); let del=0; const b=db.batch(); ps.forEach(d=>{const t=d.data().timestamp?.toMillis?.()||0; if(t<cut&&!d.data().isPinned){b.delete(d.ref);del++;}}); if(del>0){await b.commit(); showToast(`✅ حذف ${del}`);} else { showToast("لا يوجد"); } } catch(e){ showToast("خطأ", 'error'); } }
-    function addNotification(t, txt, type, rel=null) { db.collection('notifications').add({targetEmail:t, text:txt, type, relatedId:rel, timestamp:firebase.firestore.FieldValue.serverTimestamp(), read:false}).catch(e=>console.error(e)); }
-    function updateNotifBadge() { if(!currentUser) return; db.collection('notifications').where('targetEmail','==',currentUser.email).where('read','==',false).get().then(s=>{const c=s.size, b=document.getElementById('notif-count'); if(b){if(c>0){b.innerText=c>99?'99+':c; b.classList.remove('hidden');}else b.classList.add('hidden');}}).catch(e=>console.error(e)); }
-    async function renderNotifications() { const m=document.getElementById('main-content'); if(!m||!currentUser) return; m.innerHTML=`<h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-bell text-gold-primary"></i>الإشعارات</h2><div id="notif-list" class="space-y-3"><div class="loading">جاري التحميل...</div></div>`; try { const s=await db.collection('notifications').where('targetEmail','==',currentUser.email).orderBy('timestamp','desc').limit(50).get(); const l=document.getElementById('notif-list'); if(!l) return; if(s.empty) { l.innerHTML='<p class="text-center text-zinc-500 py-10">🔔 لا توجد إشعارات</p>'; return; } l.innerHTML=s.docs.map(d=>{const n=d.data(); return `<div class="p-4 rounded-xl border ${n.read?'bg-zinc-900/30 border-zinc-800':'bg-gold-primary/5 border-gold-primary/30'} animate-fade ${n.relatedId?'cursor-pointer hover:bg-gold-primary/10':''}" ${n.relatedId?`onclick="scrollToComment('${n.relatedId}')"`:''}><div class="flex justify-between items-start"><p class="text-sm">${escapeHtml(n.text)}</p><span class="text-[9px] text-zinc-600 whitespace-nowrap mr-3">${formatDate(n.timestamp)}</span></div></div>`;}).join(''); const b=db.batch(); s.docs.forEach(d=>b.update(d.ref,{read:true})); await b.commit(); updateNotifBadge(); } catch(e){ console.error(e); document.getElementById('notif-list').innerHTML='<p class="text-center text-red-500 py-10">خطأ</p>'; } }
-    async function scrollToComment(pid) { closeModal(); await openComments(pid); setTimeout(()=>{const c=document.getElementById('comments-list'); if(c) c.scrollTop=c.scrollHeight;}, 300); }
-    async function handleGlobalSearch(query) {
-        const dd=document.getElementById('search-results-dropdown'), ct=document.getElementById('search-results-content');
-        if(!query||query.trim().length<2) { dd?.classList.add('hidden'); return; }
-        dd?.classList.remove('hidden'); ct.innerHTML='<div class="text-center text-zinc-500 text-sm py-2">جاري البحث...</div>';
-        const res=[], q=query.toLowerCase().trim();
-        try {
-            const ps=await db.collection('posts').orderBy('timestamp','desc').limit(10).get();
-            ps.forEach(d=>{const v=d.data(); if(v.content?.toLowerCase().includes(q)) res.push({type:'post',id:d.id,title:v.content.substring(0,60)+(v.content.length>60?'...':'')});});
-            const us=await db.collection('users').orderBy('username').get();
-            us.forEach(d=>{const v=d.data(); if(v.username?.toLowerCase().includes(q)||v.uia?.includes(query)) res.push({type:'user',id:d.id,title:v.username,uia:v.uia,verified:v.verified,gender:v.gender});});
-            if(ct) {
-                if(!res.length) ct.innerHTML='<p class="text-center text-zinc-500 text-sm py-2">لا توجد نتائج</p>';
-                else ct.innerHTML=res.map(r=>{
-                    if(r.type==='post') return `<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center gap-2" onclick="showPost('${r.id}')"><i class="fa-solid fa-feather text-gold-primary text-xs"></i><span>${escapeHtml(r.title)}</span></div>`;
-                    const nc=r.gender==='female'?'female-name':'male-name';
-                    return `<div class="p-2 hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center gap-2" onclick="showUser('${r.id}')"><i class="fa-solid fa-user text-gold-primary text-xs"></i><span class="${nc}">${escapeHtml(r.title)}</span>${r.verified?'<i class="fa-solid fa-circle-check verified-badge text-[10px]"></i>':''}<span class="text-[10px] text-zinc-600 mr-auto">UIA:${r.uia}</span></div>`;
-                }).join('');
-            }        } catch(e) { console.error(e); if(ct) ct.innerHTML='<p class="text-center text-red-500 text-sm py-2">خطأ</p>'; }
+    async function viewReportPost(id) { try { const d=await db.collection('posts').doc(id).get(); if(!d.exists) return showToast("محذوف",'error'); const m=document.getElementById('modal-container'), b=document.getElementById('modal-body'); b.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة المنشور</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-lg mb-4 text-sm">${escapeHtml(d.data().content)}</div><button onclick="deletePost('${id}','${d.data().authorEmail}');closeModal();" class="gold-btn w-full bg-red-600">حذف الآن</button>`; m.classList.remove('hidden'); } catch(e){} }
+    async function viewReportComment(id) { try { const d=await db.collection('comments').doc(id).get(); if(!d.exists) return showToast("محذوف",'error'); const m=document.getElementById('modal-container'), b=document.getElementById('modal-body'); b.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">معاينة التعليق</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="bg-zinc-900 p-4 rounded-lg mb-4 text-sm">${escapeHtml(d.data().content)}</div><button onclick="deleteComment('${id}');closeModal();" class="gold-btn w-full bg-red-600">حذف الآن</button>`; m.classList.remove('hidden'); } catch(e){} }
+    async function deleteComment(id) { try { await db.collection('comments').doc(id).delete(); showToast("✅ تم حذف التعليق"); } catch(e){} }
+    
+    function refreshCurrentView() { showPage(currentView); }
+    
+    function addNotification(target, text, type, postId=null) {
+        if(target===currentUser.email) return;
+        db.collection('notifications').add({ target, text, type, postId, from: currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp(), read: false });
     }
-    function showPost(id) { closeModal(); document.getElementById('search-results-dropdown')?.classList.add('hidden'); showToast("جاري العرض..."); }
-    function showUser(email) { closeModal(); document.getElementById('search-results-dropdown')?.classList.add('hidden'); renderProfile(email); showToast("جاري عرض البروفايل..."); }
-    function refreshCurrentView() { if(currentView==='home') renderHome(); else if(currentView==='trending') renderTrending(); else if(currentView==='profile'&&currentUser) renderProfile(currentUser.email); }
-    document.addEventListener('DOMContentLoaded', ()=>{});
-    setInterval(updateNotifBadge, 30000);
-    document.addEventListener('backbutton', function(e) { const m=document.getElementById('modal-container'); if(m&&!m.classList.contains('hidden')) { e.preventDefault(); closeModal(); return; } }, false);
-    document.addEventListener('click', function(e) { const dd=document.getElementById('search-results-dropdown'), si=document.getElementById('global-search-input'); if(dd&&!dd.classList.contains('hidden')&&!dd.contains(e.target)&&e.target!==si) dd.classList.add('hidden'); });
+    function updateNotifBadge() {
+        if(!currentUser) return;
+        db.collection('notifications').where('target','==',currentUser.email).where('read','==',false).onSnapshot(s=>{
+            const el=document.getElementById('notif-count'); if(!el) return;
+            if(s.empty) el.classList.add('hidden'); else { el.innerText=s.size; el.classList.remove('hidden'); }
+        });
+    }
+    async function renderNotifications() {
+        const main=document.getElementById('main-content'); if(!main) return;
+        main.innerHTML=`<h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-bell text-gold-primary"></i>التنبيهات</h2><div id="notif-list" class="space-y-3"><div class="loading">جاري التحميل...</div></div>`;
+        const snap=await db.collection('notifications').where('target','==',currentUser.email).orderBy('timestamp','desc').limit(30).get();
+        const list=document.getElementById('notif-list'); if(!list) return;
+        if(snap.empty) { list.innerHTML='<div class="empty-state">لا توجد تنبيهات</div>'; return; }
+        let h=''; snap.forEach(doc=>{
+            const n=doc.data(); h+=`<div class="p-4 bg-zinc-900/50 rounded-lg border ${n.read?'border-zinc-800':'border-gold-primary/30'} flex justify-between items-center"><div class="flex-1"><p class="text-sm">${escapeHtml(n.text)}</p><span class="text-[10px] text-zinc-500">${formatDate(n.timestamp)}</span></div>${n.postId?`<button onclick="viewPost('${n.postId}')" class="text-xs text-gold-primary underline">عرض</button>`:''}</div>`;
+            if(!n.read) doc.ref.update({read:true});
+        });
+        list.innerHTML=h;
+    }
+    async function viewPost(id) {
+        const d=await db.collection('posts').doc(id).get();
+        if(!d.exists) return showToast("المنشور محذوف",'error');
+        const u=await db.collection('users').doc(d.data().authorEmail).get();
+        const post={id:d.id, ...d.data(), author:u.exists?u.data():{username:"عضو",verified:false,gender:'male'}};
+        const modal=document.getElementById('modal-container'), body=document.getElementById('modal-body');
+        body.innerHTML=`<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold gold-text">عرض المنشور</h3><button onclick="closeModal()" class="text-zinc-500"><i class="fa-solid fa-xmark text-xl"></i></button></div><div id="single-post-container"></div>`;
+        modal.classList.remove('hidden'); renderPosts([post], 'single-post-container');
+    }
+    
+    function handleGlobalSearch(q) {
+        const drop=document.getElementById('search-results-dropdown'), cont=document.getElementById('search-results-content');
+        if(!q.trim() || q.length<2) { drop?.classList.add('hidden'); return; }
+        db.collection('users').get().then(snap=>{
+            const res=[]; snap.forEach(d=>{const u=d.data(); if(u.username?.toLowerCase().includes(q.toLowerCase())) res.push({email:d.id,...u});});
+            if(!res.length) { cont.innerHTML='<p class="text-zinc-500 text-[10px] p-2">لا توجد نتائج</p>'; }
+            else { cont.innerHTML=res.map(u=>`<div class="p-2 hover:bg-zinc-800 cursor-pointer rounded flex items-center gap-2" onclick="renderProfile('${u.email}'); document.getElementById('search-results-dropdown').classList.add('hidden');"><div class="w-6 h-6 rounded-full bg-zinc-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-user"></i></div><span class="text-xs ${getNameColorClass(u.gender)}">${escapeHtml(u.username)}</span></div>`).join(''); }
+            drop.classList.remove('hidden');
+        });
+    }
 </script>
-        
-                
 </body>
 </html>
