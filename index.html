@@ -2,77 +2,754 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المنتدى تحت الصيانة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🌟 شبوة Hub - النسخة الأسطورية الفاخرة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-secondary: #C5A028;
+            --gold-gradient: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            --dark-bg: #0A0A0A;
+            --dark-card: #141414;
+            --dark-border: #1F1F1F;
+            --text-white: #F5F5F5;
+            --female-pink: #ec4899;
+            --male-white: #F5F5F5;
+            --success: #22c55e;
+            --error: #ef4444;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            padding: 20px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--dark-bg); color: var(--text-white); padding-bottom: 80px; overflow-x: hidden; min-height: 100vh; line-height: 1.6; }
 
-        .maintenance-container {
-            background-color: #ffffff;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            max-width: 500px;
-            width: 100%;
-        }
+        /* ===== HEADER DESIGN ===== */
+        .main-header { background: var(--dark-bg); border-bottom: 1px solid var(--dark-border); padding: 20px 0; }
+        .logo-container { display: flex; justify-content: center; margin-bottom: 20px; }
+        .logo-img { width: 110px; height: 110px; border-radius: 25px; border: 3.5px solid var(--gold-primary); box-shadow: 0 0 30px rgba(212, 175, 55, 0.4); object-fit: cover; transition: 0.3s; }
+        .logo-img:hover { transform: scale(1.05) rotate(2deg); }
+        
+        .header-controls { max-width: 800px; margin: 0 auto; px-4 flex items-center gap-3; }
+        .search-wrapper { flex: 1; position: relative; }
+        .search-input { width: 100%; background: #1a1a1a; border: 1px solid var(--dark-border); border-radius: 14px; padding: 12px 45px 12px 15px; color: white; font-size: 0.95rem; transition: all 0.3s; }
+        .search-input:focus { border-color: var(--gold-primary); outline: none; box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); }
 
-        .icon {
-            font-size: 60px;
-            color: #e74c3c;
-            margin-bottom: 20px;
-        }
+        .header-btn { width: 48px; height: 48px; border-radius: 14px; background: #1a1a1a; border: 1px solid var(--dark-border); color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; position: relative; }
+        .header-btn:hover { border-color: var(--gold-primary); color: var(--gold-primary); transform: translateY(-2px); }
+        .badge { position: absolute; top: -5px; right: -5px; background: var(--error); color: white; font-size: 0.65rem; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2.5px solid var(--dark-bg); font-weight: 800; }
 
-        h1 {
-            font-size: 24px;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
+        /* ===== CARDS & UI ===== */
+        .post-card { background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 20px; margin-bottom: 16px; padding: 20px; transition: 0.3s; }
+        .post-card:hover { border-color: rgba(212, 175, 55, 0.3); }
+        .gold-text { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+        .gold-btn { background: var(--gold-gradient); color: #000; font-weight: 800; border-radius: 14px; padding: 12px 28px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); }
+        .gold-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
 
-        p {
-            font-size: 16px;
-            color: #7f8c8d;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
+        .profile-icon { width: 55px; height: 55px; border-radius: 50%; border: 2.5px solid var(--gold-primary); overflow: hidden; flex-shrink: 0; box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
+        .profile-icon img { width: 100%; height: 100%; object-fit: cover; }
 
-        .footer-note {
-            font-size: 14px;
-            color: #bdc3c7;
-            border-top: 1px solid #ededed;
-            padding-top: 15px;
-        }
+        /* ===== NAVIGATION ===== */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(15px); border-top: 1px solid var(--dark-border); display: flex; justify-content: space-around; padding: 14px 0; z-index: 1000; }
+        .nav-item { color: #555; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--gold-primary); transform: scale(1.1); }
+
+        /* ===== MODALS ===== */
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal.hidden { display: none; }
+        .modal-content { background: var(--dark-card); border: 1.5px solid var(--gold-primary); border-radius: 28px; width: 100%; max-width: 620px; padding: 30px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 50px rgba(212, 175, 55, 0.1); }
+
+        /* ===== UTILS ===== */
+        .loading { text-align: center; padding: 50px; color: var(--gold-primary); font-weight: 700; }
+        .toast { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); padding: 14px 30px; border-radius: 30px; z-index: 3000; animation: slideDown 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .toast.success { background: var(--success); color: white; }
+        .toast.error { background: var(--error); color: white; }
+        @keyframes slideDown { from { top: -60px; opacity: 0; } to { top: 25px; opacity: 1; } }
+
+        .verified-badge { color: #3b82f6; margin-right: 5px; font-size: 1.1rem; }
+        .admin-badge { color: var(--gold-primary); margin-right: 5px; font-size: 1.1rem; }
+        .male-name { color: var(--male-white); font-weight: 700; }
+        .female-name { color: var(--female-pink); font-weight: 700; }
+        
+        .comment-reply { margin-right: 25px; border-right: 3px solid var(--gold-primary); padding-right: 15px; margin-top: 12px; }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: #1a1a1a; border: 1px solid var(--dark-border); border-radius: 16px; margin-top: 8px; z-index: 100; max-height: 350px; overflow-y: auto; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .search-item { padding: 12px 15px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; }
+        .search-item:hover { background: #252525; padding-right: 20px; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--gold-primary); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="maintenance-container">
-        <!-- أيقونة الصيانة (يمكنك تغييرها) -->
-        <div class="icon">🛠️</div>
-        
-        <h1>المنتدى تحت الصيانة المؤقتة</h1>
-        
-        <p>نعمل حالياً على تحسين وتطوير المنتدى لنقدم لكم تجربة أفضل. سنعود إليكم في أقرب وقت ممكن. شكراً لتفهمكم وصبركم معنا.</p>
-        
-        <div class="footer-note">
-            إدارة المنتدى
+    <!-- ===== HEADER ===== -->
+    <header class="main-header">
+        <div class="logo-container">
+            <img src="https://i.ibb.co/HTKzqg8m/sh-icon.png" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/110?text=SH'">
         </div>
+        <div class="max-w-3xl mx-auto px-4">
+            <div class="header-controls">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="main-search" class="search-input" placeholder="ابحث بالاسم أو UIA..." onkeyup="handleSearch(this.value)">
+                    <div id="search-results" class="search-results hidden"></div>
+                </div>
+                <button class="header-btn" onclick="showPage('messages')">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span id="msg-badge" class="badge hidden">0</span>
+                </button>
+                <button class="header-btn" onclick="showPage('notifications')">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="notif-badge" class="badge hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main id="main-content" class="max-w-3xl mx-auto px-4 py-6">
+        <div class="loading">جاري التحميل...</div>
+    </main>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="nav-home" onclick="showPage('home')"><i class="fa-solid fa-house"></i></div>
+        <div class="nav-item" id="nav-trending" onclick="showPage('trending')"><i class="fa-solid fa-fire"></i></div>
+        <div class="nav-item" id="nav-add" onclick="openCreatePost()"><i class="fa-solid fa-circle-plus text-5xl text-gold-primary"></i></div>
+        <div class="nav-item" id="nav-profile" onclick="showPage('profile')"><i class="fa-solid fa-user"></i></div>
+        <div class="nav-item admin-only hidden" id="nav-admin" onclick="showPage('admin')"><i class="fa-solid fa-shield-halved"></i></div>
+    </nav>
+
+    <!-- ===== MODAL ===== -->
+    <div id="modal-container" class="modal hidden">
+        <div class="modal-content" id="modal-body"></div>
     </div>
 
+    <script>
+        // ✅ Firebase Configuration - شبوة hub (safarooo7)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDDV3qCVUouvXmT3z9wAAz9s6D8J7gg3vM",
+            authDomain: "safarooo7.firebaseapp.com",
+            databaseURL: "https://safarooo7-default-rtdb.firebaseio.com",
+            projectId: "safarooo7",
+            storageBucket: "safarooo7.firebasestorage.app",
+            messagingSenderId: "891953619763",
+            appId: "1:891953619763:web:98404ef3fc9fd4180d5446",
+            measurementId: "G-8LZ1D92D8P"
+        };
+
+        const ADMIN_EMAIL = 'a1sabriweb@gmail.com';
+        const IMGBB_KEY = '980b07ccd9001f9a958c38a55f978fac';
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let currentView = 'home';
+        let currentPostId = null;
+
+        // ===== AUTH LISTENER =====
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const doc = await db.collection('users').doc(user.email).get();
+                if (doc.exists) {
+                    currentUser = { ...doc.data(), email: user.email };
+                    if (currentUser.isBanned) { auth.signOut(); return showToast("🚫 تم حظر حسابك", "error"); }
+                    if (currentUser.email === ADMIN_EMAIL || currentUser.role === 'admin' || currentUser.role === 'moderator') {
+                        document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                    }
+                    showPage('home');
+                    startRealtimeUpdates();
+                } else {
+                    const newUser = {
+                        username: user.displayName || user.email.split('@')[0],
+                        email: user.email,
+                        uia: Math.floor(1000 + Math.random() * 9000).toString(),
+                        role: 'member',
+                        verified: false,
+                        gender: 'male',
+                        joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        profileImage: '',
+                        isBanned: false
+                    };
+                    await db.collection('users').doc(user.email).set(newUser);
+                    currentUser = newUser;
+                    showPage('home');
+                }
+            } else {
+                currentUser = null;
+                showAuthPage();
+            }
+        });
+
+        // ===== NAVIGATION & PAGES =====
+        function showPage(page) {
+            currentView = page;
+            const main = document.getElementById('main-content');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('nav-' + (page === 'messages' || page === 'notifications' ? 'home' : page))?.classList.add('active');
+
+            switch(page) {
+                case 'home': renderHome(); break;
+                case 'trending': renderTrending(); break;
+                case 'profile': renderProfile(currentUser.email); break;
+                case 'admin': renderAdmin(); break;
+                case 'notifications': renderNotifications(); break;
+                case 'messages': renderMessages(); break;
+            }
+        }
+
+        async function renderHome() {
+            const main = document.getElementById('main-content');
+            main.innerHTML = '<div class="loading">جاري تحميل المنشورات...</div>';
+            
+            db.collection('posts').orderBy('timestamp', 'desc').limit(50).onSnapshot(async snap => {
+                if (currentView !== 'home') return;
+                let html = '<h2 class="text-2xl font-black mb-6 gold-text">✨ آخر التحديثات</h2>';
+                if (snap.empty) html += '<div class="text-center py-20 text-gray-500">لا توجد منشورات بعد</div>';
+                
+                const posts = [];
+                for (const doc of snap.docs) {
+                    const data = doc.data();
+                    const uDoc = await db.collection('users').doc(data.authorEmail).get();
+                    posts.push({ id: doc.id, ...data, author: uDoc.exists ? uDoc.data() : {username:"عضو", profileImage:""} });
+                }
+                
+                main.innerHTML = html + posts.map(p => renderPostCard(p)).join('');
+            });
+        }
+
+        function renderPostCard(p) {
+            const isLiked = p.likes?.includes(currentUser.email);
+            const canDelete = currentUser.email === p.authorEmail || currentUser.role === 'admin' || currentUser.role === 'moderator' || currentUser.email === ADMIN_EMAIL;
+            const nameColor = p.author.gender === 'female' ? 'female-name' : 'male-name';
+            
+            return `
+                <div class="post-card animate-fade" id="post-${p.id}">
+                    <div class="flex justify-between mb-4">
+                        <div class="flex items-center gap-3 cursor-pointer" onclick="renderProfile('${p.authorEmail}')">
+                            <div class="profile-icon">
+                                <img src="${p.author.profileImage || 'https://via.placeholder.com/55'}" onerror="this.src='https://via.placeholder.com/55'">
+                            </div>
+                            <div>
+                                <div class="flex items-center">
+                                    <span class="font-bold text-lg ${nameColor}">${p.author.username}</span>
+                                    ${p.author.verified ? '<i class="fa-solid fa-circle-check verified-badge"></i>' : ''}
+                                    ${p.author.role === 'admin' || p.author.email === ADMIN_EMAIL ? '<i class="fa-solid fa-shield-halved admin-badge"></i>' : ''}
+                                </div>
+                                <div class="text-[11px] text-gray-500">UIA: ${p.author.uia} • ${formatDate(p.timestamp)}</div>
+                            </div>
+                        </div>
+                        ${canDelete ? `<button onclick="deletePost('${p.id}')" class="text-gray-600 hover:text-red-500 transition"><i class="fa-solid fa-trash-can text-lg"></i></button>` : ''}
+                    </div>
+                    <div class="text-base mb-4 whitespace-pre-wrap leading-relaxed">${escapeHtml(p.content)}</div>
+                    ${p.imageUrl ? `<img src="${p.imageUrl}" class="w-full rounded-2xl mb-4 border border-gray-800 shadow-lg" onclick="window.open('${p.imageUrl}')">` : ''}
+                    <div class="flex gap-8 border-t border-gray-800 pt-4">
+                        <button onclick="toggleLike('${p.id}')" class="flex items-center gap-2 font-bold ${isLiked ? 'text-red-500' : 'text-gray-500'} transition">
+                            <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart text-xl"></i> ${p.likes?.length || 0}
+                        </button>
+                        <button onclick="openComments('${p.id}')" class="flex items-center gap-2 font-bold text-gray-500 hover:text-gold-primary transition">
+                            <i class="fa-regular fa-comment text-xl"></i> ${p.commentsCount || 0}
+                        </button>
+                        <button onclick="sharePost('${p.id}')" class="text-gray-500 hover:text-gold-primary transition"><i class="fa-solid fa-share-nodes text-xl"></i></button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== PROFILE SYSTEM =====
+        async function renderProfile(email) {
+            const main = document.getElementById('main-content');
+            main.innerHTML = '<div class="loading">جاري تحميل الملف الشخصي...</div>';
+            
+            try {
+                const uDoc = await db.collection('users').doc(email).get();
+                if (!uDoc.exists) return showPage('home');
+                const user = uDoc.data();
+                const isMyProfile = currentUser.email === email;
+                const nameColor = user.gender === 'female' ? 'female-name' : 'male-name';
+
+                const postsSnap = await db.collection('posts').where('authorEmail', '==', email).orderBy('timestamp', 'desc').get();
+                
+                main.innerHTML = `
+                    <div class="animate-fade">
+                        <div class="text-center mb-10">
+                            <div class="w-28 h-28 rounded-[30px] border-4 border-gold-primary mx-auto mb-6 overflow-hidden shadow-2xl">
+                                <img src="${user.profileImage || 'https://via.placeholder.com/110'}" class="w-full h-full object-cover">
+                            </div>
+                            <h2 class="text-3xl font-black flex items-center justify-center gap-2 mb-2">
+                                <span class="${nameColor}">${user.username}</span>
+                                ${user.verified ? '<i class="fa-solid fa-circle-check verified-badge text-2xl"></i>' : ''}
+                            </h2>
+                            <p class="text-gray-500 text-sm mb-6">UIA: ${user.uia} • انضم ${formatDate(user.joinedAt)}</p>
+                            
+                            <div class="flex justify-center gap-4 mb-8">
+                                ${isMyProfile ? `
+                                    <button onclick="openEditProfile()" class="gold-btn py-3 px-8">تعديل البروفايل</button>
+                                    <button onclick="auth.signOut()" class="bg-red-600/20 text-red-500 py-3 px-8 rounded-2xl font-bold border border-red-600/30">خروج</button>
+                                ` : `
+                                    <button onclick="openChat('${email}')" class="gold-btn py-3 px-8">مراسلة</button>
+                                    <button onclick="toggleFollow('${email}')" class="bg-zinc-800 py-3 px-8 rounded-2xl font-bold border border-gray-700">متابعة</button>
+                                `}
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-800 pt-8">
+                            <h3 class="text-xl font-black mb-6 gold-text">📝 المنشورات (${postsSnap.size})</h3>
+                            <div id="profile-posts"></div>
+                        </div>
+                    </div>
+                `;
+                
+                const postsContainer = document.getElementById('profile-posts');
+                if (postsSnap.empty) postsContainer.innerHTML = '<div class="text-center py-10 text-gray-600">لا توجد منشورات لهذا المستخدم</div>';
+                postsSnap.forEach(doc => {
+                    postsContainer.innerHTML += renderPostCard({ id: doc.id, ...doc.data(), author: user });
+                });
+            } catch(e) {
+                console.error(e);
+                main.innerHTML = '<div class="text-center text-red-500 py-10">❌ حدث خطأ في تحميل الملف الشخصي</div>';
+            }
+        }
+
+        // ===== ADMIN SYSTEM =====
+        async function renderAdmin() {
+            if (currentUser.role !== 'admin' && currentUser.role !== 'moderator' && currentUser.email !== ADMIN_EMAIL) return showPage('home');
+            
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="animate-fade">
+                    <h2 class="text-2xl font-black mb-8 gold-text"><i class="fa-solid fa-shield-halved"></i> لوحة التحكم</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-zinc-900 p-5 rounded-2xl border border-gray-800 shadow-lg">
+                            <div class="text-gray-500 text-xs font-bold mb-1">المستخدمين</div>
+                            <div class="text-3xl font-black gold-text" id="stat-users">...</div>
+                        </div>
+                        <div class="bg-zinc-900 p-5 rounded-2xl border border-gray-800 shadow-lg">
+                            <div class="text-gray-500 text-xs font-bold mb-1">المنشورات</div>
+                            <div class="text-3xl font-black gold-text" id="stat-posts">...</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900 p-6 rounded-2xl border border-gray-800 mb-8 shadow-xl">
+                        <h3 class="font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-users-gear text-gold-primary"></i> إدارة المستخدمين</h3>
+                        <div class="relative mb-6">
+                            <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input type="text" class="search-input" placeholder="ابحث بالاسم أو UIA..." onkeyup="adminSearchUsers(this.value)">
+                        </div>
+                        <div id="admin-user-list" class="space-y-4"></div>
+                    </div>
+                </div>
+            `;
+            
+            db.collection('users').get().then(s => document.getElementById('stat-users').innerText = s.size);
+            db.collection('posts').get().then(s => document.getElementById('stat-posts').innerText = s.size);
+        }
+
+        async function adminSearchUsers(query) {
+            if (query.length < 2) return;
+            const list = document.getElementById('admin-user-list');
+            const snap = await db.collection('users').get();
+            let html = '';
+            snap.forEach(doc => {
+                const u = doc.data();
+                if (u.username.toLowerCase().includes(query.toLowerCase()) || u.uia.includes(query)) {
+                    html += `
+                        <div class="flex items-center justify-between p-4 bg-black/40 rounded-2xl border border-gray-800 hover:border-gold-primary/30 transition">
+                            <div class="flex items-center gap-3">
+                                <img src="${u.profileImage || 'https://via.placeholder.com/45'}" class="w-11 h-11 rounded-full border border-gray-700">
+                                <div>
+                                    <div class="font-bold text-sm">${u.username}</div>
+                                    <div class="text-[10px] text-gray-500">UIA: ${u.uia}</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="adminToggleVerify('${doc.id}', ${u.verified})" class="w-9 h-9 rounded-xl ${u.verified ? 'bg-blue-600' : 'bg-gray-800'} text-white transition flex items-center justify-center" title="توثيق">
+                                    <i class="fa-solid fa-check-double"></i>
+                                </button>
+                                <button onclick="adminSetRole('${doc.id}', '${u.role}')" class="w-9 h-9 rounded-xl bg-gold-primary/20 text-gold-primary transition flex items-center justify-center" title="تغيير الرتبة">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </button>
+                                <button onclick="adminToggleBan('${doc.id}', ${u.isBanned})" class="w-9 h-9 rounded-xl ${u.isBanned ? 'bg-red-600' : 'bg-gray-800'} text-white transition flex items-center justify-center" title="حظر">
+                                    <i class="fa-solid fa-ban"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            list.innerHTML = html || '<div class="text-center text-gray-600 py-4">لا توجد نتائج</div>';
+        }
+
+        async function adminToggleVerify(email, current) {
+            await db.collection('users').doc(email).update({ verified: !current });
+            showToast("✅ تم تحديث حالة التوثيق");
+            adminSearchUsers(document.querySelector('.search-input').value || "");
+        }
+
+        async function adminSetRole(email, currentRole) {
+            const newRole = currentRole === 'moderator' ? 'member' : 'moderator';
+            await db.collection('users').doc(email).update({ role: newRole });
+            showToast(`✅ تم تعيين الرتبة إلى: ${newRole}`);
+            adminSearchUsers(document.querySelector('.search-input').value || "");
+        }
+
+        async function adminToggleBan(email, current) {
+            await db.collection('users').doc(email).update({ isBanned: !current });
+            showToast(current ? "✅ تم فك الحظر" : "🚫 تم حظر المستخدم");
+            adminSearchUsers(document.querySelector('.search-input').value || "");
+        }
+
+        // ===== POST ACTIONS =====
+        async function deletePost(id) {
+            if (!confirm("⚠️ هل أنت متأكد من حذف المنشور نهائياً؟")) return;
+            try {
+                showToast("⏳ جاري الحذف...");
+                await db.collection('posts').doc(id).delete();
+                const cSnap = await db.collection('comments').where('postId', '==', id).get();
+                const batch = db.batch();
+                cSnap.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                showToast("✅ تم حذف المنشور بنجاح");
+                showPage(currentView);
+            } catch(e) { showToast("❌ فشل الحذف", "error"); }
+        }
+
+        async function toggleLike(id) {
+            if (!currentUser) return showToast("❌ سجل الدخول أولاً", "error");
+            const ref = db.collection('posts').doc(id);
+            const doc = await ref.get();
+            if (!doc.exists) return;
+            const likes = doc.data().likes || [];
+            if (likes.includes(currentUser.email)) {
+                await ref.update({ likes: firebase.firestore.FieldValue.arrayRemove(currentUser.email) });
+            } else {
+                await ref.update({ likes: firebase.firestore.FieldValue.arrayUnion(currentUser.email) });
+                if (doc.data().authorEmail !== currentUser.email) {
+                    addNotification(doc.data().authorEmail, "أعجب بمنشورك ❤️", "like", id);
+                }
+            }
+        }
+
+        // ===== COMMENTS SYSTEM =====
+        async function openComments(postId) {
+            currentPostId = postId;
+            const modal = document.getElementById('modal-container');
+            const body = document.getElementById('modal-body');
+            modal.classList.remove('hidden');
+            body.innerHTML = '<div class="loading">جاري تحميل التعليقات...</div>';
+            
+            db.collection('comments').where('postId', '==', postId).orderBy('timestamp', 'asc').onSnapshot(async snap => {
+                let html = `
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-black gold-text">💬 التعليقات</h3>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gold-primary transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                    </div>
+                    <div id="comments-list" class="space-y-5 mb-6 max-h-[450px] overflow-y-auto pr-2"></div>
+                    <div class="flex gap-3 border-t border-gray-800 pt-4">
+                        <input type="text" id="comment-input" class="search-input flex-1" placeholder="اكتب تعليقك..." onkeypress="if(event.key==='Enter')submitComment('${postId}')">
+                        <button onclick="submitComment('${postId}')" class="gold-btn px-6"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                `;
+                body.innerHTML = html;
+                const list = document.getElementById('comments-list');
+                if (snap.empty) { list.innerHTML = '<div class="text-center text-gray-600 py-10">لا توجد تعليقات بعد 💬</div>'; return; }
+                
+                let commentsHtml = '';
+                for (const doc of snap.docs) {
+                    const c = doc.data();
+                    const uDoc = await db.collection('users').doc(c.authorEmail).get();
+                    const u = uDoc.exists ? uDoc.data() : {username:"عضو", profileImage:"", gender:"male"};
+                    const canDel = currentUser.email === c.authorEmail || currentUser.role === 'admin' || currentUser.email === ADMIN_EMAIL;
+                    
+                    commentsHtml += `
+                        <div class="flex gap-3 animate-fade">
+                            <img src="${u.profileImage || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full border border-gray-800 flex-shrink-0">
+                            <div class="flex-1 bg-zinc-900/50 p-4 rounded-2xl border border-gray-800">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="font-bold text-sm ${u.gender === 'female' ? 'female-name' : 'male-name'}">${u.username}</span>
+                                    <div class="flex gap-3 items-center">
+                                        <span class="text-[10px] text-gray-600">${formatDate(c.timestamp)}</span>
+                                        ${canDel ? `<button onclick="deleteComment('${doc.id}', '${postId}')" class="text-gray-600 hover:text-red-500"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(c.text)}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                list.innerHTML = commentsHtml;
+                list.scrollTop = list.scrollHeight;
+            });
+        }
+
+        async function submitComment(postId) {
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            try {
+                await db.collection('comments').add({
+                    postId,
+                    authorEmail: currentUser.email,
+                    text,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await db.collection('posts').doc(postId).update({ commentsCount: firebase.firestore.FieldValue.increment(1) });
+                const pDoc = await db.collection('posts').doc(postId).get();
+                if (pDoc.exists && pDoc.data().authorEmail !== currentUser.email) {
+                    addNotification(pDoc.data().authorEmail, "علق على منشورك 💬", "comment", postId);
+                }
+                input.value = '';
+            } catch(e) { showToast("❌ فشل إضافة التعليق", "error"); }
+        }
+
+        async function deleteComment(commentId, postId) {
+            if (!confirm("⚠️ حذف التعليق؟")) return;
+            await db.collection('comments').doc(commentId).delete();
+            await db.collection('posts').doc(postId).update({ commentsCount: firebase.firestore.FieldValue.increment(-1) });
+            showToast("✅ تم حذف التعليق");
+        }
+
+        // ===== SEARCH HANDLER =====
+        async function handleSearch(query) {
+            const results = document.getElementById('search-results');
+            if (query.length < 2) { results.classList.add('hidden'); return; }
+            
+            const snap = await db.collection('users').get();
+            let html = '';
+            snap.forEach(doc => {
+                const u = doc.data();
+                if (u.username.toLowerCase().includes(query.toLowerCase()) || u.uia.includes(query)) {
+                    html += `
+                        <div class="search-item" onclick="renderProfile('${doc.id}'); document.getElementById('search-results').classList.add('hidden');">
+                            <img src="${u.profileImage || 'https://via.placeholder.com/35'}" class="w-9 h-9 rounded-full border border-gray-700">
+                            <div>
+                                <div class="font-bold text-sm">${u.username}</div>
+                                <div class="text-[10px] text-gray-500">UIA: ${u.uia}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            if (html) { results.innerHTML = html; results.classList.remove('hidden'); }
+            else results.classList.add('hidden');
+        }
+
+        // ===== NOTIFICATIONS =====
+        async function addNotification(to, msg, type, postId = null) {
+            await db.collection('notifications').add({
+                recipientEmail: to,
+                senderEmail: currentUser.email,
+                message: msg,
+                type,
+                postId,
+                read: false,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        function renderNotifications() {
+            const main = document.getElementById('main-content');
+            main.innerHTML = '<h2 class="text-2xl font-black mb-8 gold-text">🔔 الإشعارات</h2><div id="notif-list" class="space-y-4"></div>';
+            
+            db.collection('notifications').where('recipientEmail', '==', currentUser.email).orderBy('timestamp', 'desc').limit(30).onSnapshot(async snap => {
+                const list = document.getElementById('notif-list');
+                if (snap.empty) { list.innerHTML = '<div class="text-center py-20 text-gray-600">لا توجد إشعارات حالياً</div>'; return; }
+                
+                let html = '';
+                for (const doc of snap.docs) {
+                    const n = doc.data();
+                    const uDoc = await db.collection('users').doc(n.senderEmail).get();
+                    const u = uDoc.exists ? uDoc.data() : {username:"عضو", profileImage:""};
+                    html += `
+                        <div class="bg-zinc-900/80 p-5 rounded-2xl border ${n.read ? 'border-gray-800' : 'border-gold-primary/40'} flex items-center gap-4 cursor-pointer hover:bg-zinc-800 transition shadow-lg" onclick="${n.postId ? `openComments('${n.postId}')` : `renderProfile('${n.senderEmail}')`}">
+                            <img src="${u.profileImage || 'https://via.placeholder.com/45'}" class="w-12 h-12 rounded-full border border-gray-700">
+                            <div class="flex-1">
+                                <div class="text-sm text-gray-200"><span class="font-bold text-gold-primary">${u.username}</span> ${n.message}</div>
+                                <div class="text-[10px] text-gray-600 mt-1">${formatDate(n.timestamp)}</div>
+                            </div>
+                            ${!n.read ? '<div class="w-2 h-2 bg-gold-primary rounded-full"></div>' : ''}
+                        </div>
+                    `;
+                    if (!n.read) doc.ref.update({ read: true });
+                }
+                list.innerHTML = html;
+            });
+        }
+
+        // ===== UTILS =====
+        function formatDate(t) {
+            if (!t) return 'الآن';
+            const d = t.toDate ? t.toDate() : new Date(t);
+            const now = new Date();
+            const diff = (now - d) / 1000;
+            if (diff < 60) return 'الآن';
+            if (diff < 3600) return `قبل ${Math.floor(diff/60)} د`;
+            if (diff < 86400) return `قبل ${Math.floor(diff/3600)} س`;
+            return d.toLocaleDateString('ar-SA');
+        }
+
+        function escapeHtml(t) {
+            const d = document.createElement('div');
+            d.textContent = t;
+            return d.innerHTML;
+        }
+
+        function showToast(m, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerText = m;
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
+        }
+
+        function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
+
+        function startRealtimeUpdates() {
+            db.collection('notifications').where('recipientEmail', '==', currentUser.email).where('read', '==', false).onSnapshot(s => {
+                const b = document.getElementById('notif-badge');
+                if (s.size > 0) { b.innerText = s.size; b.classList.remove('hidden'); }
+                else b.classList.add('hidden');
+            });
+        }
+
+        function showAuthPage() {
+            document.getElementById('main-content').innerHTML = `
+                <div class="text-center py-24 animate-fade">
+                    <img src="https://i.ibb.co/HTKzqg8m/sh-icon.png" class="w-32 h-32 mx-auto mb-8 rounded-[35px] border-4 border-gold-primary shadow-2xl">
+                    <h2 class="text-4xl font-black gold-text mb-4">شبوة Hub</h2>
+                    <p class="text-gray-500 mb-12 text-lg">أهلاً بك في مجتمعك الراقي</p>
+                    <div class="space-y-4 max-w-xs mx-auto">
+                        <button onclick="loginWithGoogle()" class="gold-btn w-full py-4 text-lg">✨ الدخول عبر جوجل</button>
+                        <p class="text-[10px] text-gray-600">بالدخول أنت توافق على شروط الاستخدام</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try { await auth.signInWithPopup(provider); } catch(e) { showToast("❌ فشل تسجيل الدخول", "error"); }
+        }
+
+        function openCreatePost() {
+            const modal = document.getElementById('modal-container');
+            const body = document.getElementById('modal-body');
+            modal.classList.remove('hidden');
+            body.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-black gold-text">✍️ منشور جديد</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gold-primary transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                </div>
+                <textarea id="post-text" class="search-input h-48 mb-6 text-lg leading-relaxed" placeholder="ماذا يدور في ذهنك؟ (حتى 10,000 حرف)" maxlength="10000"></textarea>
+                <input type="file" id="post-img-file" class="hidden" onchange="handlePostImg(this)">
+                <div id="img-preview" class="mb-6"></div>
+                <div class="flex gap-3">
+                    <button onclick="document.getElementById('post-img-file').click()" class="bg-zinc-800 w-14 h-14 rounded-2xl text-gold-primary border border-gray-700 hover:bg-zinc-700 transition flex items-center justify-center"><i class="fa-solid fa-image text-2xl"></i></button>
+                    <button onclick="submitPost()" class="gold-btn flex-1 text-lg">نشر الآن ✨</button>
+                </div>
+            `;
+        }
+
+        let tempImgUrl = '';
+        async function handlePostImg(input) {
+            if (input.files && input.files[0]) {
+                showToast("⏳ جاري رفع الصورة...");
+                const formData = new FormData();
+                formData.append('image', input.files[0]);
+                try {
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    tempImgUrl = data.data.url;
+                    document.getElementById('img-preview').innerHTML = `<img src="${tempImgUrl}" class="w-full rounded-2xl border border-gray-800 shadow-lg">`;
+                    showToast("✅ تم رفع الصورة");
+                } catch(e) { showToast("❌ فشل رفع الصورة", "error"); }
+            }
+        }
+
+        async function submitPost() {
+            const text = document.getElementById('post-text').value.trim();
+            if (!text && !tempImgUrl) return showToast("❌ اكتب شيئاً أولاً", "error");
+            
+            try {
+                showToast("⏳ جاري النشر...");
+                await db.collection('posts').add({
+                    content: text,
+                    imageUrl: tempImgUrl,
+                    authorEmail: currentUser.email,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    likes: [],
+                    commentsCount: 0
+                });
+                showToast("✅ تم النشر بنجاح");
+                closeModal();
+                tempImgUrl = '';
+                showPage('home');
+            } catch(e) { showToast("❌ فشل النشر", "error"); }
+        }
+
+        async function openEditProfile() {
+            const modal = document.getElementById('modal-container');
+            const body = document.getElementById('modal-body');
+            modal.classList.remove('hidden');
+            body.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-black gold-text">✏️ تعديل البروفايل</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gold-primary transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                </div>
+                <div class="text-center mb-6">
+                    <img src="${currentUser.profileImage || 'https://via.placeholder.com/100'}" class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-gold-primary object-cover">
+                    <input type="file" id="profile-img-file" class="hidden" onchange="uploadProfileImg(this)">
+                    <button onclick="document.getElementById('profile-img-file').click()" class="text-xs text-gold-primary font-bold underline">تغيير الصورة</button>
+                </div>
+                <div class="space-y-4">
+                    <input type="text" id="edit-username" class="search-input" placeholder="اسم المستخدم" value="${currentUser.username}">
+                    <select id="edit-gender" class="search-input">
+                        <option value="male" ${currentUser.gender==='male'?'selected':''}>ذكر ♂</option>
+                        <option value="female" ${currentUser.gender==='female'?'selected':''}>أنثى ♀</option>
+                    </select>
+                    <button onclick="saveProfile()" class="gold-btn w-full py-3">حفظ التغييرات</button>
+                </div>
+            `;
+        }
+
+        async function uploadProfileImg(input) {
+            if (input.files && input.files[0]) {
+                showToast("⏳ جاري رفع الصورة...");
+                const formData = new FormData();
+                formData.append('image', input.files[0]);
+                try {
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    await db.collection('users').doc(currentUser.email).update({ profileImage: data.data.url });
+                    currentUser.profileImage = data.data.url;
+                    showToast("✅ تم تحديث الصورة");
+                    openEditProfile();
+                } catch(e) { showToast("❌ فشل الرفع", "error"); }
+            }
+        }
+
+        async function saveProfile() {
+            const username = document.getElementById('edit-username').value.trim();
+            const gender = document.getElementById('edit-gender').value;
+            if (!username) return;
+            await db.collection('users').doc(currentUser.email).update({ username, gender });
+            currentUser.username = username;
+            currentUser.gender = gender;
+            showToast("✅ تم الحفظ");
+            closeModal();
+            renderProfile(currentUser.email);
+        }
+    </script>
 </body>
 </html>
