@@ -2,723 +2,99 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shabwa Hub - منصة شبوة الاجتماعية الكاملة</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنتدى تحت الصيانة</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #0b0b0b;
-            color: #e5e7eb;
-            -webkit-tap-highlight-color: transparent;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .gold-text { color: #d4af37; }
-        .gold-bg { background-color: #d4af37; }
-        .gold-border { border-color: #d4af37; }
-        .dark-card { background-color: #121212; border: 1px solid #222; }
-        ::-webkit-scrollbar { width: 0px; }
-        .banned-mask { backdrop-filter: blur(8px); }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .maintenance-container {
+            text-align: center;
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .icon {
+            font-size: 64px;
+            color: #e67e22;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .quote-box {
+            border-right: 4px solid #3498db;
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+            text-align: right;
+            font-style: italic;
+        }
+
+        .footer {
+            font-size: 14px;
+            color: #bdc3c7;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
-<body class="min-h-screen pb-24 select-none">
+<body>
 
-    <div id="loading-screen" class="fixed inset-0 bg-[#0b0b0b] z-50 flex flex-col justify-center items-center">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 gold-border mb-3"></div>
-        <p class="text-xs gold-text animate-pulse">جاري تهيئة شبوة HUB...</p>
-    </div>
-
-    <div id="banned-screen" class="fixed inset-0 bg-black/95 z-50 flex-col justify-center items-center hidden p-6 text-center">
-        <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4 animate-bounce"></i>
-        <h1 class="text-xl font-bold text-red-500">تم حظر هذا الحساب</h1>
-        <p id="ban-reason-txt" class="text-xs text-gray-400 mt-2 max-w-sm">لقد خالفت معايير مجتمع منصة شبوة HUB الرقمية للرقابة الآلية.</p>
-    </div>
-
-    <div id="auth-container" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="dark-card w-full max-w-md p-6 rounded-2xl shadow-2xl">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold gold-text">شبوة HUB</h2>
-                <p class="text-gray-400 text-xs mt-1">ملتقى مجتمع شبوة الرقمي والموثق</p>
-            </div>
-
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="login-email" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور</label>
-                    <input type="password" id="login-password" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                </div>
-                <button type="submit" class="w-full gold-bg text-black font-bold p-2.5 rounded-lg text-sm hover:bg-yellow-600 transition">تسجيل الدخول</button>
-                <p class="text-center text-xs text-gray-400 mt-4">ليس لديك حساب؟ <button type="button" onclick="toggleAuthViews(false)" class="gold-text underline">أنشاء حساب جديد (استبيان التوثيق)</button></p>
-            </form>
-
-            <form id="register-form" class="space-y-4 hidden max-h-[65vh] overflow-y-auto px-1">
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">الاسم الكامل (الثنائي أو الثلاثي)</label>
-                    <input type="text" id="reg-name" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="reg-email" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور (6 خانات على الأقل)</label>
-                    <input type="password" id="reg-password" required minlength="6" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">العمر</label>
-                        <input type="number" id="reg-age" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">الجنس</label>
-                        <select id="reg-gender" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                            <option value="ذكر">ذكر</option>
-                            <option value="أنثى">أنثى</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">البلد / المديرية</label>
-                    <input type="text" id="reg-country" required placeholder="مثال: اليمن - عتق" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                </div>
-                <button type="submit" class="w-full gold-bg text-black font-bold p-2.5 rounded-lg text-sm hover:bg-yellow-600 transition">تقديم طلب التوثيق والإنشاء</button>
-                <p class="text-center text-xs text-gray-400 mt-4">لديك حساب بالفعل؟ <button type="button" onclick="toggleAuthViews(true)" class="gold-text underline">تسجيل الدخول</button></p>
-            </form>
-        </div>
-    </div>
-
-    <div id="app-container" class="hidden">
+    <div class="maintenance-container">
+        <!-- أيقونة الصيانة (يمكن استبدالها بلوجو المنتدى) -->
+        <div class="icon">🛠️</div>
         
-        <header class="sticky top-0 z-40 bg-[#0b0b0b]/95 border-b border-gray-800 backdrop-blur px-4 py-3">
-            <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
-                <span class="font-bold gold-text text-md tracking-wider">شبوة HUB</span>
-                
-                <div class="flex-1 max-w-xs relative">
-                    <input type="text" id="global-search" oninput="executeGlobalSearch(this.value)" placeholder="ابحث بالاسم أو الـ UIA للموثقين..." class="w-full bg-[#1a1a1a] border border-gray-700 rounded-full pr-8 pl-3 py-1 text-xs text-white focus:outline-none focus:border-[#d4af37]">
-                    <i class="fa fa-search absolute right-3 top-2 text-gray-500 text-[10px]"></i>
-                    <div id="search-results" class="absolute left-0 right-0 top-full mt-2 bg-[#121212] border border-gray-800 rounded-xl overflow-hidden hidden z-50 max-h-48 overflow-y-auto shadow-2xl"></div>
-                </div>
+        <h1>المنتدى مغلق للصيانة المؤقتة</h1>
+        
+        <p>نعمل حالياً على تحسين وتطوير المنتدى لنمنحكم تجربة أفضل. لن نغيب طويلاً، سنعود إليكم بحلة جديدة أقوى وأجمل فور انتهاء أعمال التحديث.</p>
+        
+        <!-- حكمة ملهمة أثناء الانتظار -->
+        <div class="quote-box">
+            "الذين في أولادهم وبناتهم وعقولهم طاقة على الصبر، هم الذين يتقنون الصنائع."
+            <br>
+            <small>— الجاحظ</small>
+        </div>
 
-                <div class="flex items-center gap-2">
-                    <button id="admin-panel-btn" onclick="switchTab('admin')" class="hidden p-1 text-red-500 transition hover:scale-110" title="لوحة الإدارة والرقابة العليا">
-                        <i class="fa fa-sliders text-lg"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <main class="max-w-xl mx-auto px-3 mt-4">
-            
-            <section id="tab-home" class="tab-content space-y-4">
-                <div class="flex border-b border-gray-800 text-xs">
-                    <button onclick="loadFeed('trending')" id="feed-trend-btn" class="flex-1 py-2 text-center font-bold border-b-2 gold-border gold-text transition">المحتوى الرائج 🔥</button>
-                    <button onclick="loadFeed('following')" id="feed-follow-btn" class="flex-1 py-2 text-center font-bold text-gray-400 border-b-2 border-transparent transition">منشورات المتابَعين</button>
-                </div>
-                <div id="posts-feed" class="space-y-4"></div>
-            </section>
-
-            <section id="tab-publish" class="tab-content hidden">
-                <div class="dark-card p-4 rounded-xl space-y-3">
-                    <textarea id="post-text" maxlength="10000" rows="4" placeholder="شارك فكرة أو خبراً موثقاً لمجتمع شبوة HUB..." class="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg p-3 text-sm text-white focus:outline-none resize-none focus:border-gray-600"></textarea>
-                    <div id="post-img-preview-container" class="hidden relative rounded-lg overflow-hidden border border-gray-800">
-                        <img id="post-img-preview" class="w-full max-h-48 object-cover">
-                        <button onclick="removeSelectedPostImg()" class="absolute top-2 left-2 bg-black/70 p-1.5 rounded-full text-red-500 text-xs"><i class="fa fa-trash"></i></button>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center gap-1.5 cursor-pointer bg-[#1a1a1a] px-3 py-1.5 rounded-full border border-gray-700 text-xs text-gray-300 hover:bg-gray-800">
-                            <i class="fa fa-image gold-text"></i>
-                            <span>صورة المنشور</span>
-                            <input type="file" id="post-image-input" accept="image/*" class="hidden" onchange="previewPostImage(this)">
-                        </label>
-                        <button onclick="submitNewPost()" id="btn-submit-post" class="gold-bg text-black font-bold px-5 py-1.5 rounded-full text-xs hover:bg-yellow-600 transition shadow-md">نشر المنشور</button>
-                    </div>
-                </div>
-            </section>
-
-            <section id="tab-profile" class="tab-content hidden space-y-4">
-                <div class="dark-card rounded-xl overflow-hidden p-4 relative text-center shadow-lg">
-                    <div class="relative w-20 h-20 mx-auto group mb-2">
-                        <img id="profile-avatar" src="" class="w-20 h-20 rounded-full object-cover border-2 gold-border bg-black">
-                        <label id="change-avatar-lbl" class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition">
-                            <i class="fa fa-camera text-white text-xs"></i>
-                            <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="uploadAvatar(this)">
-                        </label>
-                    </div>
-                    <h3 class="text-md font-bold flex items-center justify-center gap-1">
-                        <span id="profile-name">---</span>
-                        <i id="profile-badge" class="fa fa-circle-check text-blue-500 hidden text-xs"></i>
-                    </h3>
-                    <p id="profile-uia" class="text-[10px] text-gray-500 tracking-widest font-mono">UIA: --</p>
-                    <p id="profile-meta" class="text-[11px] text-gray-400 mt-1">--</p>
-                    
-                    <div id="profile-actions" class="mt-3 flex justify-center gap-2"></div>
-
-                    <div class="grid grid-cols-2 border-t border-gray-800 mt-4 pt-2 text-xs">
-                        <div class="border-l border-gray-800"><span id="profile-followers-count" class="font-bold text-white block text-sm">0</span><span class="text-gray-500 text-[10px]">المتابِعون</span></div>
-                        <div><span id="profile-following-count" class="font-bold text-white block text-sm">0</span><span class="text-gray-500 text-[10px]">المتابَعون</span></div>
-                    </div>
-                </div>
-                <div id="profile-posts" class="space-y-4"></div>
-            </section>
-
-            <section id="tab-admin" class="tab-content hidden space-y-4">
-                <div class="dark-card p-4 rounded-xl">
-                    <h3 class="text-md font-bold text-red-500 mb-2 border-b border-gray-800 pb-2 flex items-center gap-1"><i class="fa fa-shield-halved"></i> لوحة الإدارة للرقابة والتوثيق</h3>
-                    <div class="grid grid-cols-2 gap-2 mb-4">
-                        <div class="bg-[#1a1a1a] p-3 rounded-lg border border-gray-800 text-center">
-                            <span class="text-gray-400 text-[10px] block">إجمالي الأعضاء</span>
-                            <span id="admin-user-count" class="text-lg font-bold gold-text">--</span>
-                        </div>
-                        <div class="bg-[#1a1a1a] p-3 rounded-lg border border-gray-800 text-center">
-                            <span class="text-gray-400 text-[10px] block">البلاغات المعلقة</span>
-                            <span id="admin-report-count" class="text-lg font-bold text-red-500">0</span>
-                        </div>
-                    </div>
-                    <h4 class="text-xs font-bold text-gray-400 mb-2">قائمة الأعضاء لإدارة الرتب والتوثيق:</h4>
-                    <div id="admin-users-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-                </div>
-            </section>
-
-        </main>
-
-        <nav class="fixed bottom-0 left-0 right-0 bg-[#0b0b0b]/95 border-t border-gray-800 backdrop-blur z-40 py-2">
-            <div class="flex items-center justify-around max-w-md mx-auto">
-                <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-[#d4af37] transition"><i class="fa fa-home text-lg"></i><span class="text-[9px] mt-0.5">الرئيسية</span></button>
-                <button onclick="switchTab('publish')" id="nav-publish" class="flex flex-col items-center text-gray-500 transition"><i class="fa fa-plus-circle text-lg"></i><span class="text-[9px] mt-0.5">مشاركة</span></button>
-                <button onclick="viewOwnProfile()" id="nav-profile" class="flex flex-col items-center text-gray-500 transition"><i class="fa fa-user text-lg"></i><span class="text-[9px] mt-0.5">الملف</span></button>
-            </div>
-        </nav>
-    </div>
-
-    <div id="comment-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="dark-card w-full max-w-md rounded-xl flex flex-col max-h-[80vh]">
-            <div class="p-3 border-b border-gray-800 flex justify-between items-center text-sm">
-                <h3 class="font-bold gold-text flex items-center gap-1.5"><i class="fa-regular fa-comments"></i> ساحة المناقشة</h3>
-                <button onclick="closeCommentModal()" class="text-gray-400 hover:text-white p-1"><i class="fa fa-times text-md"></i></button>
-            </div>
-            <div id="modal-comments-box" class="p-3 overflow-y-auto flex-1 space-y-3 text-xs"></div>
-            <div class="p-3 border-t border-gray-800 flex gap-2 bg-[#121212]">
-                <input type="text" id="new-comment-input" placeholder="اكتب تعليقاً محترماً..." class="flex-1 bg-[#1a1a1a] border border-gray-700 rounded-full px-4 py-2 text-xs text-white focus:outline-none focus:border-[#d4af37]">
-                <button onclick="submitComment()" class="gold-bg text-black font-bold px-4 py-2 rounded-full text-xs">تعليق</button>
-            </div>
+        <div class="footer">
+            شكراً لتفهمكم وصبركم • إدارة المنتدى
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDV8flz9brAdOw8iUl0MuVHgWthYaHPo9s",
-            authDomain: "safarooo7.firebaseapp.com",
-            databaseURL: "https://safarooo7-default-rtdb.firebaseio.com",
-            projectId: "safarooo7",
-            storageBucket: "safarooo7.firebasestorage.app",
-            messagingSenderId: "891953619763",
-            appId: "1:891953619763:android:2f8dab89b69ff6720d5446"
-        };
-
-        const IMGBB_API_KEY = "980b07ccd9001f9a958c38a55f978fac";
-        const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
-        const ADMIN_EMAIL = "a1sabriweb@gmail.com";
-
-        // فلتر الرقابة الآلية المدمج لحماية التطبيق من الحظر في المتاجر لقواعد البيانات الحرة
-        const BAD_WORDS_FILTER = ["كلب", "حمار", "يافعي", "اماراتي", "سعودي", "حوثي", "خائن", "سرقة"];
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        let currentUserData = null;
-        let currentFeedMode = 'trending';
-        let tempSelectedImageUrl = ""; 
-        let activePostIdForComments = null;
-        let allCachedUsers = {};
-
-        // الحماية العليا والتحقق من حالة الحساب وسيرفر الرقابة
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                get(ref(db, `users/${user.uid}`)).then((snapshot) => {
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    if (snapshot.exists()) {
-                        const data = snapshot.val();
-                        if(data.banned === true) {
-                            document.getElementById('banned-screen').classList.remove('hidden');
-                            document.getElementById('ban-reason-txt').innerText = `بسبب: ${data.banReason || 'مخالفة الشروط وبلاغات الأعضاء.'}`;
-                            return;
-                        }
-                        currentUserData = data;
-                        currentUserData.uid = user.uid;
-                        launchApp();
-                    } else { showAuth(); }
-                }).catch(() => { document.getElementById('loading-screen').classList.add('hidden'); showAuth(); });
-            } else {
-                document.getElementById('loading-screen').classList.add('hidden');
-                showAuth();
-            }
-        });
-
-        function showAuth() {
-            document.getElementById('auth-container').classList.remove('hidden');
-            document.getElementById('app-container').classList.add('hidden');
-        }
-
-        function launchApp() {
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            
-            // كاش لحسابات الأعضاء لبناء العلاقات والمتابعة والمحرك الذكي سريعاً
-            onValue(ref(db, 'users'), (snapshot) => {
-                if(snapshot.exists()) {
-                    allCachedUsers = snapshot.val();
-                    loadAdminDashboard();
-                }
-            });
-
-            if(currentUserData.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() || currentUserData.role === 'admin') {
-                document.getElementById('admin-panel-btn').classList.remove('hidden');
-            }
-            switchTab('home');
-            loadFeed(currentFeedMode);
-        }
-
-        window.toggleAuthViews = function(showLogin) {
-            if(showLogin) {
-                document.getElementById('login-form').classList.remove('hidden');
-                document.getElementById('register-form').classList.add('hidden');
-            } else {
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('register-form').classList.remove('hidden');
-            }
-        }
-
-        // تسجيل وإنشاء الحساب مع نظام تشفير وتوليد الـ UIA العشوائي الموثق
-        document.getElementById('register-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            document.getElementById('loading-screen').classList.remove('hidden');
-            const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-password').value;
-
-            createUserWithEmailAndPassword(auth, email, password).then((cred) => {
-                const generatedUia = "UIA-" + Math.floor(100000 + Math.random() * 900000);
-                const isSysAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-                
-                const newUser = {
-                    name: name, email: email, uia: generatedUia,
-                    age: document.getElementById('reg-age').value,
-                    gender: document.getElementById('reg-gender').value,
-                    country: document.getElementById('reg-country').value.trim(),
-                    avatar: "https://i.ibb.co/6R7X7f0/default-avatar.png",
-                    role: isSysAdmin ? 'admin' : 'member',
-                    verified: isSysAdmin, banned: false, banReason: "",
-                    followersCount: 0, followingCount: 0
-                };
-                set(ref(db, `users/${cred.user.uid}`), newUser).then(() => {
-                    currentUserData = newUser;
-                    currentUserData.uid = cred.user.uid;
-                    launchApp();
-                });
-            }).catch(err => { alert("فشل التسجيل: " + err.message); document.getElementById('loading-screen').classList.add('hidden'); });
-        });
-
-        // تسجيل الدخول العادي والمستقر
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            document.getElementById('loading-screen').classList.remove('hidden');
-            signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-password').value)
-            .catch(err => { alert("خطأ بالبيانات: " + err.message); document.getElementById('loading-screen').classList.add('hidden'); });
-        });
-
-        window.switchTab = function(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(btn => btn.className = "flex flex-col items-center text-gray-500 transition");
-            const navBtn = document.getElementById(`nav-${tabName}`);
-            if(navBtn) navBtn.className = "flex flex-col items-center text-[#d4af37] scale-105 transition";
-        }
-
-        // رفع ومعاينة الصور عبر سيرفرات ImgBB المستقرة
-        window.previewPostImage = function(input) {
-            if (input.files && input.files[0]) {
-                const formData = new FormData();
-                formData.append("image", input.files[0]);
-                document.getElementById('btn-submit-post').innerText = "جاري الرفع لـ HUB...";
-
-                fetch(`${IMGBB_UPLOAD_URL}?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
-                .then(res => res.json()).then(data => {
-                    if(data.success) {
-                        tempSelectedImageUrl = data.data.url;
-                        document.getElementById('post-img-preview').src = tempSelectedImageUrl;
-                        document.getElementById('post-img-preview-container').classList.remove('hidden');
-                    }
-                    document.getElementById('btn-submit-post').innerText = "نشر المنشور";
-                }).catch(() => { 
-                    document.getElementById('btn-submit-post').innerText = "نشر المنشور"; 
-                    alert("فشل رفع الصورة، جرب مرة أخرى.");
-                });
-            }
-        }
-
-        window.removeSelectedPostImg = function() {
-            tempSelectedImageUrl = "";
-            document.getElementById('post-img-preview-container').classList.add('hidden');
-        }
-
-        // معالجة ونشر المنشورات مع تصفية الكلمات التلقائية
-        window.submitNewPost = function() {
-            let txt = document.getElementById('post-text').value.trim();
-            if(!txt && !tempSelectedImageUrl) return;
-
-            // فلترة المحتوى الحرة لحماية حساب المطور
-            let hasBadWord = BAD_WORDS_FILTER.some(word => txt.includes(word));
-            if(hasBadWord) {
-                alert("تحذير: يحتوي منشورك على كلمات تخالف معايير مجتمع شبوة HUB، يرجى الالتزام بالاحترام.");
-                return;
-            }
-
-            const postRef = push(ref(db, 'posts'));
-            set(postRef, {
-                authorId: currentUserData.uid, authorName: currentUserData.name,
-                authorAvatar: currentUserData.avatar, authorVerified: currentUserData.verified,
-                text: txt, image: tempSelectedImageUrl, timestamp: Date.now(), likesCount: 0, commentsCount: 0
-            }).then(() => {
-                document.getElementById('post-text').value = "";
-                removeSelectedPostImg();
-                switchTab('home');
-                loadFeed(currentFeedMode);
-                try { Android.vibrate(60); } catch(e){} // تفعيل ميزة الاهتزاز عبر الجسر إذا توفر
-            });
-        }
-
-        // محرك الخلاصات المتطور (المحتوى الرائج والمتابَعين الفعليين)
-        window.loadFeed = function(mode) {
-            currentFeedMode = mode;
-            const trendBtn = document.getElementById('feed-trend-btn');
-            const followBtn = document.getElementById('feed-follow-btn');
-
-            if(mode === 'trending') {
-                trendBtn.className = "flex-1 py-2 text-center font-bold border-b-2 gold-border gold-text";
-                followBtn.className = "flex-1 py-2 text-center font-bold text-gray-400 border-b-2 border-transparent";
-            } else {
-                followBtn.className = "flex-1 py-2 text-center font-bold border-b-2 gold-border gold-text";
-                trendBtn.className = "flex-1 py-2 text-center font-bold text-gray-400 border-b-2 border-transparent";
-            }
-
-            get(ref(db, 'posts')).then((snapshot) => {
-                const container = document.getElementById('posts-feed');
-                container.innerHTML = "";
-                if(!snapshot.exists()) {
-                    container.innerHTML = `<p class="text-center text-xs text-gray-500 mt-6">لا توجد منشورات حالياً في هذه الخلاصة.</p>`;
-                    return;
-                }
-
-                let posts = [];
-                snapshot.forEach(snap => { let p = snap.val(); p.id = snap.key; posts.push(p); });
-
-                // تصفية المحتوى حسب نظام المتابعة الفعلي
-                if(mode === 'following') {
-                    const myFollowing = currentUserData.followingList || {};
-                    posts = posts.filter(p => p.authorId === currentUserData.uid || myFollowing[p.authorId] === true);
-                }
-
-                if(mode === 'trending') {
-                    posts.sort((a,b) => ((b.likesCount||0)*3 + (b.commentsCount||0)*5) - ((a.likesCount||0)*3 + (a.commentsCount||0)*5));
-                } else {
-                    posts.sort((a,b) => b.timestamp - a.timestamp);
-                }
-
-                if(posts.length === 0) {
-                    container.innerHTML = `<p class="text-center text-xs text-gray-500 mt-6">لا توجد منشورات للمتابَعين، تصفح الخلاصة الرائجة أولاً.</p>`;
-                } else {
-                    posts.forEach(p => container.appendChild(createPostCard(p)));
-                }
-            });
-        }
-
-        function createPostCard(post) {
-            const div = document.createElement('div');
-            div.className = "dark-card p-4 rounded-xl space-y-3 shadow-sm";
-            const img = post.image ? `<img src="${post.image}" class="w-full max-h-64 object-cover rounded-lg border border-gray-800 bg-black mt-2">` : "";
-            const badge = post.authorVerified ? `<i class="fa fa-circle-check text-blue-500 text-xs"></i>` : "";
-            
-            // التحقق من الإعجاب الشخصي
-            const myLikes = post.likesList || {};
-            const isLiked = myLikes[currentUserData.uid] === true;
-            const likeIcon = isLiked ? "fa-solid fa-thumbs-up gold-text" : "fa-regular fa-thumbs-up";
-
-            div.innerHTML = `
-                <div class="flex items-center justify-between text-xs">
-                    <div class="flex items-center gap-2 cursor-pointer" onclick="viewUserProfile('${post.authorId}')">
-                        <img src="${post.authorAvatar || 'https://i.ibb.co/6R7X7f0/default-avatar.png'}" class="w-9 h-9 rounded-full object-cover border border-gray-800">
-                        <div>
-                            <h4 class="font-bold text-white flex items-center gap-1">${post.authorName} ${badge}</h4>
-                            <span class="text-[9px] text-gray-500">${formatPostTime(post.timestamp)}</span>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-200 whitespace-pre-wrap leading-relaxed">${post.text}</p>
-                ${img}
-                <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-900/60 mt-1">
-                    <button onclick="likePost('${post.id}')" class="flex items-center gap-1 hover:text-white"><i class="${likeIcon}"></i> <span>${post.likesCount || 0}</span></button>
-                    <button onclick="openCommentModal('${post.id}')" class="flex items-center gap-1 hover:text-white"><i class="fa-regular fa-comment"></i> <span>${post.commentsCount || 0}</span></button>
-                    <button onclick="reportPost('${post.id}', '${post.authorId}')" class="text-gray-600 hover:text-red-500"><i class="fa fa-flag"></i></button>
-                </div>
-            `;
-            return div;
-        }
-
-        function formatPostTime(ts) {
-            const diff = Date.now() - ts;
-            if (diff < 60000) return "الآن";
-            const mins = Math.floor(diff / 60000);
-            if (mins < 60) return `قبل ${mins} د`;
-            const hours = Math.floor(mins / 60);
-            if (hours < 24) return `قبل ${hours} س`;
-            return new Date(ts).toLocaleDateString('ar-YE');
-        }
-
-        // نظام الإعجابات الحقيقي الفريد لكل مستخدم لمنع التكرار
-        window.likePost = function(postId) {
-            const likeRef = ref(db, `posts/${postId}`);
-            get(likeRef).then(snap => {
-                if(!snap.exists()) return;
-                const post = snap.val();
-                let likesList = post.likesList || {};
-                let count = post.likesCount || 0;
-
-                if(likesList[currentUserData.uid] === true) {
-                    delete likesList[currentUserData.uid];
-                    count = Math.max(0, count - 1);
-                } else {
-                    likesList[currentUserData.uid] = true;
-                    count += 1;
-                }
-                update(likeRef, { likesCount: count, likesList: likesList }).then(() => loadFeed(currentFeedMode));
-            });
-        }
-
-        // نظام التبليغ عن المنشورات لتأمين التطبيق من المخالفات في المتجر
-        window.reportPost = function(postId, authorId) {
-            if(confirm("هل أنت متأكد من الإبلاغ عن هذا المنشور لمراجعته من قبل المشرفين؟")) {
-                const repRef = push(ref(db, 'reports'));
-                set(repRef, { postId: postId, authorId: authorId, reporterId: currentUserData.uid, timestamp: Date.now() })
-                .then(() => alert("تم إرسال البلاغ بنجاح للرقابة الآلية والمشرفين. شكرًا لك."));
-            }
-        }
-
-        window.openCommentModal = function(postId) {
-            activePostIdForComments = postId;
-            document.getElementById('comment-modal').classList.remove('hidden');
-            loadComments(postId);
-        }
-        window.closeCommentModal = function() { document.getElementById('comment-modal').classList.add('hidden'); }
-
-        function loadComments(postId) {
-            onValue(ref(db, `comments/${postId}`), (snap) => {
-                const box = document.getElementById('modal-comments-box');
-                box.innerHTML = "";
-                if(!snap.exists()) {
-                    box.innerHTML = `<p class="text-center text-gray-600 my-4">لا توجد تعليقات، كن أول المعلقين!</p>`;
-                    return;
-                }
-                snap.forEach(cSnap => {
-                    const c = cSnap.val();
-                    const d = document.createElement('div');
-                    d.className = "bg-[#161616] p-2.5 rounded-xl border border-gray-900";
-                    d.innerHTML = `<div class="font-bold gold-text mb-0.5">${c.authorName}:</div><p class="text-gray-200">${c.text}</p>`;
-                    box.appendChild(d);
-                });
-            });
-        }
-
-        window.submitComment = function() {
-            const inp = document.getElementById('new-comment-input');
-            const txt = inp.value.trim();
-            if(!txt) return;
-
-            const cRef = push(ref(db, `comments/${activePostIdForComments}`));
-            set(cRef, { authorName: currentUserData.name, text: txt, timestamp: Date.now() }).then(() => {
-                inp.value = "";
-                get(ref(db, `posts/${activePostIdForComments}/commentsCount`)).then(s => {
-                    update(ref(db, `posts/${activePostIdForComments}`), { commentsCount: (s.val()||0) + 1 });
-                });
-            });
-        }
-
-        // محرك البحث الفوري والدقيق للـ UIA والأسماء الموثقة
-        window.executeGlobalSearch = function(val) {
-            const query = val.trim().toLowerCase();
-            const resBox = document.getElementById('search-results');
-            if(!query) { resBox.classList.add('hidden'); return; }
-
-            resBox.innerHTML = "";
-            let found = false;
-
-            Object.keys(allCachedUsers).forEach(uid => {
-                const u = allCachedUsers[uid];
-                if(u.name.toLowerCase().includes(query) || (u.uia && u.uia.toLowerCase().includes(query))) {
-                    found = true;
-                    const d = document.createElement('div');
-                    d.className = "p-2.5 hover:bg-[#1c1c1c] cursor-pointer border-b border-gray-900 flex items-center gap-2 text-xs";
-                    d.onclick = () => { viewUserProfile(uid); resBox.classList.add('hidden'); document.getElementById('global-search').value=""; };
-                    d.innerHTML = `<img src="${u.avatar}" class="w-7 h-7 rounded-full object-cover"><div><p class="text-white font-bold">${u.name}</p><p class="text-[10px] text-gray-500">${u.uia || ''}</p></div>`;
-                    resBox.appendChild(d);
-                }
-            });
-
-            if(found) resBox.classList.remove('hidden');
-            else resBox.classList.add('hidden');
-        }
-
-        window.viewOwnProfile = function() { switchTab('profile'); renderProfile(currentUserData.uid, true); }
-        window.viewUserProfile = function(uid) { switchTab('profile'); renderProfile(uid, uid === currentUserData.uid); }
-
-        // نظام المتابعة الفعلي والعدادات المتزامنة مع سيرفر الفايربيس
-        function renderProfile(uid, isOwn) {
-            get(ref(db, `users/${uid}`)).then(snap => {
-                const u = snap.val();
-                document.getElementById('profile-avatar').src = u.avatar || 'https://i.ibb.co/6R7X7f0/default-avatar.png';
-                document.getElementById('profile-name').innerText = u.name;
-                document.getElementById('profile-uia').innerText = `UIA: ${u.uia || 'غير موثق'}`;
-                document.getElementById('profile-meta').innerText = `البلد: ${u.country || '---'} | الجنس: ${u.gender} | العمر: ${u.age}`;
-                document.getElementById('profile-badge').className = u.verified ? "fa fa-circle-check text-blue-500 text-xs" : "hidden";
-                
-                // حساب دقيق للعدادات
-                document.getElementById('profile-followers-count').innerText = Object.keys(u.followersList || {}).length;
-                document.getElementById('profile-following-count').innerText = Object.keys(u.followingList || {}).length;
-
-                const act = document.getElementById('profile-actions');
-                if(isOwn) {
-                    act.innerHTML = `<span class="text-[10px] text-gray-500 bg-gray-900 px-3 py-1 rounded-full border border-gray-800">حسابك الشخصي الموثق</span>`;
-                } else {
-                    const amIFollowing = (currentUserData.followingList || {})[uid] === true;
-                    const btnTxt = amIFollowing ? "إلغاء المتابعة" : "متابعة الحساب";
-                    const btnClass = amIFollowing ? "bg-gray-800 text-white text-xs px-4 py-1.5 rounded-full font-bold border border-gray-700" : "gold-bg text-black text-xs px-4 py-1.5 rounded-full font-bold";
-                    act.innerHTML = `<button onclick="toggleFollowUser('${uid}')" class="${btnClass}">${btnTxt}</button>`;
-                }
-                loadUserPosts(uid);
-            });
-        }
-
-        window.toggleFollowUser = function(targetUid) {
-            const myFollowingRef = ref(db, `users/${currentUserData.uid}/followingList`);
-            const targetFollowersRef = ref(db, `users/${targetUid}/followersList`);
-
-            get(myFollowingRef).then(snap => {
-                let myList = snap.val() || {};
-                let isFollowing = myList[targetUid] === true;
-
-                if(isFollowing) {
-                    delete myList[targetUid];
-                } else {
-                    myList[targetUid] = true;
-                }
-
-                update(ref(db, `users/${currentUserData.uid}`), { followingList: myList }).then(() => {
-                    currentUserData.followingList = myList;
-                    get(targetFollowersRef).then(tSnap => {
-                        let tList = tSnap.val() || {};
-                        if(isFollowing) delete tList[currentUserData.uid];
-                        else tList[currentUserData.uid] = true;
-
-                        update(ref(db, `users/${targetUid}`), { followersList: tList }).then(() => {
-                            renderProfile(targetUid, false);
-                        });
-                    });
-                });
-            });
-        }
-
-        function loadUserPosts(uid) {
-            get(ref(db, 'posts')).then(snap => {
-                const box = document.getElementById('profile-posts');
-                box.innerHTML = "";
-                if(!snap.exists()) return;
-                snap.forEach(pSnap => {
-                    const p = pSnap.val(); p.id = pSnap.key;
-                    if(p.authorId === uid) box.appendChild(createPostCard(p));
-                });
-            });
-        }
-
-        window.uploadAvatar = function(input) {
-            if (input.files && input.files[0]) {
-                const formData = new FormData();
-                formData.append("image", input.files[0]);
-                fetch(`${IMGBB_UPLOAD_URL}?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
-                .then(res => res.json()).then(data => {
-                    if(data.success) {
-                        update(ref(db, `users/${currentUserData.uid}`), { avatar: data.data.url }).then(() => {
-                            currentUserData.avatar = data.data.url;
-                            document.getElementById('profile-avatar').src = data.data.url;
-                            try { Android.showToast("تم تحديث رمز التوثيق بنجاح"); } catch(e){}
-                        });
-                    }
-                });
-            }
-        }
-
-        // لوحة المشرفين الكاملة للتوثيق والترقيات والحظر المباشر من الشاشة
-        function loadAdminDashboard() {
-            if(currentUserData.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase() && currentUserData.role !== 'admin') return;
-            
-            document.getElementById('admin-user-count').innerText = Object.keys(allCachedUsers).length;
-            
-            get(ref(db, 'reports')).then(snap => {
-                document.getElementById('admin-report-count').innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
-            });
-
-            const box = document.getElementById('admin-users-list');
-            box.innerHTML = "";
-
-            Object.keys(allCachedUsers).forEach(uid => {
-                const u = allCachedUsers[uid];
-                const d = document.createElement('div');
-                d.className = "bg-[#161616] p-2 rounded-lg border border-gray-900 flex items-center justify-between gap-2";
-                
-                const verifyBtn = u.verified ? 
-                    `<button onclick="setVerificationStatus('${uid}', false)" class="text-xs text-yellow-500"><i class="fa fa-minus-circle"></i> إلغاء التوثيق</button>` :
-                    `<button onclick="setVerificationStatus('${uid}', true)" class="text-xs text-blue-500"><i class="fa fa-check-circle"></i> توثيق</button>`;
-                
-                const banBtn = u.banned ?
-                    `<button onclick="setUserBanStatus('${uid}', false)" class="bg-green-600 text-black px-2 py-0.5 rounded text-[10px] font-bold">فك الحظر</button>` :
-                    `<button onclick="setUserBanStatus('${uid}', true)" class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-bold">حظر الحساب</button>`;
-
-                d.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <img src="${u.avatar}" class="w-6 h-6 rounded-full object-cover">
-                        <div><p class="text-white font-bold max-w-[120px] truncate">${u.name}</p><p class="text-[9px] text-gray-500">${u.role}</p></div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        ${verifyBtn}
-                        ${banBtn}
-                    </div>
-                `;
-                box.appendChild(d);
-            });
-        }
-
-        window.setVerificationStatus = function(uid, status) {
-            update(ref(db, `users/${uid}`), { verified: status }).then(() => {
-                alert("تم تحديث رتبة وشارة توثيق المستخدم بنجاح.");
-                loadAdminDashboard();
-            });
-        }
-
-        window.setUserBanStatus = function(uid, status) {
-            let reason = status ? prompt("أدخل سبب حظر العضو:") : "";
-            if(status && !reason) return;
-            update(ref(db, `users/${uid}`), { banned: status, banReason: reason }).then(() => {
-                alert(status ? "تم حظر العضو من دخول السيرفر بنجاح." : "تم إلغاء الحظر.");
-                loadAdminDashboard();
-            });
-        }
-    </script>
 </body>
 </html>
