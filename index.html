@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shabwa Hub - منصة شبوة الاجتماعية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shabwa Hub - منصة شبوة الاجتماعية الكاملة</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -12,300 +12,258 @@
             font-family: 'Cairo', sans-serif;
             background-color: #0b0b0b;
             color: #e5e7eb;
+            -webkit-tap-highlight-color: transparent;
         }
         .gold-text { color: #d4af37; }
         .gold-bg { background-color: #d4af37; }
         .gold-border { border-color: #d4af37; }
         .dark-card { background-color: #121212; border: 1px solid #222; }
-        /* إخفاء شريط التمرير الافتراضي */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0b0b0b; }
-        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 3px; }
+        ::-webkit-scrollbar { width: 0px; }
+        .banned-mask { backdrop-filter: blur(8px); }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen pb-24 select-none">
 
     <div id="loading-screen" class="fixed inset-0 bg-[#0b0b0b] z-50 flex flex-col justify-center items-center">
-        <img src="https://ibb.co/HTKzqg8m" onerror="this.src='https://i.ibb.co/HTKzqg8m/224721.png'" class="w-32 h-32 object-contain mb-4 animate-pulse">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 gold-border"></div>
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 gold-border mb-3"></div>
+        <p class="text-xs gold-text animate-pulse">جاري تهيئة شبوة HUB...</p>
+    </div>
+
+    <div id="banned-screen" class="fixed inset-0 bg-black/95 z-50 flex-col justify-center items-center hidden p-6 text-center">
+        <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4 animate-bounce"></i>
+        <h1 class="text-xl font-bold text-red-500">تم حظر هذا الحساب</h1>
+        <p id="ban-reason-txt" class="text-xs text-gray-400 mt-2 max-w-sm">لقد خالفت معايير مجتمع منصة شبوة HUB الرقمية للرقابة الآلية.</p>
     </div>
 
     <div id="auth-container" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="dark-card w-full max-w-md p-8 rounded-2xl shadow-2xl">
-            <div class="text-center mb-8">
-                <img src="https://i.ibb.co/HTKzqg8m/224721.png" class="w-28 h-28 mx-auto object-contain mb-2">
-                <h2 class="text-2xl font-bold gold-text">مرحباً بك في شبوة هوب</h2>
-                <p class="text-gray-400 text-sm mt-1">ملتقى مجتمع شبوة الرقمي</p>
+        <div class="dark-card w-full max-w-md p-6 rounded-2xl shadow-2xl">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold gold-text">شبوة HUB</h2>
+                <p class="text-gray-400 text-xs mt-1">ملتقى مجتمع شبوة الرقمي والموثق</p>
             </div>
 
             <form id="login-form" class="space-y-4">
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="login-email" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                    <label class="block text-xs text-gray-400 mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="login-email" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">كلمة المرور</label>
-                    <input type="password" id="login-password" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور</label>
+                    <input type="password" id="login-password" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                 </div>
-                <div class="flex items-center justify-between text-sm">
-                    <label class="flex items-center space-x-2 space-x-reverse text-gray-400">
-                        <input type="checkbox" id="remember-me" class="rounded accent-[#d4af37]">
-                        <span>تذكرني</span>
-                    </label>
-                </div>
-                <button type="submit" class="w-full gold-bg text-black font-bold p-3 rounded-lg hover:bg-yellow-600 transition duration-200">تسجيل الدخول</button>
-                <p class="text-center text-sm text-gray-400 mt-4">ليس لديك حساب؟ <button type="button" onclick="toggleAuthViews(false)" class="gold-text underline">إنشاء حساب جديد</button></p>
+                <button type="submit" class="w-full gold-bg text-black font-bold p-2.5 rounded-lg text-sm hover:bg-yellow-600 transition">تسجيل الدخول</button>
+                <p class="text-center text-xs text-gray-400 mt-4">ليس لديك حساب؟ <button type="button" onclick="toggleAuthViews(false)" class="gold-text underline">أنشاء حساب جديد (استبيان التوثيق)</button></p>
             </form>
 
-            <form id="register-form" class="space-y-4 hidden max-h-[70vh] overflow-y-auto px-1">
+            <form id="register-form" class="space-y-4 hidden max-h-[65vh] overflow-y-auto px-1">
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">الاسم الكامل</label>
-                    <input type="text" id="reg-name" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                    <label class="block text-xs text-gray-400 mb-1">الاسم الكامل (الثنائي أو الثلاثي)</label>
+                    <input type="text" id="reg-name" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="reg-email" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                    <label class="block text-xs text-gray-400 mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="reg-email" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">كلمة المرور</label>
-                    <input type="password" id="reg-password" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-400 mb-1">تأكيد كلمة المرور</label>
-                    <input type="password" id="reg-password-confirm" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                    <label class="block text-xs text-gray-400 mb-1">كلمة المرور (6 خانات على الأقل)</label>
+                    <input type="password" id="reg-password" required minlength="6" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm text-gray-400 mb-1">العمر</label>
-                        <input type="number" id="reg-age" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                        <label class="block text-xs text-gray-400 mb-1">العمر</label>
+                        <input type="number" id="reg-age" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-400 mb-1">الجنس</label>
-                        <select id="reg-gender" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                        <label class="block text-xs text-gray-400 mb-1">الجنس</label>
+                        <select id="reg-gender" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                             <option value="ذكر">ذكر</option>
                             <option value="أنثى">أنثى</option>
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">البلد</label>
-                    <input type="text" id="reg-country" required class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#d4af37]">
+                    <label class="block text-xs text-gray-400 mb-1">البلد / المديرية</label>
+                    <input type="text" id="reg-country" required placeholder="مثال: اليمن - عتق" class="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-[#d4af37]">
                 </div>
-                <button type="submit" class="w-full gold-bg text-black font-bold p-3 rounded-lg hover:bg-yellow-600 transition duration-200">تسجيل حساب جديد</button>
-                <p class="text-center text-sm text-gray-400 mt-4">لديك حساب بالفعل؟ <button type="button" onclick="toggleAuthViews(true)" class="gold-text underline">تسجيل الدخول</button></p>
+                <button type="submit" class="w-full gold-bg text-black font-bold p-2.5 rounded-lg text-sm hover:bg-yellow-600 transition">تقديم طلب التوثيق والإنشاء</button>
+                <p class="text-center text-xs text-gray-400 mt-4">لديك حساب بالفعل؟ <button type="button" onclick="toggleAuthViews(true)" class="gold-text underline">تسجيل الدخول</button></p>
             </form>
         </div>
     </div>
 
-
     <div id="app-container" class="hidden">
         
-        <header class="sticky top-0 z-40 bg-[#0b0b0b]/95 border-b border-gray-800 backdrop-blur px-4 py-3 shadow-lg">
-            <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
-                <div class="flex items-center gap-2">
-                    <img src="https://i.ibb.co/HTKzqg8m/224721.png" class="w-10 h-10 object-contain">
-                    <span class="font-bold gold-text text-lg hidden sm:block">شبوة HUB</span>
-                </div>
+        <header class="sticky top-0 z-40 bg-[#0b0b0b]/95 border-b border-gray-800 backdrop-blur px-4 py-3">
+            <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+                <span class="font-bold gold-text text-md tracking-wider">شبوة HUB</span>
                 
-                <div class="flex-1 max-w-md relative">
-                    <i class="fa fa-search absolute right-3 top-3 text-gray-500"></i>
-                    <input type="text" id="global-search" placeholder="ابحث بالاسم أو الـ UIA..." class="w-full bg-[#1a1a1a] border border-gray-700 rounded-full pr-10 pl-4 py-1.5 text-sm focus:outline-none focus:border-[#d4af37]">
-                    <div id="search-results" class="absolute left-0 right-0 top-full mt-2 bg-[#121212] border border-gray-800 rounded-xl overflow-hidden shadow-2xl hidden z-50"></div>
+                <div class="flex-1 max-w-xs relative">
+                    <input type="text" id="global-search" oninput="executeGlobalSearch(this.value)" placeholder="ابحث بالاسم أو الـ UIA للموثقين..." class="w-full bg-[#1a1a1a] border border-gray-700 rounded-full pr-8 pl-3 py-1 text-xs text-white focus:outline-none focus:border-[#d4af37]">
+                    <i class="fa fa-search absolute right-3 top-2 text-gray-500 text-[10px]"></i>
+                    <div id="search-results" class="absolute left-0 right-0 top-full mt-2 bg-[#121212] border border-gray-800 rounded-xl overflow-hidden hidden z-50 max-h-48 overflow-y-auto shadow-2xl"></div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <button class="relative p-2 text-gray-400 hover:text-[#d4af37]" title="الرسائل">
-                        <i class="fa-regular fa-comment-dots text-xl"></i>
-                    </button>
-                    <button class="relative p-2 text-gray-400 hover:text-[#d4af37]" title="الإشعارات">
-                        <i class="fa-regular fa-bell text-xl"></i>
-                    </button>
-                    <button id="admin-panel-btn" onclick="switchTab('admin')" class="hidden p-2 text-red-500 hover:text-red-400" title="لوحة التحكم">
-                        <i class="fa fa-sliders text-xl"></i>
+                <div class="flex items-center gap-2">
+                    <button id="admin-panel-btn" onclick="switchTab('admin')" class="hidden p-1 text-red-500 transition hover:scale-110" title="لوحة الإدارة والرقابة العليا">
+                        <i class="fa fa-sliders text-lg"></i>
                     </button>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-2xl mx-auto px-4 mt-6">
+        <main class="max-w-xl mx-auto px-3 mt-4">
             
-            <section id="tab-home" class="tab-content space-y-6">
-                <div class="flex border-b border-gray-800">
-                    <button onclick="loadFeed('trending')" id="feed-trend-btn" class="flex-1 py-3 text-center font-bold border-b-2 gold-border gold-text">المحتوى الرائج 🔥</button>
-                    <button onclick="loadFeed('following')" id="feed-follow-btn" class="flex-1 py-3 text-center font-bold text-gray-400 border-b-2 border-transparent">المنشورات الحالية</button>
+            <section id="tab-home" class="tab-content space-y-4">
+                <div class="flex border-b border-gray-800 text-xs">
+                    <button onclick="loadFeed('trending')" id="feed-trend-btn" class="flex-1 py-2 text-center font-bold border-b-2 gold-border gold-text transition">المحتوى الرائج 🔥</button>
+                    <button onclick="loadFeed('following')" id="feed-follow-btn" class="flex-1 py-2 text-center font-bold text-gray-400 border-b-2 border-transparent transition">منشورات المتابَعين</button>
                 </div>
-                <div id="posts-feed" class="space-y-4">
-                    </div>
+                <div id="posts-feed" class="space-y-4"></div>
             </section>
 
             <section id="tab-publish" class="tab-content hidden">
-                <div class="dark-card p-6 rounded-2xl space-y-4">
-                    <h3 class="text-xl font-bold gold-text mb-2"><i class="fa fa-pen-nib ml-2"></i>أنشئ منشوراً جديداً</h3>
-                    <textarea id="post-text" maxlength="10000" rows="5" placeholder="ماذا يدور في ذهنك اليوم؟ (يصل إلى 10,000 حرف)..." class="w-full bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 text-white focus:outline-none focus:border-[#d4af37] resize-none"></textarea>
-                    
-                    <div id="post-img-preview-container" class="hidden relative rounded-xl overflow-hidden border border-gray-800">
-                        <img id="post-img-preview" class="w-full max-h-60 object-cover">
-                        <button onclick="clearPostImage()" class="absolute top-2 right-2 bg-black/70 p-2 rounded-full text-white hover:text-red-500"><i class="fa fa-times"></i></button>
+                <div class="dark-card p-4 rounded-xl space-y-3">
+                    <textarea id="post-text" maxlength="10000" rows="4" placeholder="شارك فكرة أو خبراً موثقاً لمجتمع شبوة HUB..." class="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg p-3 text-sm text-white focus:outline-none resize-none focus:border-gray-600"></textarea>
+                    <div id="post-img-preview-container" class="hidden relative rounded-lg overflow-hidden border border-gray-800">
+                        <img id="post-img-preview" class="w-full max-h-48 object-cover">
+                        <button onclick="removeSelectedPostImg()" class="absolute top-2 left-2 bg-black/70 p-1.5 rounded-full text-red-500 text-xs"><i class="fa fa-trash"></i></button>
                     </div>
-
-                    <div class="flex items-center justify-between pt-2">
-                        <label class="flex items-center gap-2 cursor-pointer bg-[#1a1a1a] px-4 py-2 rounded-full border border-gray-700 hover:bg-[#222] text-sm text-gray-300">
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-[#1a1a1a] px-3 py-1.5 rounded-full border border-gray-700 text-xs text-gray-300 hover:bg-gray-800">
                             <i class="fa fa-image gold-text"></i>
-                            <span>إضافة صورة</span>
+                            <span>صورة المنشور</span>
                             <input type="file" id="post-image-input" accept="image/*" class="hidden" onchange="previewPostImage(this)">
                         </label>
-                        <button onclick="submitNewPost()" id="btn-submit-post" class="gold-bg text-black font-bold px-6 py-2 rounded-full hover:bg-yellow-600 transition">نشر المنشور</button>
+                        <button onclick="submitNewPost()" id="btn-submit-post" class="gold-bg text-black font-bold px-5 py-1.5 rounded-full text-xs hover:bg-yellow-600 transition shadow-md">نشر المنشور</button>
                     </div>
                 </div>
             </section>
 
-            <section id="tab-profile" class="tab-content hidden space-y-6">
-                <div class="dark-card rounded-2xl overflow-hidden relative">
-                    <div class="h-32 bg-gradient-to-r from-yellow-700 via-amber-900 to-black"></div>
-                    <div class="p-6 pt-0 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 -mt-12">
-                        <div class="relative group">
-                            <img id="profile-avatar" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full border-4 border-[#121212] object-cover bg-black">
-                            <label id="change-avatar-lbl" class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition">
-                                <i class="fa fa-camera text-white"></i>
-                                <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="uploadAvatar(this)">
-                            </label>
-                        </div>
-                        <div class="text-center sm:text-right flex-1">
-                            <h3 class="text-xl font-bold flex items-center justify-center sm:justify-start gap-1">
-                                <span id="profile-name">---</span>
-                                <i id="profile-badge" class="fa fa-circle-check text-blue-500 hidden" title="حساب موثق"></i>
-                            </h3>
-                            <p id="profile-uia" class="text-xs text-gray-500">UIA: --</p>
-                            <p id="profile-meta" class="text-xs text-gray-400 mt-1">--</p>
-                        </div>
-                        <div id="profile-actions" class="flex gap-2">
-                            </div>
+            <section id="tab-profile" class="tab-content hidden space-y-4">
+                <div class="dark-card rounded-xl overflow-hidden p-4 relative text-center shadow-lg">
+                    <div class="relative w-20 h-20 mx-auto group mb-2">
+                        <img id="profile-avatar" src="" class="w-20 h-20 rounded-full object-cover border-2 gold-border bg-black">
+                        <label id="change-avatar-lbl" class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa fa-camera text-white text-xs"></i>
+                            <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="uploadAvatar(this)">
+                        </label>
                     </div>
-                    <div class="grid grid-cols-2 border-t border-gray-800 text-center py-3 text-sm">
-                        <div class="border-l border-gray-800">
-                            <span id="profile-followers-count" class="font-bold text-white block">0</span>
-                            <span class="text-gray-500 text-xs">المُتابِعون</span>
-                        </div>
-                        <div>
-                            <span id="profile-following-count" class="font-bold text-white block">0</span>
-                            <span class="text-gray-500 text-xs">المُتابَعون</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    <h4 class="font-bold gold-text text-md border-b border-gray-800 pb-2">المنشورات</h4>
-                    <div id="profile-posts" class="space-y-4"></div>
-                </div>
-            </section>
-
-            <section id="tab-admin" class="tab-content hidden space-y-6">
-                <div class="dark-card p-6 rounded-2xl">
-                    <h3 class="text-xl font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fa fa-shield-halved"></i>لوحة إدارة النظام</h3>
+                    <h3 class="text-md font-bold flex items-center justify-center gap-1">
+                        <span id="profile-name">---</span>
+                        <i id="profile-badge" class="fa fa-circle-check text-blue-500 hidden text-xs"></i>
+                    </h3>
+                    <p id="profile-uia" class="text-[10px] text-gray-500 tracking-widest font-mono">UIA: --</p>
+                    <p id="profile-meta" class="text-[11px] text-gray-400 mt-1">--</p>
                     
-                    <div class="bg-[#1a1a1a] p-4 rounded-xl border border-gray-800 mb-6">
-                        <span class="text-gray-400 text-sm block">إجمالي أعضاء المنصة</span>
-                        <span id="admin-user-count" class="text-3xl font-bold gold-text">0</span>
-                    </div>
+                    <div id="profile-actions" class="mt-3 flex justify-center gap-2"></div>
 
-                    <div class="space-y-4">
-                        <h4 class="font-bold text-gray-300 text-sm border-b border-gray-800 pb-2">قسم البلاغات الواردة</h4>
-                        <div id="admin-reports-list" class="space-y-3">
-                            <p class="text-gray-500 text-xs text-center py-4">لا توجد بلاغات معلقة حالياً.</p>
+                    <div class="grid grid-cols-2 border-t border-gray-800 mt-4 pt-2 text-xs">
+                        <div class="border-l border-gray-800"><span id="profile-followers-count" class="font-bold text-white block text-sm">0</span><span class="text-gray-500 text-[10px]">المتابِعون</span></div>
+                        <div><span id="profile-following-count" class="font-bold text-white block text-sm">0</span><span class="text-gray-500 text-[10px]">المتابَعون</span></div>
+                    </div>
+                </div>
+                <div id="profile-posts" class="space-y-4"></div>
+            </section>
+
+            <section id="tab-admin" class="tab-content hidden space-y-4">
+                <div class="dark-card p-4 rounded-xl">
+                    <h3 class="text-md font-bold text-red-500 mb-2 border-b border-gray-800 pb-2 flex items-center gap-1"><i class="fa fa-shield-halved"></i> لوحة الإدارة للرقابة والتوثيق</h3>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-[#1a1a1a] p-3 rounded-lg border border-gray-800 text-center">
+                            <span class="text-gray-400 text-[10px] block">إجمالي الأعضاء</span>
+                            <span id="admin-user-count" class="text-lg font-bold gold-text">--</span>
+                        </div>
+                        <div class="bg-[#1a1a1a] p-3 rounded-lg border border-gray-800 text-center">
+                            <span class="text-gray-400 text-[10px] block">البلاغات المعلقة</span>
+                            <span id="admin-report-count" class="text-lg font-bold text-red-500">0</span>
                         </div>
                     </div>
+                    <h4 class="text-xs font-bold text-gray-400 mb-2">قائمة الأعضاء لإدارة الرتب والتوثيق:</h4>
+                    <div id="admin-users-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
                 </div>
             </section>
 
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-[#0b0b0b] border-t border-gray-800 z-40 px-4 py-2 shadow-2xl">
-            <div class="max-w-lg mx-auto flex items-center justify-around">
-                <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-[#d4af37]">
-                    <i class="fa fa-home text-xl"></i>
-                    <span class="text-[10px]">الرئيسية</span>
-                </button>
-                <button onclick="switchTab('publish')" id="nav-publish" class="flex flex-col items-center gap-1 text-gray-500 hover:text-[#d4af37]">
-                    <i class="fa fa-plus-circle text-2xl"></i>
-                    <span class="text-[10px]">مشاركة</span>
-                </button>
-                <button onclick="viewOwnProfile()" id="nav-profile" class="flex flex-col items-center gap-1 text-gray-500 hover:text-[#d4af37]">
-                    <i class="fa fa-user text-xl"></i>
-                    <span class="text-[10px]">الملف الشخصي</span>
-                </button>
+        <nav class="fixed bottom-0 left-0 right-0 bg-[#0b0b0b]/95 border-t border-gray-800 backdrop-blur z-40 py-2">
+            <div class="flex items-center justify-around max-w-md mx-auto">
+                <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-[#d4af37] transition"><i class="fa fa-home text-lg"></i><span class="text-[9px] mt-0.5">الرئيسية</span></button>
+                <button onclick="switchTab('publish')" id="nav-publish" class="flex flex-col items-center text-gray-500 transition"><i class="fa fa-plus-circle text-lg"></i><span class="text-[9px] mt-0.5">مشاركة</span></button>
+                <button onclick="viewOwnProfile()" id="nav-profile" class="flex flex-col items-center text-gray-500 transition"><i class="fa fa-user text-lg"></i><span class="text-[9px] mt-0.5">الملف</span></button>
             </div>
         </nav>
     </div>
 
     <div id="comment-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="dark-card w-full max-w-lg rounded-2xl flex flex-col max-h-[85vh]">
-            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-                <h3 class="font-bold gold-text">التعليقات</h3>
-                <button onclick="closeCommentModal()" class="text-gray-400 hover:text-white"><i class="fa fa-times"></i></button>
+        <div class="dark-card w-full max-w-md rounded-xl flex flex-col max-h-[80vh]">
+            <div class="p-3 border-b border-gray-800 flex justify-between items-center text-sm">
+                <h3 class="font-bold gold-text flex items-center gap-1.5"><i class="fa-regular fa-comments"></i> ساحة المناقشة</h3>
+                <button onclick="closeCommentModal()" class="text-gray-400 hover:text-white p-1"><i class="fa fa-times text-md"></i></button>
             </div>
-            <div id="modal-comments-box" class="p-4 overflow-y-auto flex-1 space-y-4 text-sm">
-                </div>
-            <div class="p-4 border-t border-gray-800 flex gap-2">
-                <input type="text" id="new-comment-input" placeholder="اكتب تعليقاً محترماً..." class="flex-1 bg-[#1a1a1a] border border-gray-700 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-[#d4af37]">
-                <button onclick="submitComment()" class="gold-bg text-black font-bold px-4 py-2 rounded-full hover:bg-yellow-600 transition text-sm">إرسال</button>
+            <div id="modal-comments-box" class="p-3 overflow-y-auto flex-1 space-y-3 text-xs"></div>
+            <div class="p-3 border-t border-gray-800 flex gap-2 bg-[#121212]">
+                <input type="text" id="new-comment-input" placeholder="اكتب تعليقاً محترماً..." class="flex-1 bg-[#1a1a1a] border border-gray-700 rounded-full px-4 py-2 text-xs text-white focus:outline-none focus:border-[#d4af37]">
+                <button onclick="submitComment()" class="gold-bg text-black font-bold px-4 py-2 rounded-full text-xs">تعليق</button>
             </div>
         </div>
     </div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, child, update, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
-            apiKey: "AIzaSyDDV3qCVUouvXmT3z9wAAz9s6D8J7gg3vM",
+            apiKey: "AIzaSyDV8flz9brAdOw8iUl0MuVHgWthYaHPo9s",
             authDomain: "safarooo7.firebaseapp.com",
             databaseURL: "https://safarooo7-default-rtdb.firebaseio.com",
             projectId: "safarooo7",
             storageBucket: "safarooo7.firebasestorage.app",
             messagingSenderId: "891953619763",
-            appId: "1:891953619763:web:98404ef3fc9fd4180d5446",
-            measurementId: "G-8LZ1D92D8P"
+            appId: "1:891953619763:android:2f8dab89b69ff6720d5446"
         };
 
-        // مفتاح وبوابة رفع الصور ImgBB API
         const IMGBB_API_KEY = "980b07ccd9001f9a958c38a55f978fac";
         const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
+        const ADMIN_EMAIL = "a1sabriweb@gmail.com";
 
-        // تهيئة Firebase
+        // فلتر الرقابة الآلية المدمج لحماية التطبيق من الحظر في المتاجر لقواعد البيانات الحرة
+        const BAD_WORDS_FILTER = ["كلب", "حمار", "يافعي", "اماراتي", "سعودي", "حوثي", "خائن", "سرقة"];
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // متغيرات الحالة العالمية للتطبيق
         let currentUserData = null;
-        let activeTab = 'home';
-        let currentFeedMode = 'trending'; // trending أو following
+        let currentFeedMode = 'trending';
         let tempSelectedImageUrl = ""; 
         let activePostIdForComments = null;
+        let allCachedUsers = {};
 
-        // الإيميل الثابت للأدمن الموثق والمحمي
-        const ADMIN_EMAIL = "a1sabriweb@gmail.com";
-
-        // الحفاظ على الجلسة أو التحقق من حالة الدخول
+        // الحماية العليا والتحقق من حالة الحساب وسيرفر الرقابة
         onAuthStateChanged(auth, (user) => {
-            document.getElementById('loading-screen').classList.add('hidden');
             if (user) {
-                // جلب بيانات الحساب من الـ Database
                 get(ref(db, `users/${user.uid}`)).then((snapshot) => {
+                    document.getElementById('loading-screen').classList.add('hidden');
                     if (snapshot.exists()) {
-                        currentUserData = snapshot.val();
+                        const data = snapshot.val();
+                        if(data.banned === true) {
+                            document.getElementById('banned-screen').classList.remove('hidden');
+                            document.getElementById('ban-reason-txt').innerText = `بسبب: ${data.banReason || 'مخالفة الشروط وبلاغات الأعضاء.'}`;
+                            return;
+                        }
+                        currentUserData = data;
                         currentUserData.uid = user.uid;
                         launchApp();
-                    }
-                });
+                    } else { showAuth(); }
+                }).catch(() => { document.getElementById('loading-screen').classList.add('hidden'); showAuth(); });
             } else {
-                showAuthContainer();
+                document.getElementById('loading-screen').classList.add('hidden');
+                showAuth();
             }
         });
 
-        function showAuthContainer() {
+        function showAuth() {
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('app-container').classList.add('hidden');
         }
@@ -314,17 +272,21 @@
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
             
-            // إظهار زر لوحة التحكم للأدمن والمشرفين
-            if(currentUserData.email === ADMIN_EMAIL || currentUserData.role === 'admin' || currentUserData.role === 'moderator') {
+            // كاش لحسابات الأعضاء لبناء العلاقات والمتابعة والمحرك الذكي سريعاً
+            onValue(ref(db, 'users'), (snapshot) => {
+                if(snapshot.exists()) {
+                    allCachedUsers = snapshot.val();
+                    loadAdminDashboard();
+                }
+            });
+
+            if(currentUserData.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() || currentUserData.role === 'admin') {
                 document.getElementById('admin-panel-btn').classList.remove('hidden');
             }
-
             switchTab('home');
             loadFeed(currentFeedMode);
-            listenToGlobalCounts();
         }
 
-        // تحويل واجهات الدخول والتسجيل
         window.toggleAuthViews = function(showLogin) {
             if(showLogin) {
                 document.getElementById('login-form').classList.remove('hidden');
@@ -335,600 +297,426 @@
             }
         }
 
-        // عملية تسجيل الحساب الجديد (الاستبيان)
+        // تسجيل وإنشاء الحساب مع نظام تشفير وتوليد الـ UIA العشوائي الموثق
         document.getElementById('register-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-            const confirmPass = document.getElementById('reg-password-confirm').value;
-            const age = document.getElementById('reg-age').value;
-            const gender = document.getElementById('reg-gender').value;
-            const country = document.getElementById('reg-country').value;
-
-            if(password !== confirmPass) {
-                alert('كلمات المرور غير متطابقة!');
-                return;
-            }
-
             document.getElementById('loading-screen').classList.remove('hidden');
-            createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    const uid = userCredential.user.uid;
-                    // إنتاج معرف UIA فريد رقمي عشوائي
-                    const uia = "UIA-" + Math.floor(100000 + Math.random() * 900000);
-                    const isSystemAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
 
-                    const userData = {
-                        name: name,
-                        email: email,
-                        uia: uia,
-                        age: age,
-                        gender: gender,
-                        country: country,
-                        avatar: "https://i.ibb.co/6R7X7f0/default-avatar.png",
-                        role: isSystemAdmin ? 'admin' : 'member',
-                        verified: isSystemAdmin ? true : false,
-                        followersCount: 0,
-                        followingCount: 0
-                    };
-
-                    set(ref(db, `users/${uid}`), userData).then(() => {
-                        currentUserData = userData;
-                        currentUserData.uid = uid;
-                        launchApp();
-                    });
-                })
-                .catch((error) => {
-                    alert("خطأ أثناء إنشاء الحساب: " + error.message);
-                    document.getElementById('loading-screen').classList.add('hidden');
+            createUserWithEmailAndPassword(auth, email, password).then((cred) => {
+                const generatedUia = "UIA-" + Math.floor(100000 + Math.random() * 900000);
+                const isSysAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+                
+                const newUser = {
+                    name: name, email: email, uia: generatedUia,
+                    age: document.getElementById('reg-age').value,
+                    gender: document.getElementById('reg-gender').value,
+                    country: document.getElementById('reg-country').value.trim(),
+                    avatar: "https://i.ibb.co/6R7X7f0/default-avatar.png",
+                    role: isSysAdmin ? 'admin' : 'member',
+                    verified: isSysAdmin, banned: false, banReason: "",
+                    followersCount: 0, followingCount: 0
+                };
+                set(ref(db, `users/${cred.user.uid}`), newUser).then(() => {
+                    currentUserData = newUser;
+                    currentUserData.uid = cred.user.uid;
+                    launchApp();
                 });
+            }).catch(err => { alert("فشل التسجيل: " + err.message); document.getElementById('loading-screen').classList.add('hidden'); });
         });
 
-        // عملية تسجيل الدخول
+        // تسجيل الدخول العادي والمستقر
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
             document.getElementById('loading-screen').classList.remove('hidden');
-            signInWithEmailAndPassword(auth, email, password)
-                .catch((error) => {
-                    alert("خطأ في تسجيل الدخول: " + error.message);
-                    document.getElementById('loading-screen').classList.add('hidden');
-                });
+            signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-password').value)
+            .catch(err => { alert("خطأ بالبيانات: " + err.message); document.getElementById('loading-screen').classList.add('hidden'); });
         });
 
-        // التنقل بين الصفحات الرئيسية والفرعية بالسفلي العلوي
         window.switchTab = function(tabName) {
-            activeTab = tabName;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-
-            // تغيير حالة وتأثير الأزرار النشطة بالأسفل
-            document.querySelectorAll('nav button').forEach(btn => btn.className = "flex flex-col items-center gap-1 text-gray-500 hover:text-[#d4af37]");
-            const activeNav = document.getElementById(`nav-${tabName}`);
-            if(activeNav) activeNav.className = "flex flex-col items-center gap-1 text-[#d4af37]";
-
-            if(tabName === 'admin') loadAdminDashboard();
+            document.querySelectorAll('nav button').forEach(btn => btn.className = "flex flex-col items-center text-gray-500 transition");
+            const navBtn = document.getElementById(`nav-${tabName}`);
+            if(navBtn) navBtn.className = "flex flex-col items-center text-[#d4af37] scale-105 transition";
         }
 
-        // ==================== خوارزمية النشر ومعالجة الـ الصور بـ ImgBB ====================
+        // رفع ومعاينة الصور عبر سيرفرات ImgBB المستقرة
         window.previewPostImage = function(input) {
             if (input.files && input.files[0]) {
-                const file = input.files[0];
                 const formData = new FormData();
-                formData.append("image", file);
+                formData.append("image", input.files[0]);
+                document.getElementById('btn-submit-post').innerText = "جاري الرفع لـ HUB...";
 
-                document.getElementById('btn-submit-post').innerText = "جاري رفع الصورة...";
-                document.getElementById('btn-submit-post').disabled = true;
-
-                fetch(`${IMGBB_UPLOAD_URL}?key=${IMGBB_API_KEY}`, {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
+                fetch(`${IMGBB_UPLOAD_URL}?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
+                .then(res => res.json()).then(data => {
                     if(data.success) {
                         tempSelectedImageUrl = data.data.url;
                         document.getElementById('post-img-preview').src = tempSelectedImageUrl;
                         document.getElementById('post-img-preview-container').classList.remove('hidden');
-                    } else {
-                        alert("فشل رفع الصورة إلى خوادم جلب الصور.");
                     }
                     document.getElementById('btn-submit-post').innerText = "نشر المنشور";
-                    document.getElementById('btn-submit-post').disabled = false;
-                })
-                .catch(() => {
-                    alert("خطأ في الاتصال بالـ API الخارجي.");
-                    document.getElementById('btn-submit-post').innerText = "نشر المنشور";
-                    document.getElementById('btn-submit-post').disabled = false;
+                }).catch(() => { 
+                    document.getElementById('btn-submit-post').innerText = "نشر المنشور"; 
+                    alert("فشل رفع الصورة، جرب مرة أخرى.");
                 });
             }
         }
 
-        window.clearPostImage = function() {
+        window.removeSelectedPostImg = function() {
             tempSelectedImageUrl = "";
-            document.getElementById('post-image-input').value = "";
             document.getElementById('post-img-preview-container').classList.add('hidden');
         }
 
+        // معالجة ونشر المنشورات مع تصفية الكلمات التلقائية
         window.submitNewPost = function() {
-            const text = document.getElementById('post-text').value.trim();
-            if(!text && !tempSelectedImageUrl) {
-                alert("لا يمكنك نشر منشور فارغ!");
+            let txt = document.getElementById('post-text').value.trim();
+            if(!txt && !tempSelectedImageUrl) return;
+
+            // فلترة المحتوى الحرة لحماية حساب المطور
+            let hasBadWord = BAD_WORDS_FILTER.some(word => txt.includes(word));
+            if(hasBadWord) {
+                alert("تحذير: يحتوي منشورك على كلمات تخالف معايير مجتمع شبوة HUB، يرجى الالتزام بالاحترام.");
                 return;
             }
 
             const postRef = push(ref(db, 'posts'));
-            const postData = {
-                authorId: currentUserData.uid,
-                authorName: currentUserData.name,
-                authorAvatar: currentUserData.avatar,
-                authorVerified: currentUserData.verified,
-                text: text,
-                image: tempSelectedImageUrl,
-                timestamp: Date.now(),
-                likesCount: 0,
-                commentsCount: 0
-            };
-
-            set(postRef, postData).then(() => {
+            set(postRef, {
+                authorId: currentUserData.uid, authorName: currentUserData.name,
+                authorAvatar: currentUserData.avatar, authorVerified: currentUserData.verified,
+                text: txt, image: tempSelectedImageUrl, timestamp: Date.now(), likesCount: 0, commentsCount: 0
+            }).then(() => {
                 document.getElementById('post-text').value = "";
-                clearPostImage();
+                removeSelectedPostImg();
                 switchTab('home');
                 loadFeed(currentFeedMode);
+                try { Android.vibrate(60); } catch(e){} // تفعيل ميزة الاهتزاز عبر الجسر إذا توفر
             });
         }
 
-        // ==================== بناء خلاصة المشاركات وخوارزمية الرائج الرائعة ====================
+        // محرك الخلاصات المتطور (المحتوى الرائج والمتابَعين الفعليين)
         window.loadFeed = function(mode) {
             currentFeedMode = mode;
             const trendBtn = document.getElementById('feed-trend-btn');
             const followBtn = document.getElementById('feed-follow-btn');
 
             if(mode === 'trending') {
-                trendBtn.className = "flex-1 py-3 text-center font-bold border-b-2 gold-border gold-text";
-                followBtn.className = "flex-1 py-3 text-center font-bold text-gray-400 border-b-2 border-transparent";
+                trendBtn.className = "flex-1 py-2 text-center font-bold border-b-2 gold-border gold-text";
+                followBtn.className = "flex-1 py-2 text-center font-bold text-gray-400 border-b-2 border-transparent";
             } else {
-                followBtn.className = "flex-1 py-3 text-center font-bold border-b-2 gold-border gold-text";
-                trendBtn.className = "flex-1 py-3 text-center font-bold text-gray-400 border-b-2 border-transparent";
+                followBtn.className = "flex-1 py-2 text-center font-bold border-b-2 gold-border gold-text";
+                trendBtn.className = "flex-1 py-2 text-center font-bold text-gray-400 border-b-2 border-transparent";
             }
 
             get(ref(db, 'posts')).then((snapshot) => {
                 const container = document.getElementById('posts-feed');
                 container.innerHTML = "";
                 if(!snapshot.exists()) {
-                    container.innerHTML = `<p class="text-center text-gray-500 py-8 text-sm">لا يوجد منشورات حالياً في الساحة.</p>`;
+                    container.innerHTML = `<p class="text-center text-xs text-gray-500 mt-6">لا توجد منشورات حالياً في هذه الخلاصة.</p>`;
                     return;
                 }
 
-                let postsArray = [];
-                snapshot.forEach((childSnapshot) => {
-                    let item = childSnapshot.val();
-                    item.id = childSnapshot.key;
-                    postsArray.push(item);
-                });
+                let posts = [];
+                snapshot.forEach(snap => { let p = snap.val(); p.id = snap.key; posts.push(p); });
 
-                // خوارزمية الفرز (الرائج يعتمد على قياس التفاعل الفعلي: عدد الإعجابات + التعليقات مضافاً له عامل حداثة الوقت لتنشيط المحتوى الجديد دائمًا)
-                if(mode === 'trending') {
-                    postsArray.sort((a, b) => {
-                        const scoreA = (a.likesCount || 0) * 3 + (a.commentsCount || 0) * 5 + (a.timestamp / 1000000000);
-                        const scoreB = (b.likesCount || 0) * 3 + (b.commentsCount || 0) * 5 + (b.timestamp / 1000000000);
-                        return scoreB - scoreA;
-                    });
-                } else {
-                    // المنشورات الحالية الأحدث أولاً
-                    postsArray.sort((a, b) => b.timestamp - a.timestamp);
+                // تصفية المحتوى حسب نظام المتابعة الفعلي
+                if(mode === 'following') {
+                    const myFollowing = currentUserData.followingList || {};
+                    posts = posts.filter(p => p.authorId === currentUserData.uid || myFollowing[p.authorId] === true);
                 }
 
-                postsArray.forEach(post => {
-                    container.appendChild(createPostCardHTML(post));
-                });
+                if(mode === 'trending') {
+                    posts.sort((a,b) => ((b.likesCount||0)*3 + (b.commentsCount||0)*5) - ((a.likesCount||0)*3 + (a.commentsCount||0)*5));
+                } else {
+                    posts.sort((a,b) => b.timestamp - a.timestamp);
+                }
+
+                if(posts.length === 0) {
+                    container.innerHTML = `<p class="text-center text-xs text-gray-500 mt-6">لا توجد منشورات للمتابَعين، تصفح الخلاصة الرائجة أولاً.</p>`;
+                } else {
+                    posts.forEach(p => container.appendChild(createPostCard(p)));
+                }
             });
         }
 
-        // تصميم بطاقة المنشور الاحترافية كلياً المتناسقة مع هوية شبوة HUB الملكية
-        function createPostCardHTML(post) {
-            const card = document.createElement('div');
-            card.className = "dark-card p-5 rounded-2xl space-y-4 shadow-md relative";
+        function createPostCard(post) {
+            const div = document.createElement('div');
+            div.className = "dark-card p-4 rounded-xl space-y-3 shadow-sm";
+            const img = post.image ? `<img src="${post.image}" class="w-full max-h-64 object-cover rounded-lg border border-gray-800 bg-black mt-2">` : "";
+            const badge = post.authorVerified ? `<i class="fa fa-circle-check text-blue-500 text-xs"></i>` : "";
             
-            const isOwner = post.authorId === currentUserData.uid;
-            const isAdminOrMod = currentUserData.role === 'admin' || currentUserData.role === 'moderator';
+            // التحقق من الإعجاب الشخصي
+            const myLikes = post.likesList || {};
+            const isLiked = myLikes[currentUserData.uid] === true;
+            const likeIcon = isLiked ? "fa-solid fa-thumbs-up gold-text" : "fa-regular fa-thumbs-up";
 
-            // أزرار التحكم والإجراءات الخاصة بالمنشور
-            let actionButtons = "";
-            if(isOwner || isAdminOrMod) {
-                actionButtons += `<button onclick="deletePost('${post.id}')" class="text-xs text-gray-500 hover:text-red-500 transition ml-2" title="حذف المنشور"><i class="fa fa-trash"></i></button>`;
-            }
-
-            const imgTag = post.image ? `<img src="${post.image}" class="w-full max-h-96 object-cover rounded-xl border border-gray-800 bg-black mt-2">` : "";
-            const verifiedTag = post.authorVerified ? `<i class="fa fa-circle-check text-blue-500 text-xs"></i>` : "";
-
-            card.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3 cursor-pointer" onclick="viewUserProfile('${post.authorId}')">
-                        <img src="${post.authorAvatar}" class="w-11 h-11 rounded-full object-cover border border-gray-700 bg-black">
+            div.innerHTML = `
+                <div class="flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2 cursor-pointer" onclick="viewUserProfile('${post.authorId}')">
+                        <img src="${post.authorAvatar || 'https://i.ibb.co/6R7X7f0/default-avatar.png'}" class="w-9 h-9 rounded-full object-cover border border-gray-800">
                         <div>
-                            <h4 class="font-bold text-sm flex items-center gap-1 hover:underline">${post.authorName} ${verifiedTag}</h4>
-                            <span class="text-[10px] text-gray-500">${new Date(post.timestamp).toLocaleString('ar-EG')}</span>
+                            <h4 class="font-bold text-white flex items-center gap-1">${post.authorName} ${badge}</h4>
+                            <span class="text-[9px] text-gray-500">${formatPostTime(post.timestamp)}</span>
                         </div>
                     </div>
-                    <div class="flex items-center">
-                        ${actionButtons}
-                        <button onclick="reportContent('${post.id}', 'post')" class="text-xs text-gray-500 hover:text-yellow-600" title="إبلاغ"><i class="fa fa-flag"></i></button>
-                    </div>
                 </div>
-                <p class="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">${post.text}</p>
-                ${imgTag}
-                <div class="flex items-center justify-between border-t border-gray-900 pt-3 text-xs text-gray-400">
-                    <button onclick="likePost('${post.id}')" class="flex items-center gap-1.5 hover:text-[#d4af37] transition font-semibold">
-                        <i class="fa-regular fa-thumbs-up text-sm"></i> <span>${post.likesCount || 0} اعجاب</span>
-                    </button>
-                    <button onclick="openCommentModal('${post.id}')" class="flex items-center gap-1.5 hover:text-[#d4af37] transition font-semibold">
-                        <i class="fa-regular fa-comment text-sm"></i> <span>${post.commentsCount || 0} تعليق</span>
-                    </button>
-                    <button onclick="copyPostText(\`${post.text.replace(/`/g, '\\`').replace(/\${/g, '\\${')}\`)" class="flex items-center gap-1.5 hover:text-[#d4af37] transition">
-                        <i class="fa-regular fa-copy text-sm"></i> <span>نسخ</span>
-                    </button>
+                <p class="text-xs text-gray-200 whitespace-pre-wrap leading-relaxed">${post.text}</p>
+                ${img}
+                <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-900/60 mt-1">
+                    <button onclick="likePost('${post.id}')" class="flex items-center gap-1 hover:text-white"><i class="${likeIcon}"></i> <span>${post.likesCount || 0}</span></button>
+                    <button onclick="openCommentModal('${post.id}')" class="flex items-center gap-1 hover:text-white"><i class="fa-regular fa-comment"></i> <span>${post.commentsCount || 0}</span></button>
+                    <button onclick="reportPost('${post.id}', '${post.authorId}')" class="text-gray-600 hover:text-red-500"><i class="fa fa-flag"></i></button>
                 </div>
             `;
-            return card;
+            return div;
         }
 
-        // تنفيذ عمليات المنشور والتعليق والنسخ والإبلاغ
+        function formatPostTime(ts) {
+            const diff = Date.now() - ts;
+            if (diff < 60000) return "الآن";
+            const mins = Math.floor(diff / 60000);
+            if (mins < 60) return `قبل ${mins} د`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `قبل ${hours} س`;
+            return new Date(ts).toLocaleDateString('ar-YE');
+        }
+
+        // نظام الإعجابات الحقيقي الفريد لكل مستخدم لمنع التكرار
         window.likePost = function(postId) {
-            const likeRef = ref(db, `posts/${postId}/likesCount`);
+            const likeRef = ref(db, `posts/${postId}`);
             get(likeRef).then(snap => {
-                let currentLikes = snap.val() || 0;
-                update(ref(db, `posts/${postId}`), { likesCount: currentLikes + 1 }).then(() => {
-                    if(activeTab === 'home') loadFeed(currentFeedMode);
-                    else viewOwnProfile();
-                });
+                if(!snap.exists()) return;
+                const post = snap.val();
+                let likesList = post.likesList || {};
+                let count = post.likesCount || 0;
+
+                if(likesList[currentUserData.uid] === true) {
+                    delete likesList[currentUserData.uid];
+                    count = Math.max(0, count - 1);
+                } else {
+                    likesList[currentUserData.uid] = true;
+                    count += 1;
+                }
+                update(likeRef, { likesCount: count, likesList: likesList }).then(() => loadFeed(currentFeedMode));
             });
         }
 
-        window.copyPostText = function(text) {
-            navigator.clipboard.writeText(text);
-            alert("تم نسخ نص المنشور إلى الحافظة بنجاح!");
-        }
-
-        window.deletePost = function(postId) {
-            if(confirm("هل أنت متأكد من رغبتك في حذف هذا المنشور نهائياً؟")) {
-                remove(ref(db, `posts/${postId}`)).then(() => {
-                    alert("تم الحذف بنجاح.");
-                    if(activeTab === 'home') loadFeed(currentFeedMode);
-                    else viewOwnProfile();
-                });
+        // نظام التبليغ عن المنشورات لتأمين التطبيق من المخالفات في المتجر
+        window.reportPost = function(postId, authorId) {
+            if(confirm("هل أنت متأكد من الإبلاغ عن هذا المنشور لمراجعته من قبل المشرفين؟")) {
+                const repRef = push(ref(db, 'reports'));
+                set(repRef, { postId: postId, authorId: authorId, reporterId: currentUserData.uid, timestamp: Date.now() })
+                .then(() => alert("تم إرسال البلاغ بنجاح للرقابة الآلية والمشرفين. شكرًا لك."));
             }
         }
 
-        window.reportContent = function(id, type) {
-            const reason = prompt("يرجى كتابة سبب الإبلاغ لمراجعته من قبل الإدارة والمشرفين:");
-            if(!reason) return;
-
-            const repRef = push(ref(db, 'reports'));
-            set(repRef, {
-                contentId: id,
-                type: type,
-                reason: reason,
-                reporterName: currentUserData.name,
-                timestamp: Date.now()
-            }).then(() => {
-                alert("تم إرسال بلاغك للإدارة بنجاح، شكراً لتعاونك.");
-            });
-        }
-
-        // ==================== نظام التعليقات والردود الاحترافي والفرعي المتكامل ====================
         window.openCommentModal = function(postId) {
             activePostIdForComments = postId;
             document.getElementById('comment-modal').classList.remove('hidden');
-            loadPostComments(postId);
+            loadComments(postId);
         }
+        window.closeCommentModal = function() { document.getElementById('comment-modal').classList.add('hidden'); }
 
-        window.closeCommentModal = function() {
-            document.getElementById('comment-modal').classList.add('hidden');
-            activePostIdForComments = null;
-        }
-
-        function loadPostComments(postId) {
-            onValue(ref(db, `comments/${postId}`), (snapshot) => {
+        function loadComments(postId) {
+            onValue(ref(db, `comments/${postId}`), (snap) => {
                 const box = document.getElementById('modal-comments-box');
                 box.innerHTML = "";
-                if(!snapshot.exists()) {
-                    box.innerHTML = `<p class="text-center text-gray-500 py-4">لا توجد تعليقات بعد، كن الأول في التعليق!</p>`;
+                if(!snap.exists()) {
+                    box.innerHTML = `<p class="text-center text-gray-600 my-4">لا توجد تعليقات، كن أول المعلقين!</p>`;
                     return;
                 }
-
-                snapshot.forEach(childSnap => {
-                    const comment = childSnap.val();
-                    comment.id = childSnap.key;
-
-                    const div = document.createElement('div');
-                    div.className = "bg-[#161616] p-3 rounded-xl border border-gray-800 space-y-1 relative";
-                    
-                    const isCUser = comment.authorId === currentUserData.uid;
-                    const isAdm = currentUserData.role === 'admin' || currentUserData.role === 'moderator';
-                    const delBtn = (isCUser || isAdm) ? `<button onclick="deleteComment('${postId}', '${comment.id}')" class="text-[10px] text-gray-500 hover:text-red-500 absolute top-3 left-3"><i class="fa fa-trash"></i></button>` : "";
-
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <img src="${comment.authorAvatar}" class="w-7 h-7 rounded-full object-cover">
-                            <span class="font-bold text-xs text-[#d4af37]">${comment.authorName}</span>
-                            <span class="text-[9px] text-gray-500">${new Date(comment.timestamp).toLocaleTimeString('ar-EG')}</span>
-                        </div>
-                        <p class="text-gray-200 pl-8">${comment.text}</p>
-                        ${delBtn}
-                    `;
-                    box.appendChild(div);
+                snap.forEach(cSnap => {
+                    const c = cSnap.val();
+                    const d = document.createElement('div');
+                    d.className = "bg-[#161616] p-2.5 rounded-xl border border-gray-900";
+                    d.innerHTML = `<div class="font-bold gold-text mb-0.5">${c.authorName}:</div><p class="text-gray-200">${c.text}</p>`;
+                    box.appendChild(d);
                 });
             });
         }
 
         window.submitComment = function() {
-            const input = document.getElementById('new-comment-input');
-            const text = input.value.trim();
-            if(!text) return;
+            const inp = document.getElementById('new-comment-input');
+            const txt = inp.value.trim();
+            if(!txt) return;
 
-            const commentRef = push(ref(db, `comments/${activePostIdForComments}`));
-            const commentData = {
-                authorId: currentUserData.uid,
-                authorName: currentUserData.name,
-                authorAvatar: currentUserData.avatar,
-                text: text,
-                timestamp: Date.now()
-            };
-
-            set(commentRef, commentData).then(() => {
-                input.value = "";
-                // تعديل عداد التعليقات داخل المنشور الرئيسي
-                const postCommentCountRef = ref(db, `posts/${activePostIdForComments}/commentsCount`);
-                get(postCommentCountRef).then(snap => {
-                    let currentCount = snap.val() || 0;
-                    update(ref(db, `posts/${activePostIdForComments}`), { commentsCount: currentCount + 1 });
+            const cRef = push(ref(db, `comments/${activePostIdForComments}`));
+            set(cRef, { authorName: currentUserData.name, text: txt, timestamp: Date.now() }).then(() => {
+                inp.value = "";
+                get(ref(db, `posts/${activePostIdForComments}/commentsCount`)).then(s => {
+                    update(ref(db, `posts/${activePostIdForComments}`), { commentsCount: (s.val()||0) + 1 });
                 });
             });
         }
 
-        window.deleteComment = function(postId, commentId) {
-            if(confirm("هل تود حذف هذا التعليق؟")) {
-                remove(ref(db, `comments/${postId}/${commentId}`)).then(() => {
-                    const postCommentCountRef = ref(db, `posts/${postId}/commentsCount`);
-                    get(postCommentCountRef).then(snap => {
-                        let currentCount = snap.val() || 1;
-                        update(ref(db, `posts/${postId}`), { commentsCount: currentCount - 1 });
-                    });
-                });
-            }
+        // محرك البحث الفوري والدقيق للـ UIA والأسماء الموثقة
+        window.executeGlobalSearch = function(val) {
+            const query = val.trim().toLowerCase();
+            const resBox = document.getElementById('search-results');
+            if(!query) { resBox.classList.add('hidden'); return; }
+
+            resBox.innerHTML = "";
+            let found = false;
+
+            Object.keys(allCachedUsers).forEach(uid => {
+                const u = allCachedUsers[uid];
+                if(u.name.toLowerCase().includes(query) || (u.uia && u.uia.toLowerCase().includes(query))) {
+                    found = true;
+                    const d = document.createElement('div');
+                    d.className = "p-2.5 hover:bg-[#1c1c1c] cursor-pointer border-b border-gray-900 flex items-center gap-2 text-xs";
+                    d.onclick = () => { viewUserProfile(uid); resBox.classList.add('hidden'); document.getElementById('global-search').value=""; };
+                    d.innerHTML = `<img src="${u.avatar}" class="w-7 h-7 rounded-full object-cover"><div><p class="text-white font-bold">${u.name}</p><p class="text-[10px] text-gray-500">${u.uia || ''}</p></div>`;
+                    resBox.appendChild(d);
+                }
+            });
+
+            if(found) resBox.classList.remove('hidden');
+            else resBox.classList.add('hidden');
         }
 
-        // ==================== الملف الشخصي المتكامل مع تعديل الصور ورفعها ====================
-        window.viewOwnProfile = function() {
-            switchTab('profile');
-            renderProfileData(currentUserData.uid, true);
-        }
+        window.viewOwnProfile = function() { switchTab('profile'); renderProfile(currentUserData.uid, true); }
+        window.viewUserProfile = function(uid) { switchTab('profile'); renderProfile(uid, uid === currentUserData.uid); }
 
-        window.viewUserProfile = function(userId) {
-            if(userId === currentUserData.uid) {
-                viewOwnProfile();
-                return;
-            }
-            switchTab('profile');
-            renderProfileData(userId, false);
-        }
-
-        function renderProfileData(userId, isOwn) {
-            get(ref(db, `users/${userId}`)).then(snap => {
-                if(!snap.exists()) return;
-                const user = snap.val();
-
-                document.getElementById('profile-avatar').src = user.avatar;
-                document.getElementById('profile-name').innerText = user.name;
-                document.getElementById('profile-uia').innerText = `UIA: ${user.uia}`;
-                document.getElementById('profile-meta').innerText = `العمر: ${user.age} عاماً | الجنس: ${user.gender} | البلد: ${user.country}`;
+        // نظام المتابعة الفعلي والعدادات المتزامنة مع سيرفر الفايربيس
+        function renderProfile(uid, isOwn) {
+            get(ref(db, `users/${uid}`)).then(snap => {
+                const u = snap.val();
+                document.getElementById('profile-avatar').src = u.avatar || 'https://i.ibb.co/6R7X7f0/default-avatar.png';
+                document.getElementById('profile-name').innerText = u.name;
+                document.getElementById('profile-uia').innerText = `UIA: ${u.uia || 'غير موثق'}`;
+                document.getElementById('profile-meta').innerText = `البلد: ${u.country || '---'} | الجنس: ${u.gender} | العمر: ${u.age}`;
+                document.getElementById('profile-badge').className = u.verified ? "fa fa-circle-check text-blue-500 text-xs" : "hidden";
                 
-                if(user.verified) document.getElementById('profile-badge').classList.remove('hidden');
-                else document.getElementById('profile-badge').classList.add('hidden');
+                // حساب دقيق للعدادات
+                document.getElementById('profile-followers-count').innerText = Object.keys(u.followersList || {}).length;
+                document.getElementById('profile-following-count').innerText = Object.keys(u.followingList || {}).length;
 
-                document.getElementById('profile-followers-count').innerText = user.followersCount || 0;
-                document.getElementById('profile-following-count').innerText = user.followingCount || 0;
-
-                const actBox = document.getElementById('profile-actions');
-                actBox.innerHTML = "";
-                
-                if(!isOwn) {
-                    document.getElementById('change-avatar-lbl').classList.add('hidden');
-                    // إضافة أزرار تفاعل ديناميكية مع الزوار والمتابعة
-                    actBox.innerHTML = `
-                        <button onclick="toggleFollowUser('${userId}')" class="gold-bg text-black text-xs font-bold px-4 py-2 rounded-full hover:bg-yellow-600 transition">متابعة</button>
-                        <button class="bg-[#1a1a1a] border border-gray-700 text-xs font-bold px-4 py-2 rounded-full text-white">مراسلة</button>
-                    `;
+                const act = document.getElementById('profile-actions');
+                if(isOwn) {
+                    act.innerHTML = `<span class="text-[10px] text-gray-500 bg-gray-900 px-3 py-1 rounded-full border border-gray-800">حسابك الشخصي الموثق</span>`;
                 } else {
-                    document.getElementById('change-avatar-lbl').classList.remove('hidden');
-                    actBox.innerHTML = `<button onclick="auth.signOut()" class="bg-red-900/40 text-red-400 border border-red-800 text-xs font-bold px-4 py-2 rounded-full hover:bg-red-900/60 transition"><i class="fa fa-sign-out ml-1"></i>تسجيل الخروج</button>`;
+                    const amIFollowing = (currentUserData.followingList || {})[uid] === true;
+                    const btnTxt = amIFollowing ? "إلغاء المتابعة" : "متابعة الحساب";
+                    const btnClass = amIFollowing ? "bg-gray-800 text-white text-xs px-4 py-1.5 rounded-full font-bold border border-gray-700" : "gold-bg text-black text-xs px-4 py-1.5 rounded-full font-bold";
+                    act.innerHTML = `<button onclick="toggleFollowUser('${uid}')" class="${btnClass}">${btnTxt}</button>`;
+                }
+                loadUserPosts(uid);
+            });
+        }
+
+        window.toggleFollowUser = function(targetUid) {
+            const myFollowingRef = ref(db, `users/${currentUserData.uid}/followingList`);
+            const targetFollowersRef = ref(db, `users/${targetUid}/followersList`);
+
+            get(myFollowingRef).then(snap => {
+                let myList = snap.val() || {};
+                let isFollowing = myList[targetUid] === true;
+
+                if(isFollowing) {
+                    delete myList[targetUid];
+                } else {
+                    myList[targetUid] = true;
                 }
 
-                // تحميل المنشورات الخاصة بالمستخدم فقط داخل صفحته
-                getUserPosts(userId);
+                update(ref(db, `users/${currentUserData.uid}`), { followingList: myList }).then(() => {
+                    currentUserData.followingList = myList;
+                    get(targetFollowersRef).then(tSnap => {
+                        let tList = tSnap.val() || {};
+                        if(isFollowing) delete tList[currentUserData.uid];
+                        else tList[currentUserData.uid] = true;
+
+                        update(ref(db, `users/${targetUid}`), { followersList: tList }).then(() => {
+                            renderProfile(targetUid, false);
+                        });
+                    });
+                });
+            });
+        }
+
+        function loadUserPosts(uid) {
+            get(ref(db, 'posts')).then(snap => {
+                const box = document.getElementById('profile-posts');
+                box.innerHTML = "";
+                if(!snap.exists()) return;
+                snap.forEach(pSnap => {
+                    const p = pSnap.val(); p.id = pSnap.key;
+                    if(p.authorId === uid) box.appendChild(createPostCard(p));
+                });
             });
         }
 
         window.uploadAvatar = function(input) {
-            if(input.files && input.files[0]) {
-                const file = input.files[0];
+            if (input.files && input.files[0]) {
                 const formData = new FormData();
-                formData.append("image", file);
-
-                document.getElementById('loading-screen').classList.remove('hidden');
-
-                fetch(`${IMGBB_UPLOAD_URL}?key=${IMGBB_API_KEY}`, {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
+                formData.append("image", input.files[0]);
+                fetch(`${IMGBB_UPLOAD_URL}?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
+                .then(res => res.json()).then(data => {
                     if(data.success) {
-                        const newAvatarUrl = data.data.url;
-                        update(ref(db, `users/${currentUserData.uid}`), { avatar: newAvatarUrl }).then(() => {
-                            currentUserData.avatar = newAvatarUrl;
-                            document.getElementById('profile-avatar').src = newAvatarUrl;
-                            alert("تم تحديث صورة بروفايلك بنجاح!");
+                        update(ref(db, `users/${currentUserData.uid}`), { avatar: data.data.url }).then(() => {
+                            currentUserData.avatar = data.data.url;
+                            document.getElementById('profile-avatar').src = data.data.url;
+                            try { Android.showToast("تم تحديث رمز التوثيق بنجاح"); } catch(e){}
                         });
                     }
-                    document.getElementById('loading-screen').classList.add('hidden');
-                })
-                .catch(() => {
-                    alert("خطأ أثناء الاتصال بسيرفر رفع الصور.");
-                    document.getElementById('loading-screen').classList.add('hidden');
                 });
             }
         }
 
-        function getUserPosts(userId) {
-            get(ref(db, 'posts')).then(snapshot => {
-                const box = document.getElementById('profile-posts');
-                box.innerHTML = "";
-                let hasPosts = false;
-                if(snapshot.exists()) {
-                    snapshot.forEach(childSnap => {
-                        const post = childSnap.val();
-                        post.id = childSnap.key;
-                        if(post.authorId === userId) {
-                            box.appendChild(createPostCardHTML(post));
-                            hasPosts = true;
-                        }
-                    });
-                }
-                if(!hasPosts) {
-                    box.innerHTML = `<p class="text-center text-gray-500 py-4 text-xs">لا يوجد أي منشورات لهذا الحساب بعد.</p>`;
-                }
-            });
-        }
-
-        window.toggleFollowUser = function(targetUserId) {
-            alert("تمت المتابعة بنجاح! سيتم إمداد وتغذية الخلاصة بمنشورات هذا الحساب لاحقاً.");
-        }
-
-        // ==================== محرك وبوابة البحث المتقدم عبر الاسماء والـ UIA ====================
-        document.getElementById('global-search').addEventListener('input', (e) => {
-            const query = e.target.value.trim().toLowerCase();
-            const resBox = document.getElementById('search-results');
-            
-            if(!query) {
-                resBox.classList.add('hidden');
-                return;
-            }
-
-            get(ref(db, 'users')).then(snapshot => {
-                resBox.innerHTML = "";
-                if(!snapshot.exists()) return;
-
-                let count = 0;
-                snapshot.forEach(childSnap => {
-                    const user = childSnapshotToUser(childSnap);
-                    if(user.name.toLowerCase().includes(query) || user.uia.toLowerCase().includes(query)) {
-                        count++;
-                        const div = document.createElement('div');
-                        div.className = "flex items-center gap-3 p-3 hover:bg-[#1a1a1a] cursor-pointer border-b border-gray-900";
-                        div.onclick = () => {
-                            resBox.classList.add('hidden');
-                            document.getElementById('global-search').value = "";
-                            viewUserProfile(user.uid);
-                        };
-                        div.innerHTML = `
-                            <img src="${user.avatar}" class="w-8 h-8 rounded-full object-cover">
-                            <div>
-                                <h5 class="text-sm font-bold text-white">${user.name}</h5>
-                                <span class="text-[10px] text-gray-500">${user.uia}</span>
-                            </div>
-                        `;
-                        resBox.appendChild(div);
-                    }
-                });
-
-                if(count > 0) resBox.classList.remove('hidden');
-                else resBox.classList.add('hidden');
-            });
-        });
-
-        function childSnapshotToUser(childSnap) {
-            let user = childSnap.val();
-            user.uid = childSnap.key;
-            return user;
-        }
-
-        // ==================== لوحة تحكم الإدارة الفائقة والمشرفين (الحماية العالية) ====================
-        function listenToGlobalCounts() {
-            onValue(ref(db, 'users'), (snapshot) => {
-                if(snapshot.exists()) {
-                    document.getElementById('admin-user-count').innerText = Object.keys(snapshot.val()).length;
-                }
-            });
-        }
-
+        // لوحة المشرفين الكاملة للتوثيق والترقيات والحظر المباشر من الشاشة
         function loadAdminDashboard() {
-            get(ref(db, 'reports')).then(snapshot => {
-                const container = document.getElementById('admin-reports-list');
-                container.innerHTML = "";
+            if(currentUserData.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase() && currentUserData.role !== 'admin') return;
+            
+            document.getElementById('admin-user-count').innerText = Object.keys(allCachedUsers).length;
+            
+            get(ref(db, 'reports')).then(snap => {
+                document.getElementById('admin-report-count').innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
+            });
 
-                if(!snapshot.exists()) {
-                    container.innerHTML = `<p class="text-gray-500 text-xs text-center py-4">لا توجد بلاغات معلقة حالياً.</p>`;
-                    return;
-                }
+            const box = document.getElementById('admin-users-list');
+            box.innerHTML = "";
 
-                snapshot.forEach(childSnap => {
-                    const report = childSnap.val();
-                    report.id = childSnap.key;
+            Object.keys(allCachedUsers).forEach(uid => {
+                const u = allCachedUsers[uid];
+                const d = document.createElement('div');
+                d.className = "bg-[#161616] p-2 rounded-lg border border-gray-900 flex items-center justify-between gap-2";
+                
+                const verifyBtn = u.verified ? 
+                    `<button onclick="setVerificationStatus('${uid}', false)" class="text-xs text-yellow-500"><i class="fa fa-minus-circle"></i> إلغاء التوثيق</button>` :
+                    `<button onclick="setVerificationStatus('${uid}', true)" class="text-xs text-blue-500"><i class="fa fa-check-circle"></i> توثيق</button>`;
+                
+                const banBtn = u.banned ?
+                    `<button onclick="setUserBanStatus('${uid}', false)" class="bg-green-600 text-black px-2 py-0.5 rounded text-[10px] font-bold">فك الحظر</button>` :
+                    `<button onclick="setUserBanStatus('${uid}', true)" class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-bold">حظر الحساب</button>`;
 
-                    const div = document.createElement('div');
-                    div.className = "bg-[#1a1a1a] p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs";
-                    div.innerHTML = `
-                        <div>
-                            <p class="text-gray-300 font-bold mb-1">نوع البلاغ: ${report.type === 'post' ? 'منشور مخالف' : 'محتوى آخر'}</p>
-                            <p class="text-red-400">السبب: ${report.reason}</p>
-                            <p class="text-[10px] text-gray-500">المُبلِغ: ${report.reporterName}</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="dismissReport('${report.id}')" class="bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-700">إغلاق</button>
-                            <button onclick="actionOnReport('${report.id}', '${report.contentId}')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700">اتخاذ إجراء وحذف</button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
+                d.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <img src="${u.avatar}" class="w-6 h-6 rounded-full object-cover">
+                        <div><p class="text-white font-bold max-w-[120px] truncate">${u.name}</p><p class="text-[9px] text-gray-500">${u.role}</p></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${verifyBtn}
+                        ${banBtn}
+                    </div>
+                `;
+                box.appendChild(d);
             });
         }
 
-        window.dismissReport = function(id) {
-            remove(ref(db, `reports/${id}`)).then(() => {
-                alert("تم تجاهل وإغلاق البلاغ.");
+        window.setVerificationStatus = function(uid, status) {
+            update(ref(db, `users/${uid}`), { verified: status }).then(() => {
+                alert("تم تحديث رتبة وشارة توثيق المستخدم بنجاح.");
                 loadAdminDashboard();
             });
         }
 
-        window.actionOnReport = function(reportId, contentId) {
-            // حذف المنشور المخالف فوراً
-            remove(ref(db, `posts/${contentId}`)).then(() => {
-                remove(ref(db, `reports/${reportId}`)).then(() => {
-                    alert("تم اتخاذ الإجراء وحذف المحتوى المخالف بنجاح من قاعدة البيانات العامة.");
-                    loadAdminDashboard();
-                });
-            });
-        }
-
-        // الحماية الصارمة للمسؤول الأول (الادمن المحمي والموثق تلقائياً بالسيستم)
-        window.adminGrantVerification = function(targetUserId, actionType) {
-            if(currentUserData.email !== ADMIN_EMAIL) {
-                alert("صلاحية حصرية للأدمن المالك الأعلى للنظام فقط!");
-                return;
-            }
-            get(ref(db, `users/${targetUserId}`)).then(snap => {
-                const targetUser = snap.val();
-                if(targetUser.email === ADMIN_EMAIL && actionType === 'revoke') {
-                    alert("حماية النظام الفائقة: لا يمكن سحب توثيق أو حظر هذا الحساب المحمي!");
-                    return;
-                }
-                update(ref(db, `users/${targetUserId}`), { verified: (actionType === 'grant') });
-                alert("تم تنفيذ الأمر بنجاح.");
+        window.setUserBanStatus = function(uid, status) {
+            let reason = status ? prompt("أدخل سبب حظر العضو:") : "";
+            if(status && !reason) return;
+            update(ref(db, `users/${uid}`), { banned: status, banReason: reason }).then(() => {
+                alert(status ? "تم حظر العضو من دخول السيرفر بنجاح." : "تم إلغاء الحظر.");
+                loadAdminDashboard();
             });
         }
     </script>
